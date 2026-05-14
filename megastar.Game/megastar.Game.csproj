@@ -8,4 +8,7 @@
   <ItemGroup>
     <PackageReference Include="ppy.osu.Framework" Version="2026.513.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="tracks\" />
+  </ItemGroup>
 </Project>
