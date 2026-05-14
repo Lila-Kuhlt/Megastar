@@ -506,6 +506,7 @@ public class Parser
                     break;
                 }
 
+                case "#AUTHOR:":
                 case "#CREATOR:":
                 {
                     creator = split[1];
@@ -519,7 +520,11 @@ public class Parser
                     break;
                 }
 
-                case ""
+                case "#BMP:":
+                {
+                    bpm = uint.Parse(split[1]);
+                    break;
+                }
                 default:
                 {
                     Console.WriteLine("Hier was falsches geparsed!");
