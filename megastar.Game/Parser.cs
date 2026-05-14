@@ -6,6 +6,7 @@ public class Parser
 {
     //lea ist toll
     //TEST TEST ^123
+    //ich hab linux hihi
     private const string abbaThankYou = """
                                                                                                                                                         #ARTIST:ABBA
                                                                                                                                                         #TITLE:Thank You For The Music
