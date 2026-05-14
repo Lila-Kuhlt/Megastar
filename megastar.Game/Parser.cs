@@ -4,6 +4,7 @@ namespace megastar.Game;
 
 public class Parser
 {
+    //lea ist toll
     private const string abbaThankYou = """
                                                                                                                                                         #ARTIST:ABBA
                                                                                                                                                         #TITLE:Thank You For The Music
