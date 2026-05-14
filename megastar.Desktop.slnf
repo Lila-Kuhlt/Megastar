@@ -1,0 +1,11 @@
+﻿{
+  "solution": {
+    "path": "megastar.sln",
+    "projects": [
+      "megastar.Desktop\\megastar.Desktop.csproj",
+      "megastar.Game\\megastar.Game.csproj",
+      "megastar.Game.Tests\\megastar.Game.Tests.csproj",
+      "megastar.Resources\\megastar.Resources.csproj"
+    ]
+  }
+}
