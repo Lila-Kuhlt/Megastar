@@ -8,7 +8,7 @@ using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
 
-namespace megastar.Game
+namespace megastar.Game.screens
 {
     public partial class MainScreen : Screen
     {
@@ -48,20 +48,25 @@ namespace megastar.Game
                         {
                             Text = "Start Game",
                             Size = new Vector2(200, 40),
-                            BackgroundColour = Color4.White,
+                            BackgroundColour = Color4.Teal,
+                            Action = () => this.Push(new PlayScreen()),
                         },
                         new BasicButton
                         {
                             Text = "Search",
                             Size = new Vector2(200, 40),
+                            BackgroundColour = Color4.Teal,
+                            Action = () => this.Push(new SearchScreen()),
+                        },
+                        new BasicButton()
+                        {
+                            Text = "Exit",
+                            Size = new Vector2(200, 40),
+                            BackgroundColour = Color4.Teal,
+                            Action = () => Game?.Exit()
                         }
                     }
                 }
-                /*
-                new SpinningBox
-                {
-                    Anchor = Anchor.Centre,
-                } */
             };
         }
     }
