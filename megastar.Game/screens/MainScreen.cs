@@ -58,6 +58,13 @@ namespace megastar.Game.screens
                             BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new SearchScreen()),
                         },
+                        new BasicButton
+                        {
+                            Text = "Index Files",
+                            Size = new Vector2(200, 40),
+                            BackgroundColour = Color4.Teal,
+                            Action = () => this.Push(new FileSelectorScreen()),
+                        },
                         new BasicButton()
                         {
                             Text = "Exit",
