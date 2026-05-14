@@ -1,1 +1,0 @@
-﻿Kuuuuuhle Karaoke Software :)
