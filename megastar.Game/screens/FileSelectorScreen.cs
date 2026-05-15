@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using megastar.Game.presets;
 using osu.Framework.Allocation;
@@ -100,11 +101,14 @@ public partial class FileSelectorScreen : Screen
             string songsPath = currentDir.FullName;
             Console.WriteLine(currentDir.FullName);
             var fd = new DirectoryInfo(songsPath);
-            FileInfo[] songFiles = currentDir.GetFiles("*.*", SearchOption.AllDirectories);
+            FileInfo[] songFiles = currentDir.GetFiles("*.txt", SearchOption.AllDirectories);
+            var tracks = new List<UsdxTrackMetadata>();
 
             foreach (FileInfo file in songFiles)
             {
-                Console.WriteLine(file.FullName);
+                string content = File.ReadAllText(file.FullName);
+                tracks.Add(Parser.ParseUsdxTrackMetadata(content));
+                Console.WriteLine(tracks[^1].ToString());
             }
         }
     }

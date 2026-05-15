@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace megastar.Game;
+﻿namespace megastar.Game;
 
 public class Parser
 {
@@ -473,7 +471,7 @@ public class Parser
                                                                                                                                                         E
                                         """;
 
-    public UsdxTrackMetadata ParseUsdxTrackMetadata(string rawUsdx)
+    public static UsdxTrackMetadata ParseUsdxTrackMetadata(string rawUsdx)
     {
         string[] splitRawUsdx = rawUsdx.Split("#");
         string artist = "testArtist";
@@ -489,51 +487,52 @@ public class Parser
 
             switch (split[0])
             {
-                case "#ARTIST:":
+                case "ARTIST":
                 {
                     artist = split[1];
                     break;
                 }
 
-                case "#VERSION:":
+                case "VERSION":
                 {
                     version = split[1];
                     break;
                 }
 
-                case "#TITLE:":
+                case "TITLE":
                 {
                     title = split[1];
                     break;
                 }
 
-                case "#AUTHOR:":
-                case "#CREATOR:":
+                case "AUTHOR":
+                case "CREATOR":
                 {
                     creator = split[1];
                     break;
                 }
 
-                case "#MP3:":
-                case "#AUDIO:":
+                case "MP3":
+                case "AUDIO":
                 {
                     songFile = split[1];
                     break;
                 }
 
-                case "#BMP:":
+                case "BMP":
                 {
                     bpm = uint.Parse(split[1]);
                     break;
                 }
+
                 default:
                 {
-                    Console.WriteLine("Hier was falsches geparsed!");
+                    //Console.WriteLine("Hier was falsches geparsed!");
                     break;
                 }
             }
         }
 
-        return new UsdxTrackMetadata(artist, title, creator,0, bpm, version, songFile, null);
+        return new UsdxTrackMetadata(artist, title, creator, 0, bpm, version, songFile, null);
     }
 }

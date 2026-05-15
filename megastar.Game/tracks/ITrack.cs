@@ -4,4 +4,3 @@ public interface ITrack
 {
     ITrackMetadata trackMetadata { get; set; }
 }
-
