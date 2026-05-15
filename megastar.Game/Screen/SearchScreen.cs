@@ -16,7 +16,7 @@ namespace megastar.Game.screens;
 public partial class SearchScreen : Screen
 {
     [Resolved]
-    private megastarGameBase game { get; set; } = null!;
+    private MegastarGameBase game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()

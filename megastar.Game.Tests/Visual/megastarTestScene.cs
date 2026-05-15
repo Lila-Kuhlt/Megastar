@@ -6,7 +6,7 @@ namespace megastar.Game.Tests.Visual
     {
         protected override ITestSceneTestRunner CreateRunner() => new megastarTestSceneTestRunner();
 
-        private partial class megastarTestSceneTestRunner : megastarGameBase, ITestSceneTestRunner
+        private partial class megastarTestSceneTestRunner : MegastarGameBase, ITestSceneTestRunner
         {
             private TestSceneTestRunner.TestRunner runner;
 

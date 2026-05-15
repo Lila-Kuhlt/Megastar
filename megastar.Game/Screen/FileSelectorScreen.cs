@@ -19,7 +19,7 @@ public partial class FileSelectorScreen : Screen
     private SpriteText selectedPathText = null!;
 
     [Resolved]
-    private megastarGameBase game { get; set; } = null!;
+    private MegastarGameBase game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()

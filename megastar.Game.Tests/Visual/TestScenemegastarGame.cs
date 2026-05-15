@@ -12,7 +12,7 @@ namespace megastar.Game.Tests.Visual
         [BackgroundDependencyLoader]
         private void load()
         {
-            AddGame(new megastarGame());
+            AddGame(new MegastarGame());
         }
     }
 }

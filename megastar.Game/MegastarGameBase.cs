@@ -9,7 +9,7 @@ using osuTK;
 namespace megastar.Game
 {
     [Cached]
-    public partial class megastarGameBase : osu.Framework.Game
+    public partial class MegastarGameBase : osu.Framework.Game
     {
         // Anything in this class is shared between the test browser and the game implementation.
         // It allows for caching global dependencies that should be accessible to tests, or changing
@@ -17,7 +17,7 @@ namespace megastar.Game
 
         protected override Container<Drawable> Content { get; }
 
-        protected megastarGameBase()
+        protected MegastarGameBase()
         {
             // Ensure game and tests scale with window size and screen DPI.
             base.Content.Add(Content = new DrawSizePreservingFillContainer
@@ -32,7 +32,7 @@ namespace megastar.Game
         [BackgroundDependencyLoader]
         private void load()
         {
-            Resources.AddStore(new DllResourceStore(typeof(megastarResources).Assembly));
+            Resources.AddStore(new DllResourceStore(typeof(MegastarResources).Assembly));
         }
     }
 }

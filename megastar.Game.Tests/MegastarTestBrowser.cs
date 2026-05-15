@@ -5,7 +5,7 @@ using osu.Framework.Testing;
 
 namespace megastar.Game.Tests
 {
-    public partial class megastarTestBrowser : megastarGameBase
+    public partial class MegastarTestBrowser : MegastarGameBase
     {
         protected override void LoadComplete()
         {
