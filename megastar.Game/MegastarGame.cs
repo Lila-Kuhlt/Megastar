@@ -1,6 +1,10 @@
-﻿using megastar.Game.screens;
+﻿using System.Globalization;
+using System.IO;
+using Linguini.Bundle.Builder;
+using megastar.Game.screens;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Framework.IO.Stores;
 using osu.Framework.Screens;
 
 namespace megastar.Game
@@ -15,6 +19,10 @@ namespace megastar.Game
             // Add your top-level game components here.
             // A screen stack and sample screen has been provided for convenience, but you can replace it if you don't want to use screens.
             Child = screenStack = new ScreenStack { RelativeSizeAxes = Axes.Both };
+
+            var translationStore = new TranslationStore();
+
+            LinguiniBuilder.Builder().CultureInfo(new CultureInfo("en-US")).AddResource(translationStore.Get("en-US"));
         }
 
         protected override void LoadComplete()
