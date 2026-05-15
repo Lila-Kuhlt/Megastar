@@ -9,9 +9,9 @@
     <FileVersion>0.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup Label="Project References">
-    <ProjectReference Include="..\megastar.Game\megastar.Game.csproj" />
+    <ProjectReference Include="..\megastar.Game\megastar.Game.csproj"/>
   </ItemGroup>
   <ItemGroup Label="Resources">
-    <EmbeddedResource Include="game.ico" />
+    <EmbeddedResource Include="game.ico"/>
   </ItemGroup>
 </Project>

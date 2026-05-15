@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace megastar.Game;
+﻿namespace megastar.Game;
 
 public class Parser
 {
@@ -473,7 +471,7 @@ public class Parser
                                                                                                                                                         E
                                         """;
 
-    public UsdxTrackMetadata ParseUsdxTrackMetadata(string rawUsdx)
+    public static UsdxTrackMetadata ParseUsdxTrackMetadata(string rawUsdx)
     {
         string[] splitRawUsdx = rawUsdx.Split("#");
         string artist = "testArtist";
@@ -526,15 +524,15 @@ public class Parser
                     bpm = uint.Parse(split[1]);
                     break;
                 }
+
                 default:
                 {
-                    Console.WriteLine("Hier was falsches geparsed!");
-                    Console.WriteLine(split[0]);
+                    //Console.WriteLine("Hier was falsches geparsed!");
                     break;
                 }
             }
         }
 
-        return new UsdxTrackMetadata(artist, title, creator,0, bpm, version, songFile, null);
+        return new UsdxTrackMetadata(artist, title, creator, 0, bpm, version, songFile, null);
     }
 }

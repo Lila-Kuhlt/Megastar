@@ -3,10 +3,14 @@
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\megastar.Resources\megastar.Resources.csproj" />
+    <ProjectReference Include="..\megastar.Resources\megastar.Resources.csproj"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ppy.osu.Framework" Version="2026.513.0" />
+    <PackageReference Include="ppy.osu.Framework" Version="2026.513.0"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="files\"/>
+    <Folder Include="tracks\"/>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="notes\" />

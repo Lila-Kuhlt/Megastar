@@ -1,6 +1,6 @@
-﻿using osu.Framework.Platform;
+﻿using megastar.Game;
 using osu.Framework;
-using megastar.Game;
+using osu.Framework.Platform;
 
 namespace megastar.Desktop
 {

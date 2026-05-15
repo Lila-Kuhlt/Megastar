@@ -45,4 +45,3 @@ public interface ITrackMetadata
     [CanBeNull]
     string backgroundImageFile { get; set; }
 }
-
