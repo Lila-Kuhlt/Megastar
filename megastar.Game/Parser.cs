@@ -1,4 +1,8 @@
-﻿namespace megastar.Game;
+﻿using System.Collections.Generic;
+using System.IO;
+using megastar.Game.notes;
+
+namespace megastar.Game;
 
 public class Parser
 {
@@ -471,68 +475,84 @@ public class Parser
                                                                                                                                                         E
                                         """;
 
-    public static UsdxTrackMetadata ParseUsdxTrackMetadata(string rawUsdx)
+    public static void ParseUsdxFile(string rawUsdx)
     {
-        string[] splitRawUsdx = rawUsdx.Split("#");
-        string artist = "testArtist";
-        string title = "testTitle";
-        string creator = "testCreator";
-        double bpm = 0.0;
-        string version = "testVersion";
-        string songFile = "testSong";
+        Dictionary<string, string> metadata = new Dictionary<string, string>();
+        var reader = new StringReader(rawUsdx);
+        string line;
 
-        foreach (string full in splitRawUsdx)
+        while ((line = reader.ReadLine()) != null)
         {
-            string[] split = full.Split(":");
-
-            switch (split[0])
+            if (line.StartsWith("#"))
             {
-                case "ARTIST":
-                {
-                    artist = split[1];
-                    break;
-                }
+            }
+        }
+    }
 
-                case "VERSION":
-                {
-                    version = split[1];
-                    break;
-                }
+    public static KeyValuePair<string, string> ParseUsdxTrackMetadata(string line)
+    {
+        string key = "defaultKey";
+        string value = "defaultValue";
 
-                case "TITLE":
-                {
-                    title = split[1];
-                    break;
-                }
+        string[] split = line.Split(":");
 
-                case "AUTHOR":
-                case "CREATOR":
-                {
-                    creator = split[1];
-                    break;
-                }
+        switch (split[0])
+        {
+            case "#ARTIST":
+            {
+                key = "artist";
+                value = split[1];
+                break;
+            }
 
-                case "MP3":
-                case "AUDIO":
-                {
-                    songFile = split[1];
-                    break;
-                }
+            case "#VERSION":
+            {
+                key = "version";
+                value = split[1];
+                break;
+            }
 
-                case "BMP":
-                {
-                    bpm = uint.Parse(split[1]);
-                    break;
-                }
+            case "#TITLE":
+            {
+                key = "title";
+                value = split[1];
+                break;
+            }
 
-                default:
-                {
-                    //Console.WriteLine("Hier was falsches geparsed!");
-                    break;
-                }
+            case "#AUTHOR":
+            case "#CREATOR":
+            {
+                key = "creator";
+                value = split[1];
+                break;
+            }
+
+            case "#MP3":
+            case "#AUDIO":
+            {
+                key = "songFile";
+                value = split[1];
+                break;
+            }
+
+            case "#BPM":
+            {
+                key = "bpm";
+                value = split[1];
+                break;
+            }
+
+            default:
+            {
+                //Console.WriteLine("Hier was falsches geparsed!");
+                break;
             }
         }
 
-        return new UsdxTrackMetadata(artist, title, creator, 0, bpm, version, songFile, null);
+        return new KeyValuePair<string, string>(key, value);
+    }
+
+    public static UsdxNote ParseUsdxNote(string line)
+    {
     }
 }

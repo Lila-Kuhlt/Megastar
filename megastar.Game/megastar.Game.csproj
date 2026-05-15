@@ -12,7 +12,4 @@
     <Folder Include="files\"/>
     <Folder Include="tracks\"/>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="notes\" />
-  </ItemGroup>
 </Project>
