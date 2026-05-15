@@ -1,9 +1,9 @@
+using megastar.Resources;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
 using osuTK;
-using megastar.Resources;
 
 namespace megastar.Game
 {

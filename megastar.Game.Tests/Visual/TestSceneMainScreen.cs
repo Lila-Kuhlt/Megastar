@@ -1,7 +1,7 @@
 using megastar.Game.screens;
+using NUnit.Framework;
 using osu.Framework.Graphics;
 using osu.Framework.Screens;
-using NUnit.Framework;
 
 namespace megastar.Game.Tests.Visual
 {

@@ -21,7 +21,7 @@ public partial class PlayScreen : Screen
                 Colour = Color4.Violet,
                 RelativeSizeAxes = Axes.Both,
             },
-            new SpriteText()
+            new SpriteText
             {
                 Text = "Hier könnten ihre Lyrics stehen",
                 Anchor = Anchor.BottomCentre,

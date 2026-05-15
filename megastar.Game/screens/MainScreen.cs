@@ -36,7 +36,7 @@ namespace megastar.Game.screens
                     Shadow = true,
                     ShadowColour = Color4.Pink,
                 },
-                new FillFlowContainer()
+                new FillFlowContainer
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,

@@ -63,7 +63,25 @@ public partial class FileSelectorScreen : Screen
                 Y = -80,
                 Font = FontUsage.Default.With(size: 24),
             },
-            new BackButton(this.Exit, "Go Back")
+            new BackButton(this.Exit, "Go Back"),
+            selectedPathText = new SpriteText
+            {
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre,
+                Y = -80,
+                Font = FontUsage.Default.With(size: 24),
+            },
+
+            // A button to confirm the selection
+            new BasicButton
+            {
+                Text = "Select Current Folder",
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre,
+                Size = new Vector2(200, 50),
+                Y = -20,
+                Action = confirmSelection
+            }
         };
 
         // Track when the user clicks into different directories
@@ -79,12 +97,15 @@ public partial class FileSelectorScreen : Screen
 
         if (currentDir != null && currentDir.Exists)
         {
-            // Do something with the path here!
             string songsPath = currentDir.FullName;
             Console.WriteLine(currentDir.FullName);
+            var fd = new DirectoryInfo(songsPath);
+            FileInfo[] songFiles = currentDir.GetFiles("*.*", SearchOption.AllDirectories);
 
-            // For example, save it or pass it back, then exit
-            this.Exit();
+            foreach (FileInfo file in songFiles)
+            {
+                Console.WriteLine(file.FullName);
+            }
         }
     }
 }
