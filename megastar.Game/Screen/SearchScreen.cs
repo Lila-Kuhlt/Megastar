@@ -1,11 +1,10 @@
 using System;
-using System.Linq; // Required for .Select()
+using System.Linq;
 using megastar.Game.presets;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers; // Required for FillFlowContainer
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites; // Required for SpriteText
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Screens;
 using osuTK;
@@ -16,7 +15,7 @@ namespace megastar.Game.screens;
 public partial class SearchScreen : Screen
 {
     [Resolved]
-    private megastarGameBase game { get; set; } = null!;
+    private MegastarGameBase game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -30,9 +29,27 @@ public partial class SearchScreen : Screen
             Y = 50
         };
 
+        var searchContainer = new SearchContainer<UsdxTrackDrawable>
+        {
+            Anchor = Anchor.Centre,
+            Origin = Anchor.Centre,
+            AutoSizeAxes = Axes.Both,
+            Direction = FillDirection.Vertical,
+            Spacing = new Vector2(0, 10),
+
+            // Generates completely new UI objects every time the screen is entered
+            Children = game.LoadedSongs.Select(trackData => new UsdxTrackDrawable(trackData)).ToArray(),
+        };
+
+        //Bind the text changes to the search
+        searchBox.Current.BindValueChanged(change =>
+        {
+            searchContainer.SearchTerm = change.NewValue;
+        }, true);
+
         searchBox.OnCommit += (sender, isNew) =>
         {
-            Console.WriteLine($"Search for: {sender.Text}");
+            Console.WriteLine($"Search committed for: {sender.Text}");
         };
 
         InternalChildren = new Drawable[]
@@ -45,21 +62,7 @@ public partial class SearchScreen : Screen
             searchBox,
             new BackButton(this.Exit, "Go Back"),
 
-            // Container to cleanly stack the loaded songs vertically
-            new FillFlowContainer
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                AutoSizeAxes = Axes.Both,
-                Direction = FillDirection.Vertical,
-                Spacing = new Vector2(0, 10),
-                Children = game.LoadedSongs.Select(track => new SpriteText
-                {
-                    Text = track.TrackMetadata.Title + " - " + track.TrackMetadata.Artist,
-                    Font = FontUsage.Default.With(size: 20),
-                    Colour = Color4.White
-                }).ToArray()
-            }
+            searchContainer
         };
     }
 }

@@ -8,7 +8,7 @@ namespace megastar.Game.Tests
         public static void Main()
         {
             using (GameHost host = Host.GetSuitableDesktopHost("visual-tests"))
-            using (var game = new megastarTestBrowser())
+            using (var game = new MegastarTestBrowser())
                 host.Run(game);
         }
     }

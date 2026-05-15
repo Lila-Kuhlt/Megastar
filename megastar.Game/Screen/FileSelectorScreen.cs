@@ -19,7 +19,7 @@ public partial class FileSelectorScreen : Screen
     private SpriteText selectedPathText = null!;
 
     [Resolved]
-    private megastarGameBase game { get; set; } = null!;
+    private MegastarGameBase game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -117,6 +117,18 @@ public partial class FileSelectorScreen : Screen
                 game.LoadedSongs.Add(new UsdxTrack(metadata));
                 Console.WriteLine(((Object)tracks[^1]).ToString());
             }
+
+
+            AddInternal(
+            new SpriteText()
+            {
+                Text = "Folder successfully selected.",
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre,
+                Y = -110,
+                Font = FontUsage.Default.With(size: 40),
+            }
+            );
         }
     }
 }

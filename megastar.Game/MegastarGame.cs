@@ -5,7 +5,7 @@ using osu.Framework.Screens;
 
 namespace megastar.Game
 {
-    public partial class megastarGame : megastarGameBase
+    public partial class MegastarGame : MegastarGameBase
     {
         private ScreenStack screenStack;
 

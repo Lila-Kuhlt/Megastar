@@ -9,7 +9,7 @@ namespace megastar.Desktop
         public static void Main()
         {
             using (GameHost host = Host.GetSuitableDesktopHost(@"megastar"))
-            using (osu.Framework.Game game = new megastarGame())
+            using (osu.Framework.Game game = new MegastarGame())
                 host.Run(game);
         }
     }
