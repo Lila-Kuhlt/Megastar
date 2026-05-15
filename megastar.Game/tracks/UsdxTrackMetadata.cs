@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 
 namespace megastar.Game;
 
@@ -13,4 +14,16 @@ public class UsdxTrackMetadata(string artist, string title, string creator, uint
     public string version { get; set; } = version;
     public string songFile { get; set; } = songFile;
     public string backgroundImageFile { get; set; } = backgroundImageFile;
+
+    public void toString()
+    {
+        Console.WriteLine("Artist: " + artist);
+        Console.WriteLine("Title: " + title);
+        Console.WriteLine("Creator: " + creator);
+        Console.WriteLine("Length: " + length);
+        Console.WriteLine("BPM: " + bpm);
+        Console.WriteLine("Version: " + version);
+        Console.WriteLine("Song File: " + songFile);
+        Console.WriteLine("Background Image: " + backgroundImageFile);
+    }
 }

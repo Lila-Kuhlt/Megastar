@@ -489,39 +489,39 @@ public class Parser
 
             switch (split[0])
             {
-                case "#ARTIST:":
+                case "ARTIST":
                 {
                     artist = split[1];
                     break;
                 }
 
-                case "#VERSION:":
+                case "VERSION":
                 {
                     version = split[1];
                     break;
                 }
 
-                case "#TITLE:":
+                case "TITLE":
                 {
                     title = split[1];
                     break;
                 }
 
-                case "#AUTHOR:":
-                case "#CREATOR:":
+                case "AUTHOR":
+                case "CREATOR":
                 {
                     creator = split[1];
                     break;
                 }
 
-                case "#MP3:":
-                case "#AUDIO:":
+                case "MP3":
+                case "AUDIO":
                 {
                     songFile = split[1];
                     break;
                 }
 
-                case "#BMP:":
+                case "BMP":
                 {
                     bpm = uint.Parse(split[1]);
                     break;
@@ -529,6 +529,7 @@ public class Parser
                 default:
                 {
                     Console.WriteLine("Hier was falsches geparsed!");
+                    Console.WriteLine(split[0]);
                     break;
                 }
             }
