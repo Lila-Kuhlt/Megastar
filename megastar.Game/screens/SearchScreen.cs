@@ -55,7 +55,7 @@ public partial class SearchScreen : Screen
                 Spacing = new Vector2(0, 10),
                 Children = game.LoadedSongs.Select(track => new SpriteText
                 {
-                    Text = track.trackMetadata.title + " - " + track.trackMetadata.artist,
+                    Text = track.TrackMetadata.Title + " - " + track.TrackMetadata.Artist,
                     Font = FontUsage.Default.With(size: 20),
                     Colour = Color4.White
                 }).ToArray()

@@ -7,41 +7,41 @@ public interface ITrackMetadata
     /// <summary>
     /// Song artist(s)
     /// </summary>
-    string artist { get; set; }
+    string Artist { get; set; }
 
     /// <summary>
     /// Song title
     /// </summary>
-    string title { get; set; }
+    string Title { get; set; }
 
     /// <summary>
     ///  Creator of the track file (usdb txt file)
     /// </summary>
-    string creator { get; set; }
+    string Creator { get; set; }
 
     /// <summary>
     ///  Length of the songs
     /// </summary>
-    uint length { get; set; }
+    uint Length { get; set; }
 
     /// <summary>
     /// Song BPM
     /// </summary>
-    double bpm { get; set; }
+    double BPM { get; set; }
 
     /// <summary>
     /// USDX File version
     /// </summary>
-    string version { get; set; }
+    string Version { get; set; }
 
     /// <summary>
     /// Song path, relative to the song directory
     /// </summary>
-    string songFile { get; set; }
+    string SongFile { get; set; }
 
     /// <summary>
     /// Background image path, relative to the song directory
     /// </summary>
     [CanBeNull]
-    string backgroundImageFile { get; set; }
+    string BackgroundImageFile { get; set; }
 }

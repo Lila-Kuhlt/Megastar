@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using megastar.Game.notes;
 
@@ -475,7 +476,34 @@ public class Parser
                                                                                                                                                         E
                                         """;
 
-    public static void ParseUsdxFile(string rawUsdx)
+    public static UsdxTrack ParseUsdxFile(string rawUsdx)
+    {
+        Dictionary<string, string> metadata = new Dictionary<string, string>();
+        List<INote> notes = new List<INote>();
+        var reader = new StringReader(rawUsdx);
+        string line;
+
+        while ((line = reader.ReadLine()) != null)
+        {
+            if (line.StartsWith("#"))
+            {
+                metadata.Add(line.Split(":")[0].Replace("#", ""), line.Split(":")[1]);
+            }
+            else if (line.StartsWith("E") || line.StartsWith("P"))
+            {
+                break;
+            }
+            else
+            {
+                notes.Add(ParseUsdxNote(line));
+            }
+        }
+
+        UsdxTrackMetadata trackMetadata = new UsdxTrackMetadata(metadata);
+        return new UsdxTrack(trackMetadata, notes);
+    }
+
+    public static UsdxTrackMetadata ParseUsdxTrackMetadata(string rawUsdx)
     {
         Dictionary<string, string> metadata = new Dictionary<string, string>();
         var reader = new StringReader(rawUsdx);
@@ -485,74 +513,50 @@ public class Parser
         {
             if (line.StartsWith("#"))
             {
+                metadata.Add(line.Split(":")[0].Replace("#", ""), line.Split(":")[1]);
+            }
+            else
+            {
+                break;
             }
         }
+
+        return new UsdxTrackMetadata(metadata);
     }
 
-    public static KeyValuePair<string, string> ParseUsdxTrackMetadata(string line)
+    public static INote ParseUsdxNote(string line)
     {
-        string key = "defaultKey";
-        string value = "defaultValue";
+        string[] splitNote = line.Split(" ");
 
-        string[] split = line.Split(":");
-
-        switch (split[0])
+        if (splitNote[0].Equals("-"))
         {
-            case "#ARTIST":
-            {
-                key = "artist";
-                value = split[1];
-                break;
-            }
-
-            case "#VERSION":
-            {
-                key = "version";
-                value = split[1];
-                break;
-            }
-
-            case "#TITLE":
-            {
-                key = "title";
-                value = split[1];
-                break;
-            }
-
-            case "#AUTHOR":
-            case "#CREATOR":
-            {
-                key = "creator";
-                value = split[1];
-                break;
-            }
-
-            case "#MP3":
-            case "#AUDIO":
-            {
-                key = "songFile";
-                value = split[1];
-                break;
-            }
-
-            case "#BPM":
-            {
-                key = "bpm";
-                value = split[1];
-                break;
-            }
-
-            default:
-            {
-                //Console.WriteLine("Hier was falsches geparsed!");
-                break;
-            }
+            return new UsdxPauseNote(Convert.ToUInt32(splitNote[1]));
         }
+        else
+        {
+            UsdxNoteType noteType;
 
-        return new KeyValuePair<string, string>(key, value);
-    }
+            switch (splitNote[0])
+            {
+                case ":": noteType = UsdxNoteType.Normal; break;
 
-    public static UsdxNote ParseUsdxNote(string line)
-    {
+                case "*": noteType = UsdxNoteType.Golden; break;
+
+                case "F": noteType = UsdxNoteType.Freestyle; break;
+
+                case "R": noteType = UsdxNoteType.Rap; break;
+
+                case "G": noteType = UsdxNoteType.Golden; break;
+
+                default: noteType = UsdxNoteType.Normal; break;
+            }
+
+            uint startBeat = Convert.ToUInt32(splitNote[1]);
+            int lenght = Convert.ToInt32(splitNote[2]);
+            int pitch = Convert.ToInt32(splitNote[3]);
+            string text = splitNote[4];
+
+            return new UsdxNote(startBeat, lenght, pitch, text, noteType);
+        }
     }
 }
