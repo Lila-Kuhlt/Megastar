@@ -10,6 +10,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="files\"/>
-    <Folder Include="tracks\"/>
   </ItemGroup>
 </Project>

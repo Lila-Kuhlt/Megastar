@@ -1,11 +1,9 @@
 using System;
-using System.Linq; // Required for .Select()
 using megastar.Game.presets;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers; // Required for FillFlowContainer
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites; // Required for SpriteText
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Screens;
 using osuTK;
@@ -30,9 +28,26 @@ public partial class SearchScreen : Screen
             Y = 50
         };
 
+        var searchContainer = new SearchContainer<UsdxTrack>
+        {
+            Anchor = Anchor.Centre,
+            Origin = Anchor.Centre,
+            AutoSizeAxes = Axes.Both,
+            Direction = FillDirection.Vertical,
+            Spacing = new Vector2(0, 10),
+
+            Children = game.LoadedSongs.ToArray(),
+        };
+
+        //Bind the text changes to the search
+        searchBox.Current.BindValueChanged(change =>
+        {
+            searchContainer.SearchTerm = change.NewValue;
+        }, true);
+
         searchBox.OnCommit += (sender, isNew) =>
         {
-            Console.WriteLine($"Search for: {sender.Text}");
+            Console.WriteLine($"Search committed for: {sender.Text}");
         };
 
         InternalChildren = new Drawable[]
@@ -45,21 +60,7 @@ public partial class SearchScreen : Screen
             searchBox,
             new BackButton(this.Exit, "Go Back"),
 
-            // Container to cleanly stack the loaded songs vertically
-            new FillFlowContainer
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                AutoSizeAxes = Axes.Both,
-                Direction = FillDirection.Vertical,
-                Spacing = new Vector2(0, 10),
-                Children = game.LoadedSongs.Select(track => new SpriteText
-                {
-                    Text = track.trackMetadata.title + " - " + track.trackMetadata.artist,
-                    Font = FontUsage.Default.With(size: 20),
-                    Colour = Color4.White
-                }).ToArray()
-            }
+            searchContainer
         };
     }
 }
