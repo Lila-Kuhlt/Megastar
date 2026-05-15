@@ -32,21 +32,21 @@ public class UsdxTrackMetadata()
         : this()
     {
         if (trackMetadata.ContainsKey("artist"))
-            Artist = (string)trackMetadata["artist"];
+            Artist = trackMetadata["artist"];
         if (trackMetadata.ContainsKey("title"))
-            Title = (string)trackMetadata["title"];
+            Title = trackMetadata["title"];
         if (trackMetadata.ContainsKey("creator"))
-            Creator = (string)trackMetadata["creator"];
+            Creator = trackMetadata["creator"];
         if (trackMetadata.ContainsKey("length"))
             Length = Convert.ToUInt32(trackMetadata["length"]);
         if (trackMetadata.ContainsKey("bpm"))
             BPM = Convert.ToUInt32(trackMetadata["bpm"]);
         if (trackMetadata.ContainsKey("version"))
-            Version = (string)trackMetadata["version"];
+            Version = trackMetadata["version"];
         if (trackMetadata.ContainsKey("songFile"))
-            SongFile = (string)trackMetadata["songFile"];
+            SongFile = trackMetadata["songFile"];
         if (trackMetadata.ContainsKey("backgroundImageFile"))
-            BackgroundImageFile = (string)trackMetadata["backgroundImageFile"];
+            BackgroundImageFile = trackMetadata["backgroundImageFile"];
     }
 
     public new void ToString()
