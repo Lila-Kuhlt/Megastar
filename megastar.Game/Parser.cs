@@ -488,7 +488,7 @@ public class Parser
         {
             if (line.StartsWith("#"))
             {
-                metadata.Add(line.Split(":")[0].Replace("#", ""), line.Split(":")[1]);
+                metadata.Add(line.Split(":")[0].Replace("#", "").ToLower(), line.Split(":")[1]);
             }
             else if (line.StartsWith("E") || line.StartsWith("P"))
             {
@@ -514,7 +514,7 @@ public class Parser
         {
             if (line.StartsWith("#"))
             {
-                metadata.Add(line.Split(":")[0].Replace("#", ""), line.Split(":")[1]);
+                metadata.Add( (line.Split(":")[0].Replace("#", "")).ToLower(), line.Split(":")[1]);
             }
             else
             {

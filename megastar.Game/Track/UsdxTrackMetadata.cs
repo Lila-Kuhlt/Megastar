@@ -41,7 +41,7 @@ public class UsdxTrackMetadata()
         if (trackMetadata.ContainsKey("length"))
             Length = Convert.ToUInt32(trackMetadata["length"]);
         if (trackMetadata.ContainsKey("bpm"))
-            BPM = Convert.ToUInt32(trackMetadata["bpm"]);
+            BPM = Convert.ToDouble(trackMetadata["bpm"]);
         if (trackMetadata.ContainsKey("version"))
             Version = trackMetadata["version"];
         if (trackMetadata.ContainsKey("songFile"))
