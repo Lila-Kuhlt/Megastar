@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Textures;
 
 namespace megastar.Game
 {
-    public partial class SpinningBox : CompositeDrawable
+    public sealed partial class SpinningBox : CompositeDrawable
     {
         private Container box;
 

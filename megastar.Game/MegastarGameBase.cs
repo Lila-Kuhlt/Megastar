@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using megastar.Game.Track;
 using megastar.Resources;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;

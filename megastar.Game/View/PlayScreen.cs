@@ -1,4 +1,4 @@
-using megastar.Game.presets;
+using megastar.Game.Preset;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
@@ -10,11 +10,11 @@ using osu.Framework.Platform;
 using osu.Framework.Screens;
 using osuTK.Graphics;
 
-namespace megastar.Game.screens;
+namespace megastar.Game.View;
 
 public partial class PlayScreen : Screen
 {
-    private Track track;
+    private osu.Framework.Audio.Track.Track track;
 
     [BackgroundDependencyLoader]
     private void load(AudioManager audio)
@@ -56,7 +56,7 @@ public partial class PlayScreen : Screen
     }
 
     //FIXME hier könnte sehr viel overhead entstehen wenn das jedes mal neu geladen wird aber Turingmachine hat unendlich speicher
-    private Track loadSong(AudioManager audioManager, string directoryPath, string fileName)
+    private osu.Framework.Audio.Track.Track loadSong(AudioManager audioManager, string directoryPath, string fileName)
     {
         var storage = new NativeStorage(directoryPath);
         var resourceStore = new StorageBackedResourceStore(storage);

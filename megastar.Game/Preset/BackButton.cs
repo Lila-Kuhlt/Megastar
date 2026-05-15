@@ -3,9 +3,9 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.UserInterface;
 using osuTK;
 
-namespace megastar.Game.presets;
+namespace megastar.Game.Preset;
 
-public partial class BackButton : BasicButton
+public sealed partial class BackButton : BasicButton
 {
     /// <summary>
     /// A reusable back button with predefined styling.

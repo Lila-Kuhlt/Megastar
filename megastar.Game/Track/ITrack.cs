@@ -1,8 +1,7 @@
-
 using System.Collections.Generic;
 using megastar.Game.notes;
 
-namespace megastar.Game;
+namespace megastar.Game.Track;
 
 public interface ITrack
 {

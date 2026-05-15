@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "megastar.Desktop", "megasta
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "megastar.Game", "megastar.Game\megastar.Game.csproj", "{1ADACD09-7BE3-46A1-AEAB-C41E78E8700F}"
 EndProject
-Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "megastar.Game.Tests", "megastar.Game.Tests\megastar.Game.Tests.csproj", "{0A9CA1A5-5147-4AA8-9B9D-87178DE5A78D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "megastar.Resources", "megastar.Resources\megastar.Resources.csproj", "{31D3872C-3A4F-437E-9655-3EF58DD62F46}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9AF9C164-2A9E-4958-BB12-0FEDC40F58EC}"
@@ -44,10 +42,6 @@ Global
 		{1ADACD09-7BE3-46A1-AEAB-C41E78E8700F}.Release|iPhone.Build.0 = Release|Any CPU
 		{1ADACD09-7BE3-46A1-AEAB-C41E78E8700F}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{1ADACD09-7BE3-46A1-AEAB-C41E78E8700F}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
-		{0A9CA1A5-5147-4AA8-9B9D-87178DE5A78D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A9CA1A5-5147-4AA8-9B9D-87178DE5A78D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0A9CA1A5-5147-4AA8-9B9D-87178DE5A78D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0A9CA1A5-5147-4AA8-9B9D-87178DE5A78D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{31D3872C-3A4F-437E-9655-3EF58DD62F46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{31D3872C-3A4F-437E-9655-3EF58DD62F46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31D3872C-3A4F-437E-9655-3EF58DD62F46}.Release|Any CPU.ActiveCfg = Release|Any CPU

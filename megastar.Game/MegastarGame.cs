@@ -1,4 +1,4 @@
-﻿using megastar.Game.screens;
+﻿using megastar.Game.View;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Screens;

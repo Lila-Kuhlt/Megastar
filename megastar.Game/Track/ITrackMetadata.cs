@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace megastar.Game;
+namespace megastar.Game.Track;
 
 public interface ITrackMetadata
 {

@@ -1,4 +1,4 @@
-using megastar.Game.presets;
+using megastar.Game.Preset;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -9,7 +9,7 @@ using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
 
-namespace megastar.Game.screens
+namespace megastar.Game.View
 {
     public partial class MainScreen : Screen
     {
