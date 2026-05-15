@@ -1,53 +1,52 @@
 ﻿using System.Collections.Generic;
+using megastar.Game;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osuTK.Graphics;
 
-namespace megastar.Game;
-
-public partial class UsdxTrack : CompositeDrawable, IFilterable
+public class UsdxTrack
 {
     public ITrackMetadata TrackMetadata { get; set; }
 
-    public IEnumerable<LocalisableString> FilterTerms => new LocalisableString[]
+    public UsdxTrack(UsdxTrackMetadata metadata)
     {
-        TrackMetadata.artist,
-        TrackMetadata.title
-    };
+        TrackMetadata = metadata;
+    }
+}
+
+
+public partial class UsdxTrackDrawable : CompositeDrawable, IFilterable
+{
+    public UsdxTrack Data { get; }
+    public IEnumerable<LocalisableString> FilterTerms => new LocalisableString[] { Data.TrackMetadata.artist, Data.TrackMetadata.title };
 
     private bool matchingFilter = true;
 
-    //Fade in/out on match
     public bool MatchingFilter
     {
         get => matchingFilter;
         set
         {
             matchingFilter = value;
-            // Smoothly fade the entire drawable in or out based on filter match
             this.FadeTo(value ? 1 : 0, 200);
         }
     }
 
     public bool FilteringActive { get; set; }
 
-    public UsdxTrack(UsdxTrackMetadata usdxTrackMetadata)
+    public UsdxTrackDrawable(UsdxTrack data)
     {
-        TrackMetadata = usdxTrackMetadata;
-
+        Data = data;
         AutoSizeAxes = Axes.Y;
         RelativeSizeAxes = Axes.X;
 
-        //This is the visual represenatation of the Track
         InternalChild = new SpriteText
         {
-            Text = $"{TrackMetadata.title} - {TrackMetadata.artist}",
+            Text = $"{Data.TrackMetadata.title} - {Data.TrackMetadata.artist}",
             Font = FontUsage.Default.With(size: 20),
-            Colour = Color4.White,
-            Anchor = Anchor.CentreLeft,
-            Origin = Anchor.CentreLeft
+            Colour = Color4.White
         };
     }
 }

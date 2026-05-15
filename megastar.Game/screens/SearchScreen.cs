@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using megastar.Game.presets;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -28,7 +29,7 @@ public partial class SearchScreen : Screen
             Y = 50
         };
 
-        var searchContainer = new SearchContainer<UsdxTrack>
+        var searchContainer = new SearchContainer<UsdxTrackDrawable>
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
@@ -36,7 +37,8 @@ public partial class SearchScreen : Screen
             Direction = FillDirection.Vertical,
             Spacing = new Vector2(0, 10),
 
-            Children = game.LoadedSongs.ToArray(),
+            // Generates completely new UI objects every time the screen is entered
+            Children = game.LoadedSongs.Select(trackData => new UsdxTrackDrawable(trackData)).ToArray(),
         };
 
         //Bind the text changes to the search
