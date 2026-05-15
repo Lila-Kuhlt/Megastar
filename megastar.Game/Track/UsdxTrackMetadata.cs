@@ -16,6 +16,8 @@ public class UsdxTrackMetadata()
     public string SongFile { get; set; }
     public string BackgroundImageFile { get; set; }
 
+    public string path { get; set; }
+
     public UsdxTrackMetadata(string artist, string title, string creator, uint length, double bpm, string version, string songFile, string backgroundImageFile)
         : this()
     {
