@@ -18,6 +18,9 @@ public partial class FileSelectorScreen : Screen
     private BasicDirectorySelector directorySelector = null!;
     private SpriteText selectedPathText = null!;
 
+    [Resolved]
+    private megastarGameBase game { get; set; } = null!;
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -104,10 +107,14 @@ public partial class FileSelectorScreen : Screen
             FileInfo[] songFiles = currentDir.GetFiles("*.txt", SearchOption.AllDirectories);
             var tracks = new List<UsdxTrackMetadata>();
 
+            game.LoadedSongs.Clear();
+
             foreach (FileInfo file in songFiles)
             {
                 string content = File.ReadAllText(file.FullName);
-                tracks.Add(Parser.ParseUsdxTrackMetadata(content));
+                var metadata = Parser.ParseUsdxTrackMetadata(content);
+                tracks.Add(metadata);
+                game.LoadedSongs.Add(new UsdxTrack(metadata));
                 Console.WriteLine(tracks[^1].ToString());
             }
         }

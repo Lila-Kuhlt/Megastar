@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using megastar.Resources;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -7,6 +8,7 @@ using osuTK;
 
 namespace megastar.Game
 {
+    [Cached]
     public partial class megastarGameBase : osu.Framework.Game
     {
         // Anything in this class is shared between the test browser and the game implementation.
@@ -24,6 +26,8 @@ namespace megastar.Game
                 TargetDrawSize = new Vector2(1366, 768)
             });
         }
+
+        public List<UsdxTrack> LoadedSongs { get; private set; } = new List<UsdxTrack>();
 
         [BackgroundDependencyLoader]
         private void load()
