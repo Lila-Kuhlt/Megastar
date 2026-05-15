@@ -1,10 +1,11 @@
 
-using osu.Framework.Graphics.Containers;
+using System.Collections.Generic;
+using megastar.Game.notes;
 
 namespace megastar.Game;
 
-public interface ITrack : IFilterable
+public interface ITrack
 {
-    ITrackMetadata trackMetadata { get; set; }
-    IFilterable GetVisualRepresentation { get; }
+    ITrackMetadata TrackMetadata { get; set; }
+    List<INote> Notes { get; set; }
 }

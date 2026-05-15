@@ -1,18 +1,26 @@
 ﻿using System.Collections.Generic;
 using megastar.Game;
+using megastar.Game.notes;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osuTK.Graphics;
 
-public class UsdxTrack
+public class UsdxTrack : ITrack
 {
     public ITrackMetadata TrackMetadata { get; set; }
+    public List<INote> Notes { get; set; }
 
     public UsdxTrack(UsdxTrackMetadata metadata)
     {
         TrackMetadata = metadata;
+    }
+
+    public UsdxTrack(ITrackMetadata trackMetadata, List<INote> notes)
+    {
+        TrackMetadata = trackMetadata;
+        Notes = notes;
     }
 }
 
@@ -20,7 +28,7 @@ public class UsdxTrack
 public partial class UsdxTrackDrawable : CompositeDrawable, IFilterable
 {
     public UsdxTrack Data { get; }
-    public IEnumerable<LocalisableString> FilterTerms => new LocalisableString[] { Data.TrackMetadata.artist, Data.TrackMetadata.title };
+    public IEnumerable<LocalisableString> FilterTerms => new LocalisableString[] { Data.TrackMetadata.Artist, Data.TrackMetadata.Title };
 
     private bool matchingFilter = true;
 
@@ -44,7 +52,7 @@ public partial class UsdxTrackDrawable : CompositeDrawable, IFilterable
 
         InternalChild = new SpriteText
         {
-            Text = $"{Data.TrackMetadata.title} - {Data.TrackMetadata.artist}",
+            Text = $"{Data.TrackMetadata.Title} - {Data.TrackMetadata.Artist}",
             Font = FontUsage.Default.With(size: 20),
             Colour = Color4.White
         };
