@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+using megastar.Game.presets;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
@@ -11,44 +14,77 @@ namespace megastar.Game.screens;
 
 public partial class FileSelectorScreen : Screen
 {
+    private BasicDirectorySelector directorySelector = null!;
+    private SpriteText selectedPathText = null!;
+
     [BackgroundDependencyLoader]
     private void load()
     {
         InternalChildren = new Drawable[]
         {
-            //Background
+            // Background
             new Box
             {
                 Colour = Color4.Violet,
                 RelativeSizeAxes = Axes.Both,
             },
-            new SpriteText()
+
+            new SpriteText
             {
-                Text = "Hier sollen alle Datein gelistet und selektierbar sein",
+                Text = "Wähle den Song-Ordner aus:",
                 Anchor = Anchor.TopCentre,
-                Origin = Anchor.BottomCentre,
+                Origin = Anchor.TopCentre,
+                Y = 20,
                 Font = FontUsage.Default.With(size: 40),
             },
-            new BasicButton()
+            new BasicButton
             {
                 Text = "Go Back",
                 Anchor = Anchor.TopLeft,
                 Origin = Anchor.TopLeft,
-                Size = new Vector2(40, 40),
-                Action = () => this.Exit()
+                Size = new Vector2(100, 40),
+                Position = new Vector2(10, 10),
+                Action = this.Exit
             },
-            new BasicDirectorySelector()
+
+            // The Directory Selector
+            directorySelector = new BasicDirectorySelector
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                Size = new Vector2(40, 40),
+                Size = new Vector2(800, 500),
             },
-            // new BasicFileSelector()
-            // {
-            //     Anchor = Anchor.Centre,
-            //     Origin = Anchor.Centre,
-            //     Size = new Vector2(40, 40),
-            // },
+
+            // Visual feedback to show what is currently selected
+            selectedPathText = new SpriteText
+            {
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre,
+                Y = -80,
+                Font = FontUsage.Default.With(size: 24),
+            },
+            new BackButton(this.Exit, "Go Back")
         };
+
+        // Track when the user clicks into different directories
+        directorySelector.CurrentPath.BindValueChanged(pathChanged =>
+        {
+            selectedPathText.Text = $"Selected: {pathChanged.NewValue?.FullName}";
+        }, true);
+    }
+
+    private void confirmSelection()
+    {
+        DirectoryInfo? currentDir = directorySelector.CurrentPath.Value;
+
+        if (currentDir != null && currentDir.Exists)
+        {
+            // Do something with the path here!
+            string songsPath = currentDir.FullName;
+            Console.WriteLine(currentDir.FullName);
+
+            // For example, save it or pass it back, then exit
+            this.Exit();
+        }
     }
 }

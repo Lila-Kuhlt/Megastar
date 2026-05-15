@@ -1,3 +1,4 @@
+using megastar.Game.presets;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -65,13 +66,7 @@ namespace megastar.Game.screens
                             BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new FileSelectorScreen()),
                         },
-                        new BasicButton()
-                        {
-                            Text = "Exit",
-                            Size = new Vector2(200, 40),
-                            BackgroundColour = Color4.Teal,
-                            Action = () => Game?.Exit()
-                        }
+                        new BackButton(Game.Exit, "Exit")
                     }
                 }
             };

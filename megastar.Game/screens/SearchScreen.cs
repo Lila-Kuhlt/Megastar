@@ -1,4 +1,5 @@
 using System;
+using megastar.Game.presets;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
@@ -34,14 +35,7 @@ public partial class SearchScreen : Screen
                 RelativeSizeAxes = Axes.Both,
             },
             searchBox,
-            new BasicButton()
-            {
-                Text = "Go Back",
-                Anchor = Anchor.TopLeft,
-                Origin = Anchor.TopLeft,
-                Size = new Vector2(40, 40),
-                Action = () => this.Exit()
-            }
+            new BackButton(this.Exit, "Go Back")
         };
     }
 }
