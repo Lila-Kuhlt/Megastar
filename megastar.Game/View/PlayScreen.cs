@@ -1,3 +1,4 @@
+using megastar.Game.notes;
 using megastar.Game.Preset;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
@@ -15,6 +16,11 @@ namespace megastar.Game.View;
 public partial class PlayScreen : Screen
 {
     private osu.Framework.Audio.Track.Track track;
+
+    private UsdxNote note = new UsdxNote(1, 5, 5, "LOLOL", UsdxNoteType.Normal);
+    private UsdxNote note2 = new UsdxNote(6, 5, 7, "LOLOL", UsdxNoteType.Normal);
+
+    private UsdxNote[] curNotes = new UsdxNote[2];
 
     [BackgroundDependencyLoader]
     private void load(AudioManager audio)
@@ -36,7 +42,9 @@ public partial class PlayScreen : Screen
                 Origin = Anchor.BottomCentre,
                 Font = FontUsage.Default.With(size: 80),
             },
-            new BackButton(this.Exit, "Go Back")
+            new BackButton(this.Exit, "Go Back"),
+            note.Visual,
+            note2.Visual,
         };
     }
 
@@ -44,6 +52,27 @@ public partial class PlayScreen : Screen
     {
         base.OnEntering(e);
         track?.Start();
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+        //Time in ms (for 60 fps = 16.66667)
+        double delta = Time.Elapsed;
+        note.Visual.X -= (float)delta * 0.5f;
+
+        if (note.Visual.X < 0)
+        {
+            note.Visual.Dispose();
+        }
+    }
+
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
+
+        curNotes[0] = note;
+        curNotes[1] = note2;
     }
 
     //stop the track when leaving the screen so it doesn't leak into the menu
