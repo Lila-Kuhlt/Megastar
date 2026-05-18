@@ -1,9 +1,11 @@
+using System.Linq;
 using megastar.Game.notes;
 using megastar.Game.Preset;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.IO.Stores;
@@ -17,10 +19,7 @@ public partial class PlayScreen : Screen
 {
     private osu.Framework.Audio.Track.Track track;
 
-    private UsdxNote note = new UsdxNote(1, 5, 5, "LOLOL", UsdxNoteType.Normal);
-    private UsdxNote note2 = new UsdxNote(6, 5, 7, "LOLOL", UsdxNoteType.Normal);
-
-    private UsdxNote[] curNotes = new UsdxNote[2];
+    private UsdxNote[] curNotes = { new UsdxNote(1, 5, 5, "Gubi", UsdxNoteType.Normal), new UsdxNote(6, 5, 7, "Fortnite", UsdxNoteType.Normal) };
 
     [BackgroundDependencyLoader]
     private void load(AudioManager audio)
@@ -43,8 +42,13 @@ public partial class PlayScreen : Screen
                 Font = FontUsage.Default.With(size: 80),
             },
             new BackButton(this.Exit, "Go Back"),
-            note.Visual,
-            note2.Visual,
+
+            //Container with all of the notes
+            new Container
+            {
+                RelativeSizeAxes = Axes.Both,
+                Children = curNotes.Select(note => note.Visual).ToArray()
+            }
         };
     }
 
@@ -59,7 +63,11 @@ public partial class PlayScreen : Screen
         base.Update();
         //Time in ms (for 60 fps = 16.66667)
         double delta = Time.Elapsed;
-        note.Visual.X -= (float)delta * 0.5f;
+
+        foreach (var curNote in curNotes)
+        {
+            curNote.Visual.X -= (float)delta * 0.5f;
+        }
     }
 
     //stop the track when leaving the screen so it doesn't leak into the menu
