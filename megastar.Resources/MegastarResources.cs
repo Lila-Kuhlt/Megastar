@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Reflection;
+using osu.Framework.IO.Stores;
 
 namespace megastar.Resources
 {
@@ -26,5 +27,7 @@ namespace megastar.Resources
 
             return reader.ReadToEnd();
         }
+
+        public static string GetFragmentShader(string fileName) => ReadResouceFile(fileName);
     }
 }

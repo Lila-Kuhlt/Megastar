@@ -2,12 +2,14 @@ using megastar.Game.Preset;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
+using Veldrid;
 
 namespace megastar.Game.View
 {
@@ -16,14 +18,11 @@ namespace megastar.Game.View
         [BackgroundDependencyLoader]
         private void load()
         {
-            InternalChildren = new Drawable[]
-            {
+            InternalChildren =
+            [
                 //Background
-                new Box
-                {
-                    Colour = Color4.Violet,
-                    RelativeSizeAxes = Axes.Both,
-                },
+                new ShaderBackground("sh_background.fs"),
+
                 //Title
                 new SpriteText
                 {
@@ -36,6 +35,7 @@ namespace megastar.Game.View
                     Shadow = true,
                     ShadowColour = Color4.Pink,
                 },
+
                 new FillFlowContainer
                 {
                     Anchor = Anchor.Centre,
@@ -69,7 +69,7 @@ namespace megastar.Game.View
                         new BackButton(Game.Exit, "Exit")
                     }
                 }
-            };
+            ];
         }
     }
 }
