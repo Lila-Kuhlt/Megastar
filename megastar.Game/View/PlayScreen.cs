@@ -60,19 +60,6 @@ public partial class PlayScreen : Screen
         //Time in ms (for 60 fps = 16.66667)
         double delta = Time.Elapsed;
         note.Visual.X -= (float)delta * 0.5f;
-
-        if (note.Visual.X < 0)
-        {
-            note.Visual.Dispose();
-        }
-    }
-
-    protected override void LoadComplete()
-    {
-        base.LoadComplete();
-
-        curNotes[0] = note;
-        curNotes[1] = note2;
     }
 
     //stop the track when leaving the screen so it doesn't leak into the menu

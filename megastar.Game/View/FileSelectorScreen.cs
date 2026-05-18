@@ -119,16 +119,15 @@ public partial class FileSelectorScreen : Screen
                 Console.WriteLine(((Object)tracks[^1]).ToString());
             }
 
-
             AddInternal(
-            new SpriteText()
-            {
-                Text = "Folder successfully selected.",
-                Anchor = Anchor.BottomCentre,
-                Origin = Anchor.BottomCentre,
-                Y = -110,
-                Font = FontUsage.Default.With(size: 40),
-            }
+                new SpriteText()
+                {
+                    Text = "Folder successfully selected.",
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.BottomCentre,
+                    Y = -110,
+                    Font = FontUsage.Default.With(size: 40),
+                }
             );
         }
     }
