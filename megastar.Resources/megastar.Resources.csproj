@@ -7,5 +7,9 @@
     <EmbeddedResource Include="Samples\**\*"/>
     <EmbeddedResource Include="Textures\**\*"/>
     <EmbeddedResource Include="Tracks\**\*"/>
+    <None Remove="funfacts.json" />
+    <EmbeddedResource Include="funfacts.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
