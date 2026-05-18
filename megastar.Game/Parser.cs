@@ -509,17 +509,23 @@ public class Parser
         Dictionary<string, string> metadata = new Dictionary<string, string>();
         var reader = new StringReader(rawUsdx);
         string line;
+        if (reader.ReadLine() != "#")
+        {
+            throw new InvalidDataException();
+        }
 
         while ((line = reader.ReadLine()) != null)
         {
-            if (line.StartsWith("#"))
-            {
-                metadata.Add( (line.Split(":")[0].Replace("#", "")).ToLower(), line.Split(":")[1]);
-            }
-            else
-            {
-                break;
-            }
+
+                if (line.StartsWith("#"))
+                {
+                    metadata.Add((line.Split(":")[0].Replace("#", "")).ToLower(), line.Split(":")[1]);
+                }
+                else
+                {
+                    break;
+                }
+
         }
 
         return new UsdxTrackMetadata(metadata);
