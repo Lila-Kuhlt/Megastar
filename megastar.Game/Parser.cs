@@ -11,11 +11,10 @@ public class Parser
     public static UsdxTrack ParseUsdxFile(string rawUsdx)
     {
         Dictionary<string, string> metadata = new Dictionary<string, string>();
-        List<INote> notes = new List<INote>();
-        var reader = new StringReader(rawUsdx);
-        string line;
+        List<IBeatPaced> notes = new List<IBeatPaced>();
 
-        while ((line = reader.ReadLine()) != null)
+        using var reader = new StringReader(rawUsdx);
+        while (reader.ReadLine() is { } line)
         {
             if (line.StartsWith('#'))
             {
@@ -38,15 +37,14 @@ public class Parser
     public static UsdxTrackMetadata ParseUsdxTrackMetadata(string rawUsdx)
     {
         Dictionary<string, string> metadata = new Dictionary<string, string>();
-        var reader = new StringReader(rawUsdx);
-        string line;
+        using var reader = new StringReader(rawUsdx);
 
         if (reader.ReadLine() != "#")
         {
             throw new InvalidDataException();
         }
 
-        while ((line = reader.ReadLine()) != null)
+        while (reader.ReadLine() is { } line)
         {
             if (!line.StartsWith('#'))
             {
@@ -59,7 +57,7 @@ public class Parser
         return new UsdxTrackMetadata(metadata);
     }
 
-    public static INote ParseUsdxNote(string line)
+    public static IBeatPaced ParseUsdxNote(string line)
     {
         string[] splitNote = line.Split(" ");
 
