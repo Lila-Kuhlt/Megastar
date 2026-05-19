@@ -39,6 +39,9 @@ public interface ITrackMetadata
     /// </summary>
     string SongFile { get; set; }
 
+    [CanBeNull]
+    string path { get; set; }
+
     /// <summary>
     /// Background image path, relative to the song directory
     /// </summary>

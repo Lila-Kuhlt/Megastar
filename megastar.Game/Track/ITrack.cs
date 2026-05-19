@@ -6,5 +6,5 @@ namespace megastar.Game.Track;
 public interface ITrack
 {
     ITrackMetadata TrackMetadata { get; set; }
-    List<INote> Notes { get; set; }
+    List<IBeatPaced> Notes { get; set; }
 }

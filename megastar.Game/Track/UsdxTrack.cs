@@ -11,25 +11,26 @@ namespace megastar.Game.Track;
 public class UsdxTrack : ITrack
 {
     public ITrackMetadata TrackMetadata { get; set; }
-    public List<INote> Notes { get; set; }
+    public List<IBeatPaced> Notes { get; set; }
 
     public UsdxTrack(UsdxTrackMetadata metadata)
     {
         TrackMetadata = metadata;
     }
 
-    public UsdxTrack(ITrackMetadata trackMetadata, List<INote> notes)
+    public UsdxTrack(ITrackMetadata trackMetadata, List<IBeatPaced> notes)
     {
         TrackMetadata = trackMetadata;
         Notes = notes;
     }
 }
 
-
 public sealed partial class UsdxTrackDrawable : CompositeDrawable, IFilterable
 {
     private UsdxTrack data { get; }
-    public IEnumerable<LocalisableString> FilterTerms => new LocalisableString[] { data.TrackMetadata.Artist, data.TrackMetadata.Title };
+
+    public IEnumerable<LocalisableString> FilterTerms => new LocalisableString[]
+        { data.TrackMetadata.Artist, data.TrackMetadata.Title };
 
     private bool matchingFilter = true;
 

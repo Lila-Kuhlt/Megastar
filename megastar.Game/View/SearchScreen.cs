@@ -15,8 +15,7 @@ namespace megastar.Game.View;
 
 public partial class SearchScreen : Screen
 {
-    [Resolved]
-    private MegastarGameBase game { get; set; } = null!;
+    [Resolved] private MegastarGameBase game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -53,8 +52,8 @@ public partial class SearchScreen : Screen
             Console.WriteLine($"Search committed for: {sender.Text}");
         };
 
-        InternalChildren = new Drawable[]
-        {
+        InternalChildren =
+        [
             new Box
             {
                 Colour = Color4.Violet,
@@ -64,6 +63,6 @@ public partial class SearchScreen : Screen
             new BackButton(this.Exit, "Go Back"),
 
             searchContainer
-        };
+        ];
     }
 }

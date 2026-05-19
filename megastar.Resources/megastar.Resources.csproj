@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
@@ -7,5 +7,11 @@
     <EmbeddedResource Include="Samples\**\*"/>
     <EmbeddedResource Include="Textures\**\*"/>
     <EmbeddedResource Include="Tracks\**\*"/>
+    <EmbeddedResource Include="Shaders\**\*"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="osu.Framework">
+      <HintPath>..\..\..\.nuget\packages\ppy.osu.framework\2026.513.0\lib\net8.0\osu.Framework.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>
