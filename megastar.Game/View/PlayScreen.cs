@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using megastar.Game.notes;
 using megastar.Game.Preset;
+using megastar.Game.Track;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
@@ -17,6 +18,8 @@ using osuTK.Graphics;
 
 namespace megastar.Game.View;
 
+
+
 public partial class PlayScreen : Screen
 {
     private osu.Framework.Audio.Track.Track track;
@@ -26,6 +29,9 @@ public partial class PlayScreen : Screen
     //TODO entfernen, sobald songs mit audio abgespielt werden können
     private double curTime = 0.0f;
 
+    //The offset from the start of the screen where notes beginn to spawn
+    public static float START_OFFSET = 1000f;
+
     private Container notesContainer = new Container
     {
         RelativeSizeAxes = Axes.X,
@@ -33,6 +39,8 @@ public partial class PlayScreen : Screen
         Anchor = Anchor.CentreLeft,
         Origin = Anchor.CentreLeft,
 
+        // Safety fallback: Forces osu!framework to keep processing this container
+        // even if it thinks the container's root position is off-screen.
         AlwaysPresent = true
     };
 
@@ -57,11 +65,7 @@ public partial class PlayScreen : Screen
                 Font = FontUsage.Default.With(size: 80),
             },
             new BackButton(this.Exit, "Go Back"),
-
-            notesContainer = new Container
-            {
-                RelativeSizeAxes = Axes.Both,
-            }
+            notesContainer
         };
     }
 
@@ -78,7 +82,8 @@ public partial class PlayScreen : Screen
     protected override void Update()
     {
         base.Update();
-        double ultraStarBpm = game.QueuedSongs.First().TrackMetadata.BPM;
+        UsdxTrack curTrack = game.QueuedSongs.First();
+        double ultraStarBpm = curTrack.TrackMetadata.BPM;
 
 
         curTime += Time.Elapsed;
@@ -86,8 +91,8 @@ public partial class PlayScreen : Screen
         //TODO hier muss der Track dann angeschlossen werden
         //track.CurrentTime should be in milliseconds.
         //double currentBeat = ((track?.CurrentTime) / 60000.0) * ultraStarBpm;
-        double currentBeat = (curTime / 60000.0) * ultraStarBpm * 4;
-        notesContainer.X = (float)(-currentBeat * UsdxNote.SCALE_FACTOR);
+        double currentBeat = ((curTime - START_OFFSET - curTrack.TrackMetadata.Gap) / 60000.0) * ultraStarBpm * 4;
+        notesContainer.X = (float)((-currentBeat * UsdxNote.SCALE_FACTOR));
     }
 
 

@@ -17,7 +17,8 @@ public class UsdxTrackMetadata()
     public string SongFile { get; set; }
     public string BackgroundImageFile { get; set; }
 
-    public string path { get; set; }
+    public string Path { get; set; }
+    public double Gap { get; set; }
 
     public UsdxTrackMetadata(string artist, string title, string creator, uint length, double bpm, string version, string songFile, string backgroundImageFile)
         : this()
@@ -51,6 +52,8 @@ public class UsdxTrackMetadata()
             SongFile = trackMetadata["songFile"];
         if (trackMetadata.ContainsKey("backgroundImageFile"))
             BackgroundImageFile = trackMetadata["backgroundImageFile"];
+        if (trackMetadata.ContainsKey("gap"))
+            Gap = Convert.ToDouble(trackMetadata["gap"], CultureInfo.InvariantCulture);
     }
 
     public new void ToString()

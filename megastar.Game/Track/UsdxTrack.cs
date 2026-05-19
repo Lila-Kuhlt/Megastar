@@ -18,11 +18,11 @@ public class UsdxTrack : ITrack
         get
         {
             // If notes haven't been loaded yet and we have a valid metadata path, parse them
-            if (notes == null && !string.IsNullOrEmpty(TrackMetadata?.path))
+            if (notes == null && !string.IsNullOrEmpty(TrackMetadata?.Path))
             {
-                if (File.Exists(TrackMetadata.path))
+                if (File.Exists(TrackMetadata.Path))
                 {
-                    string rawString = File.ReadAllText(TrackMetadata.path);
+                    string rawString = File.ReadAllText(TrackMetadata.Path);
                     notes = Parser.ParseUsdxNotes(rawString);
                 }
                 else
