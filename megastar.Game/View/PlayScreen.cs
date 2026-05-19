@@ -86,9 +86,8 @@ public partial class PlayScreen : Screen
         //TODO hier muss der Track dann angeschlossen werden
         //track.CurrentTime should be in milliseconds.
         //double currentBeat = ((track?.CurrentTime) / 60000.0) * ultraStarBpm;
-        double currentBeat = (curTime / 60000.0) * ultraStarBpm;
+        double currentBeat = (curTime / 60000.0) * ultraStarBpm * 4;
         notesContainer.X = (float)(-currentBeat * UsdxNote.SCALE_FACTOR);
-        Console.WriteLine((float)(-currentBeat * UsdxNote.SCALE_FACTOR));
     }
 
 
