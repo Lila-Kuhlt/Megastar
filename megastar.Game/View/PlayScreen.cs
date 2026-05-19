@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using megastar.Game.notes;
 using megastar.Game.Preset;
@@ -18,13 +19,17 @@ namespace megastar.Game.View;
 public partial class PlayScreen : Screen
 {
     private osu.Framework.Audio.Track.Track track;
+    [Resolved] private MegastarGameBase game { get; set; } = null!;
 
-    private UsdxNote[] curNotes = { new UsdxNote(1, 5, 5, "Gubi", UsdxNoteType.Normal), new UsdxNote(6, 5, 7, "Fortnite", UsdxNoteType.Normal) };
+    private List<IBeatPaced> curNotes = new List<IBeatPaced>();
+    //{ new UsdxNote(1, 5, 5, "Gubi", UsdxNoteType.Normal), new UsdxNote(6, 5, 7, "Fortnite", UsdxNoteType.Normal) };
+
 
     [BackgroundDependencyLoader]
     private void load(AudioManager audio)
     {
-        track = loadSong(audio, @"C:\Users\jesko\RiderProjects\Megastar\megastar.Resources\Tracks", "Abba - Thank You For The Music.mp3");
+        track = loadSong(audio, @"C:\Users\jesko\RiderProjects\Megastar\megastar.Resources\Tracks",
+            "Abba - Thank You For The Music.mp3");
 
         InternalChildren = new Drawable[]
         {
@@ -56,6 +61,7 @@ public partial class PlayScreen : Screen
     {
         base.OnEntering(e);
         track?.Start();
+        curNotes = game.QueuedSongs.First().Notes;
     }
 
     protected override void Update()

@@ -18,6 +18,8 @@ public class UsdxTrack : ITrack
         TrackMetadata = metadata;
     }
 
+
+
     public UsdxTrack(ITrackMetadata trackMetadata, List<IBeatPaced> notes)
     {
         TrackMetadata = trackMetadata;

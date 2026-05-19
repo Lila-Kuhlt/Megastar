@@ -26,7 +26,7 @@ public partial class SearchScreen : Screen
             Size = new Vector2(400, 40),
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
-            Y = 50
+            Y = 50,
         };
 
         var searchContainer = new SearchContainer<UsdxTrackDrawable>
@@ -36,10 +36,13 @@ public partial class SearchScreen : Screen
             AutoSizeAxes = Axes.Both,
             Direction = FillDirection.Vertical,
             Spacing = new Vector2(0, 10),
+            X = -100,
 
             // Generates completely new UI objects every time the screen is entered
             Children = game.LoadedSongs.Select(trackData => new UsdxTrackDrawable(trackData)).ToArray(),
         };
+
+
 
         //Bind the text changes to the search
         searchBox.Current.BindValueChanged(change =>
@@ -64,5 +67,20 @@ public partial class SearchScreen : Screen
 
             searchContainer
         ];
+
+        //FIXME Irgendwie klappt die Visuelle Darstellung nicht
+        var queue = new SearchContainer<UsdxTrackDrawable>
+        {
+            Anchor = Anchor.Centre,
+            Origin = Anchor.Centre,
+            AutoSizeAxes = Axes.Both,
+            Direction = FillDirection.Vertical,
+            Spacing = new Vector2(0, 10),
+            Colour = Color4.Red,
+
+            // Generates completely new UI objects every time the screen is entered
+            Children = game.QueuedSongs.Select(trackData => new UsdxTrackDrawable(trackData)).ToArray(),
+        };
+        Console.WriteLine(game.QueuedSongs.First().TrackMetadata.Title);
     }
 }
