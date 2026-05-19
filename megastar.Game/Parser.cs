@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using megastar.Game.notes;
 using megastar.Game.Track;
+using osu.Framework.Graphics.Primitives;
 
 namespace megastar.Game;
 
@@ -39,7 +40,10 @@ public class Parser
         Dictionary<string, string> metadata = new Dictionary<string, string>();
         using var reader = new StringReader(rawUsdx);
 
-        if (reader.ReadLine() != "#")
+
+        using var firstLineReader = new StringReader(rawUsdx);
+        string firstLine = firstLineReader.ReadLine();
+        if (firstLine != null && !firstLine.StartsWith("#"))
         {
             throw new InvalidDataException();
         }

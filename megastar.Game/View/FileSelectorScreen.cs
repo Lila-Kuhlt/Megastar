@@ -19,8 +19,7 @@ public partial class FileSelectorScreen : Screen
     private BasicDirectorySelector directorySelector = null!;
     private SpriteText selectedPathText = null!;
 
-    [Resolved]
-    private MegastarGameBase game { get; set; } = null!;
+    [Resolved] private MegastarGameBase game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -111,8 +110,8 @@ public partial class FileSelectorScreen : Screen
             {
                 FileInfo[] files = folder.GetFiles("*.txt", SearchOption.AllDirectories);
                 songFiles.AddRange(files);
-
             }
+
             var tracks = new List<UsdxTrackMetadata>();
 
             game.LoadedSongs.Clear();
@@ -131,7 +130,6 @@ public partial class FileSelectorScreen : Screen
                 }
                 catch (InvalidDataException)
                 {
-
                 }
             }
 
