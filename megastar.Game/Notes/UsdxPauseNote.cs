@@ -11,18 +11,16 @@ public class UsdxPauseNote(uint startBeat) : IBeatPaced
     public string Text { get; set; }
     public UsdxNoteType NoteType { get; set; }
 
-    private Drawable myVisual = new SpriteText
-    {
-        Anchor = Anchor.Centre,
-        Origin = Anchor.Centre,
-        Text = "PAUSE",
-    };
-
     public Drawable Visual
     {
         get
         {
-            return myVisual;
+            return new SpriteText
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                Text = "PAUSE",
+            };
         }
     }
 }

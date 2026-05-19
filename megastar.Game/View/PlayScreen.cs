@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using megastar.Game.notes;
@@ -22,8 +23,18 @@ public partial class PlayScreen : Screen
     [Resolved] private MegastarGameBase game { get; set; } = null!;
 
     private List<IBeatPaced> curNotes = new List<IBeatPaced>();
-    //{ new UsdxNote(1, 5, 5, "Gubi", UsdxNoteType.Normal), new UsdxNote(6, 5, 7, "Fortnite", UsdxNoteType.Normal) };
+    //TODO entfernen, sobald songs mit audio abgespielt werden können
+    private double curTime = 0.0f;
 
+    private Container notesContainer = new Container
+    {
+        RelativeSizeAxes = Axes.X,
+        AutoSizeAxes = Axes.Y,
+        Anchor = Anchor.CentreLeft,
+        Origin = Anchor.CentreLeft,
+
+        AlwaysPresent = true
+    };
 
     [BackgroundDependencyLoader]
     private void load(AudioManager audio)
@@ -33,7 +44,6 @@ public partial class PlayScreen : Screen
 
         InternalChildren = new Drawable[]
         {
-            //Background
             new Box
             {
                 Colour = Color4.Violet,
@@ -48,11 +58,9 @@ public partial class PlayScreen : Screen
             },
             new BackButton(this.Exit, "Go Back"),
 
-            //Container with all of the notes
-            new Container
+            notesContainer = new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                Children = curNotes.Select(note => note.Visual).ToArray()
             }
         };
     }
@@ -61,22 +69,29 @@ public partial class PlayScreen : Screen
     {
         base.OnEntering(e);
         track?.Start();
+
+        //TODO hier sollte irgendwie auch die nächsten Lieder abgespielt werden
         curNotes = game.QueuedSongs.First().Notes;
+        notesContainer.Children = curNotes.Select(note => note.Visual).ToArray();
     }
 
     protected override void Update()
     {
         base.Update();
-        //Time in ms (for 60 fps = 16.66667)
-        double delta = Time.Elapsed;
+        double ultraStarBpm = game.QueuedSongs.First().TrackMetadata.BPM;
 
-        foreach (var curNote in curNotes)
-        {
-            curNote.Visual.X -= (float)delta * 0.5f;
-        }
+
+        curTime += Time.Elapsed;
+
+        //TODO hier muss der Track dann angeschlossen werden
+        //track.CurrentTime should be in milliseconds.
+        //double currentBeat = ((track?.CurrentTime) / 60000.0) * ultraStarBpm;
+        double currentBeat = (curTime / 60000.0) * ultraStarBpm;
+        notesContainer.X = (float)(-currentBeat * UsdxNote.SCALE_FACTOR);
+        Console.WriteLine((float)(-currentBeat * UsdxNote.SCALE_FACTOR));
     }
 
-    //stop the track when leaving the screen so it doesn't leak into the menu
+
     public override bool OnExiting(ScreenExitEvent e)
     {
         track?.Stop();
@@ -85,7 +100,6 @@ public partial class PlayScreen : Screen
         return base.OnExiting(e);
     }
 
-    //FIXME hier könnte sehr viel overhead entstehen wenn das jedes mal neu geladen wird aber Turingmachine hat unendlich speicher
     private osu.Framework.Audio.Track.Track loadSong(AudioManager audioManager, string directoryPath, string fileName)
     {
         var storage = new NativeStorage(directoryPath);
