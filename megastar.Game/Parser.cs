@@ -34,6 +34,30 @@ public class Parser
         return new UsdxTrack(trackMetadata, notes);
     }
 
+    public static List<IBeatPaced> ParseUsdxNotes(string rawUsdx)
+    {
+        List<IBeatPaced> notes = new List<IBeatPaced>();
+
+        using var reader = new StringReader(rawUsdx);
+        while (reader.ReadLine() is { } line)
+        {
+            if (line.StartsWith('#'))
+            {
+                continue;
+            }
+            else if (line.StartsWith('E') || line.StartsWith('P'))
+            {
+                break;
+            }
+            else
+            {
+                notes.Add(ParseUsdxNote(line));
+            }
+        }
+
+        return notes;
+    }
+
     public static UsdxTrackMetadata ParseUsdxTrackMetadata(string rawUsdx)
     {
         if (!rawUsdx.StartsWith('#'))

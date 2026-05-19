@@ -1,11 +1,13 @@
+using osu.Framework.Graphics;
+
 namespace megastar.Game.notes;
 
 public interface INote : IBeatPaced
 {
-    uint StartBeat { get; }
-
-    int Length { get; }
-    int Pitch { get; }
-    string Text { get; }
-    UsdxNoteType NoteType { get; }
+    uint StartBeat { get; set; }
+    int Length { get; set; }
+    int Pitch { get; set; }
+    string Text { get; set; }
+    UsdxNoteType NoteType { get; set; }
+    Drawable Visual { get; }
 }

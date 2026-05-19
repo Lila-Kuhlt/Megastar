@@ -1,8 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using megastar.Game.notes;
 using megastar.Game.Preset;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.IO.Stores;
@@ -15,15 +20,30 @@ namespace megastar.Game.View;
 public partial class PlayScreen : Screen
 {
     private osu.Framework.Audio.Track.Track track;
+    [Resolved] private MegastarGameBase game { get; set; } = null!;
+
+    private List<IBeatPaced> curNotes = new List<IBeatPaced>();
+    //TODO entfernen, sobald songs mit audio abgespielt werden können
+    private double curTime = 0.0f;
+
+    private Container notesContainer = new Container
+    {
+        RelativeSizeAxes = Axes.X,
+        AutoSizeAxes = Axes.Y,
+        Anchor = Anchor.CentreLeft,
+        Origin = Anchor.CentreLeft,
+
+        AlwaysPresent = true
+    };
 
     [BackgroundDependencyLoader]
     private void load(AudioManager audio)
     {
-        track = loadSong(audio, @"C:\Users\jesko\RiderProjects\Megastar\megastar.Resources\Tracks", "Abba - Thank You For The Music.mp3");
+        track = loadSong(audio, @"C:\Users\jesko\RiderProjects\Megastar\megastar.Resources\Tracks",
+            "Abba - Thank You For The Music.mp3");
 
         InternalChildren = new Drawable[]
         {
-            //Background
             new Box
             {
                 Colour = Color4.Violet,
@@ -36,7 +56,12 @@ public partial class PlayScreen : Screen
                 Origin = Anchor.BottomCentre,
                 Font = FontUsage.Default.With(size: 80),
             },
-            new BackButton(this.Exit, "Go Back")
+            new BackButton(this.Exit, "Go Back"),
+
+            notesContainer = new Container
+            {
+                RelativeSizeAxes = Axes.Both,
+            }
         };
     }
 
@@ -44,9 +69,29 @@ public partial class PlayScreen : Screen
     {
         base.OnEntering(e);
         track?.Start();
+
+        //TODO hier sollte irgendwie auch die nächsten Lieder abgespielt werden
+        curNotes = game.QueuedSongs.First().Notes;
+        notesContainer.Children = curNotes.Select(note => note.Visual).ToArray();
     }
 
-    //stop the track when leaving the screen so it doesn't leak into the menu
+    protected override void Update()
+    {
+        base.Update();
+        double ultraStarBpm = game.QueuedSongs.First().TrackMetadata.BPM;
+
+
+        curTime += Time.Elapsed;
+
+        //TODO hier muss der Track dann angeschlossen werden
+        //track.CurrentTime should be in milliseconds.
+        //double currentBeat = ((track?.CurrentTime) / 60000.0) * ultraStarBpm;
+        double currentBeat = (curTime / 60000.0) * ultraStarBpm;
+        notesContainer.X = (float)(-currentBeat * UsdxNote.SCALE_FACTOR);
+        Console.WriteLine((float)(-currentBeat * UsdxNote.SCALE_FACTOR));
+    }
+
+
     public override bool OnExiting(ScreenExitEvent e)
     {
         track?.Stop();
@@ -55,7 +100,6 @@ public partial class PlayScreen : Screen
         return base.OnExiting(e);
     }
 
-    //FIXME hier könnte sehr viel overhead entstehen wenn das jedes mal neu geladen wird aber Turingmachine hat unendlich speicher
     private osu.Framework.Audio.Track.Track loadSong(AudioManager audioManager, string directoryPath, string fileName)
     {
         var storage = new NativeStorage(directoryPath);

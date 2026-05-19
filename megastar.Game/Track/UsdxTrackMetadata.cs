@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using megastar.Game.Track;
 
 namespace megastar.Game;
@@ -43,7 +44,7 @@ public class UsdxTrackMetadata()
         if (trackMetadata.ContainsKey("length"))
             Length = Convert.ToUInt32(trackMetadata["length"]);
         if (trackMetadata.ContainsKey("bpm"))
-            BPM = Convert.ToDouble(trackMetadata["bpm"]);
+            BPM = Convert.ToDouble(trackMetadata["bpm"], CultureInfo.InvariantCulture);
         if (trackMetadata.ContainsKey("version"))
             Version = trackMetadata["version"];
         if (trackMetadata.ContainsKey("songFile"))
