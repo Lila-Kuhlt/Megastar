@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using megastar.Game.notes;
 using megastar.Game.Track;
+
 namespace megastar.Game;
 
 public class Parser
@@ -35,16 +36,13 @@ public class Parser
 
     public static UsdxTrackMetadata ParseUsdxTrackMetadata(string rawUsdx)
     {
-        Dictionary<string, string> metadata = new Dictionary<string, string>();
-        using var reader = new StringReader(rawUsdx);
-
-
-        using var firstLineReader = new StringReader(rawUsdx);
-        string firstLine = firstLineReader.ReadLine();
-        if (firstLine != null && !firstLine.StartsWith("#"))
+        if (!rawUsdx.StartsWith('#'))
         {
             throw new InvalidDataException();
         }
+
+        Dictionary<string, string> metadata = new Dictionary<string, string>();
+        using var reader = new StringReader(rawUsdx);
 
         while (reader.ReadLine() is { } line)
         {
@@ -53,7 +51,7 @@ public class Parser
                 break;
             }
 
-            metadata.Add((line.Split(":")[0].Replace("#", "")).ToLower(), line.Split(":")[1]);
+            metadata.Add(line.Split(":")[0].Replace("#", "").ToLower(), line.Split(":")[1]);
         }
 
         return new UsdxTrackMetadata(metadata);
