@@ -68,19 +68,5 @@ public partial class SearchScreen : Screen
             searchContainer
         ];
 
-        //TODO Irgendwie klappt die Visuelle Darstellung nicht
-        var queue = new SearchContainer<UsdxTrackDrawable>
-        {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
-            AutoSizeAxes = Axes.Both,
-            Direction = FillDirection.Vertical,
-            Spacing = new Vector2(0, 10),
-            Colour = Color4.Red,
-
-            // Generates completely new UI objects every time the screen is entered
-            Children = game.QueuedSongs.Select(trackData => new UsdxTrackDrawable(trackData)).ToArray(),
-        };
-        Console.WriteLine(game.QueuedSongs.First().TrackMetadata.Title);
     }
 }
