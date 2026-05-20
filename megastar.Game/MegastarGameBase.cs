@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using megastar.Game.Track;
 using megastar.Resources;
 using osu.Framework.Allocation;
@@ -36,9 +38,14 @@ namespace megastar.Game
         [BackgroundDependencyLoader]
         private void load()
         {
-            var assembly = typeof(MegastarResources).Assembly;
+            // disable tablet discovery
+            Host.Storage.GetStorageForDirectory("config");
+            var localConfig = Host.AvailableInputHandlers;
+            foreach (var handler in Host.AvailableInputHandlers.Where(handler =>
+                         handler.GetType().Name.Contains("Tablet", StringComparison.OrdinalIgnoreCase)))
+                handler.Enabled.Value = false;
 
-            Resources.AddStore(new DllResourceStore(assembly));
+            Resources.AddStore(new DllResourceStore(typeof(MegastarResources).Assembly));
         }
     }
 }
