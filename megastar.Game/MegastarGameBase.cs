@@ -28,12 +28,17 @@ namespace megastar.Game
             });
         }
 
-        public List<UsdxTrack> LoadedSongs { get; private set; } = new List<UsdxTrack>();
+        public List<UsdxTrack> LoadedSongs { get; private set; } = [];
+
+        //QUEWE
+        public List<UsdxTrack> QueuedSongs { get; private set; } = new List<UsdxTrack>();
 
         [BackgroundDependencyLoader]
         private void load()
         {
-            Resources.AddStore(new DllResourceStore(typeof(MegastarResources).Assembly));
+            var assembly = typeof(MegastarResources).Assembly;
+
+            Resources.AddStore(new DllResourceStore(assembly));
         }
     }
 }

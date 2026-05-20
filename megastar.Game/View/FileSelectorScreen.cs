@@ -19,8 +19,7 @@ public partial class FileSelectorScreen : Screen
     private BasicDirectorySelector directorySelector = null!;
     private SpriteText selectedPathText = null!;
 
-    [Resolved]
-    private MegastarGameBase game { get; set; } = null!;
+    [Resolved] private MegastarGameBase game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -104,8 +103,15 @@ public partial class FileSelectorScreen : Screen
         {
             string songsPath = currentDir.FullName;
             Console.WriteLine(currentDir.FullName);
-            var fd = new DirectoryInfo(songsPath);
-            FileInfo[] songFiles = currentDir.GetFiles("*.txt", SearchOption.AllDirectories);
+            var directories = new List<DirectoryInfo>();
+            directories.Add(currentDir);
+            var songFiles = new List<FileInfo>();
+            foreach (var folder in directories)
+            {
+                FileInfo[] files = folder.GetFiles("*.txt", SearchOption.AllDirectories);
+                songFiles.AddRange(files);
+            }
+
             var tracks = new List<UsdxTrackMetadata>();
 
             game.LoadedSongs.Clear();
@@ -113,12 +119,23 @@ public partial class FileSelectorScreen : Screen
             foreach (FileInfo file in songFiles)
             {
                 string content = File.ReadAllText(file.FullName);
-                var metadata = Parser.ParseUsdxTrackMetadata(content);
-                metadata.path = file.FullName;
-                tracks.Add(metadata);
-                game.LoadedSongs.Add(new UsdxTrack(metadata));
-                Console.WriteLine(((Object)tracks[^1]).ToString());
+                try
+                {
+                    var metadata = Parser.ParseUsdxTrackMetadata(content);
+
+                    metadata.Path = file.FullName;
+                    metadata.DirPath = file.DirectoryName;
+                    tracks.Add(metadata);
+                    game.LoadedSongs.Add(new UsdxTrack(metadata));
+                    Console.WriteLine(((Object)tracks[^1]).ToString());
+                }
+                catch (InvalidDataException)
+                {
+                }
             }
+
+            //TODO HIER IRGENDWIE Adden, dass man songs queuen kann
+            game.QueuedSongs.Add(game.LoadedSongs[1]);
 
             AddInternal(
                 new SpriteText()
