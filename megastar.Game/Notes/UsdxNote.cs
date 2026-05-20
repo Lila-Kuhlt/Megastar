@@ -32,6 +32,7 @@ public class UsdxNote
                     {
                         Colour = Colour4.Teal,
                         Size = new Vector2(this.Length * SCALE_FACTOR, HEIGHT_FACTOR),
+                        Y = Pitch * HEIGHT_FACTOR
                     },
                     new SpriteText
                     {
@@ -39,7 +40,7 @@ public class UsdxNote
                         Colour = Colour4.White,
                         Anchor = Anchor.BottomCentre,
                         Origin = Anchor.TopCentre,
-                        Y = HEIGHT_FACTOR + 5
+                        Y = 40
                     }
                 }
             };

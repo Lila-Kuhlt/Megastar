@@ -39,7 +39,15 @@ public interface ITrackMetadata
     /// </summary>
     string SongFile { get; set; }
 
-    [CanBeNull] string Path { get; set; }
+    /// <summary>
+    /// The Path of the text file
+    /// </summary>
+    string Path { get; set; }
+
+    /// <summary>
+    /// The Path of the directory
+    /// </summary>
+    string DirPath {get; set;}
 
     /// <summary>
     /// Background image path, relative to the song directory
@@ -51,4 +59,6 @@ public interface ITrackMetadata
     /// Gap between the start of the song and the first note. Should be 0 if none exists
     /// </summary>
     double Gap { get; set; }
+
+
 }
