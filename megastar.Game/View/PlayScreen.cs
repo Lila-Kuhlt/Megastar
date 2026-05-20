@@ -14,6 +14,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
+using osu.Framework.Graphics.Video;
 using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
@@ -30,6 +31,7 @@ public partial class PlayScreen : Screen
     [Resolved] private GameHost host { get; set; } = null!; // Resolved to manage NativeStorage instances safely
 
     private List<IBeatPaced> curNotes = new List<IBeatPaced>();
+    private osu.Framework.Timing.FramedClock videoClock;
 
 
     //The offset from the start of the screen where notes beginn to spawn
@@ -58,6 +60,7 @@ public partial class PlayScreen : Screen
     private TextureStore activeTextureStore;
     private StorageBackedResourceStore activeTextureResourceStore;
     private StorageBackedResourceStore activeAudioResourceStore;
+    private StorageBackedResourceStore activeVideoRessourceStore;
 
     [BackgroundDependencyLoader]
     private void load(AudioManager audio)
@@ -92,29 +95,15 @@ public partial class PlayScreen : Screen
             AddInternal(new SpriteText()
             {
                 Text = "Error, Song konnte nicht geladen werden",
-                Anchor =  Anchor.Centre,
+                Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
             });
         }
-
     }
 
     private void setUpTrack(UsdxTrack usdxTrack)
     {
-        //CLEANUP PREVIOUS SONG TRACK & RESOURCES
-        track?.Stop();
-        track?.Dispose();
-        track = null;
-        activeAudioResourceStore?.Dispose();
-        activeAudioResourceStore = null;
-
-        // CLEANUP PREVIOUS BACKGROUND IMAGES & TEXTURE CACHES
-        currentBackground?.Expire();
-        backgroundLayer.Clear();
-        activeTextureStore?.Dispose();
-        activeTextureStore = null;
-        activeTextureResourceStore?.Dispose();
-        activeTextureResourceStore = null;
+        cleanUpOldStores();
 
         //Load notes
         curNotes = usdxTrack.Notes;
@@ -123,8 +112,29 @@ public partial class PlayScreen : Screen
         track = loadSong(audioManager, usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.SongFile);
         track?.Start();
 
-        loadBackgroundImage(usdxTrack);
+        loadBackgroundVideo(usdxTrack);
+        //loadBackgroundImage(usdxTrack);
         curTrack = usdxTrack;
+    }
+
+    private void cleanUpOldStores()
+    {
+        //CLEANUP PREVIOUS SONG TRACK & RESOURCES
+        track?.Stop();
+        track?.Dispose();
+        track = null;
+        activeAudioResourceStore?.Dispose();
+        activeAudioResourceStore = null;
+        activeVideoRessourceStore?.Dispose();
+        activeVideoRessourceStore = null;
+
+        // CLEANUP PREVIOUS BACKGROUND IMAGES & TEXTURE CACHES
+        currentBackground?.Expire();
+        backgroundLayer.Clear();
+        activeTextureStore?.Dispose();
+        activeTextureStore = null;
+        activeTextureResourceStore?.Dispose();
+        activeTextureResourceStore = null;
     }
 
     private void loadBackgroundImage(UsdxTrack usdxTrack)
@@ -164,11 +174,57 @@ public partial class PlayScreen : Screen
         }
     }
 
+    private void loadBackgroundVideo(UsdxTrack usdxTrack)
+    {
+        if (usdxTrack.TrackMetadata.BackgroundVideoFile.IsNotNull())
+        {
+            try
+            {
+                string videoPath = Path.Combine(usdxTrack.TrackMetadata.DirPath,
+                    usdxTrack.TrackMetadata.BackgroundVideoFile);
+
+                if (File.Exists(videoPath))
+                {
+                    Video backgroundVideo = new Video(videoPath)
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        FillMode = FillMode.Fill,
+                        Alpha = 0,
+                        Loop = false,
+                    };
+                    osu.Framework.Timing.IClock sourceClock = track;
+
+
+                    if (usdxTrack.TrackMetadata.VideoGap.IsNotNull())
+                    {
+                        sourceClock = new osu.Framework.Timing.OffsetClock(sourceClock)
+                        {
+                            Offset = usdxTrack.TrackMetadata.VideoGap
+                        };
+                    }
+
+                    videoClock = new osu.Framework.Timing.FramedClock(sourceClock);
+                    backgroundVideo.Clock = videoClock;
+
+                    backgroundLayer.Add(backgroundVideo);
+                    backgroundVideo.FadeIn(500, Easing.OutQuint);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Failed to load karaoke track background video.");
+            }
+        }
+    }
+
     protected override void Update()
     {
         base.Update();
+        videoClock?.ProcessFrame();
 
-        if (curTrack != null)
+        if (curTrack != null && track != null)
         {
             double ultraStarBpm = curTrack.TrackMetadata.BPM;
 
@@ -177,7 +233,6 @@ public partial class PlayScreen : Screen
                                  ultraStarBpm * 4;
             notesContainer.X = (float)((-currentBeat * UsdxNote.SCALE_FACTOR));
         }
-
     }
 
     public override bool OnExiting(ScreenExitEvent e)

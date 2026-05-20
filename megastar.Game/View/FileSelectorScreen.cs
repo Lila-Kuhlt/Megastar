@@ -135,7 +135,7 @@ public partial class FileSelectorScreen : Screen
             }
 
             //TODO HIER IRGENDWIE Adden, dass man songs queuen kann
-            game.QueuedSongs.Add(game.LoadedSongs[1]);
+            game.QueuedSongs.Add(game.LoadedSongs[0]);
 
             AddInternal(
                 new SpriteText()
