@@ -65,11 +65,11 @@ public partial class SearchScreen : Screen
             searchBox,
             new BackButton(this.Exit, "Go Back"),
 
-            new BasicScrollContainer // Or ScrollContainer<Drawable>
+            new BasicScrollContainer
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                Size = new Vector2(500, 600), // 1. Give the scroll container a explicit size so it knows when to scroll
+                Size = new Vector2(500, 600),
                 X = -100,
                 Y = 30,
 
