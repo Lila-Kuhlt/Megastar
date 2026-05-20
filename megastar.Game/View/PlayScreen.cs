@@ -205,11 +205,11 @@ public partial class PlayScreen : Screen
                         };
                     }
 
-                    videoClock = new osu.Framework.Timing.FramedClock(sourceClock);
-                    backgroundVideo.Clock = videoClock;
 
                     backgroundLayer.Add(backgroundVideo);
                     backgroundVideo.FadeIn(500, Easing.OutQuint);
+
+                    //AddInternal(backgroundVideo);
                 }
             }
             catch (Exception ex)
