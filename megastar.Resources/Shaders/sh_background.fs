@@ -13,6 +13,7 @@ layout (location = 0) out vec4 FragColor;
 void main(void)
 {
     vec2 uv = v_TexCoord / g_Resoltuion;
-    uv.y = 1 - uv.y;
+    uv.y = 1 - sin(uv.y + g_Time) ;
+    uv.x = sin(uv.x + g_Time);
     FragColor = vec4(vec2(uv), 0.0, 1.0);
 }
