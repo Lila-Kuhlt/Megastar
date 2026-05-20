@@ -67,6 +67,5 @@ public partial class SearchScreen : Screen
 
             searchContainer
         ];
-
     }
 }

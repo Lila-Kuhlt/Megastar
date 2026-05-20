@@ -36,6 +36,7 @@ public partial class PlayScreen : Screen
     private static float START_OFFSET = 1000f;
 
     private static AudioManager audioManager;
+    private UsdxTrack curTrack;
 
     private Container notesContainer = new Container
     {
@@ -81,7 +82,21 @@ public partial class PlayScreen : Screen
         base.OnEntering(e);
 
         //TODO hier sollte irgendwie auch die nächsten Lieder abgespielt werden
-        setUpTrack(game.QueuedSongs.First());
+        try
+        {
+            setUpTrack(game.QueuedSongs.First());
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception);
+            AddInternal(new SpriteText()
+            {
+                Text = "Error, Song konnte nicht geladen werden",
+                Anchor =  Anchor.Centre,
+                Origin = Anchor.Centre,
+            });
+        }
+
     }
 
     private void setUpTrack(UsdxTrack usdxTrack)
@@ -109,6 +124,7 @@ public partial class PlayScreen : Screen
         track?.Start();
 
         loadBackgroundImage(usdxTrack);
+        curTrack = usdxTrack;
     }
 
     private void loadBackgroundImage(UsdxTrack usdxTrack)
@@ -151,14 +167,17 @@ public partial class PlayScreen : Screen
     protected override void Update()
     {
         base.Update();
-        UsdxTrack curTrack = game.QueuedSongs.First();
-        double ultraStarBpm = curTrack.TrackMetadata.BPM;
 
-        //TODO hier muss der Track dann angeschlossen werden
-        //track.CurrentTime should be in milliseconds.
-        double currentBeat = ((track.CurrentTime - START_OFFSET - curTrack.TrackMetadata.Gap) / 60000.0) *
-                             ultraStarBpm * 4;
-        notesContainer.X = (float)((-currentBeat * UsdxNote.SCALE_FACTOR));
+        if (curTrack != null)
+        {
+            double ultraStarBpm = curTrack.TrackMetadata.BPM;
+
+            //track.CurrentTime should be in milliseconds.
+            double currentBeat = ((track.CurrentTime - START_OFFSET - curTrack.TrackMetadata.Gap) / 60000.0) *
+                                 ultraStarBpm * 4;
+            notesContainer.X = (float)((-currentBeat * UsdxNote.SCALE_FACTOR));
+        }
+
     }
 
     public override bool OnExiting(ScreenExitEvent e)
