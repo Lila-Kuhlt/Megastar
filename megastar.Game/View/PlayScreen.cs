@@ -112,8 +112,8 @@ public partial class PlayScreen : Screen
         track = loadSong(audioManager, usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.SongFile);
         track?.Start();
 
+        loadBackgroundImage(usdxTrack);
         loadBackgroundVideo(usdxTrack);
-        //loadBackgroundImage(usdxTrack);
         curTrack = usdxTrack;
     }
 
