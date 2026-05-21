@@ -31,7 +31,6 @@ public partial class PlayScreen : Screen
     [Resolved] private GameHost host { get; set; } = null!; // Resolved to manage NativeStorage instances safely
 
     private List<IBeatPaced> curNotes = new List<IBeatPaced>();
-    private osu.Framework.Timing.FramedClock videoClock;
 
 
     //The offset from the start of the screen where notes beginn to spawn
@@ -39,6 +38,7 @@ public partial class PlayScreen : Screen
 
     private static AudioManager audioManager;
     private UsdxTrack curTrack;
+    private Video backgroundVideo;
 
     private Container notesContainer = new Container
     {
@@ -180,36 +180,39 @@ public partial class PlayScreen : Screen
         {
             try
             {
-                string videoPath = Path.Combine(usdxTrack.TrackMetadata.DirPath,
-                    usdxTrack.TrackMetadata.BackgroundVideoFile);
+                string videoPath = Path.Combine(usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.BackgroundVideoFile);
 
                 if (File.Exists(videoPath))
                 {
-                    Video backgroundVideo = new Video(videoPath)
+                    // Let C# handle the file reading safely to bypass FFmpeg pathing issues
+                    Stream videoStream = File.OpenRead(videoPath);
+
+                    backgroundVideo = new Video(videoStream) // Pass the stream, not the string!
                     {
                         RelativeSizeAxes = Axes.Both,
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         FillMode = FillMode.Fill,
                         Alpha = 0,
-                        Loop = false,
+                        Loop = true,
                     };
-                    osu.Framework.Timing.IClock sourceClock = track;
 
+                    double gap = usdxTrack.TrackMetadata.VideoGap.IsNotNull()
+                        ? (double)usdxTrack.TrackMetadata.VideoGap
+                        : 0;
 
-                    if (usdxTrack.TrackMetadata.VideoGap.IsNotNull())
+                    backgroundVideo.Clock = new osu.Framework.Timing.FramedOffsetClock(track)
                     {
-                        sourceClock = new osu.Framework.Timing.OffsetClock(sourceClock)
-                        {
-                            Offset = usdxTrack.TrackMetadata.VideoGap
-                        };
-                    }
-
+                        Offset = gap
+                    };
 
                     backgroundLayer.Add(backgroundVideo);
-                    backgroundVideo.FadeIn(500, Easing.OutQuint);
 
-                    //AddInternal(backgroundVideo);
+                    backgroundVideo.OnLoadComplete += v =>
+                    {
+                        Console.WriteLine("FERTIG GELADNE");
+                        v.FadeIn(500, Easing.OutQuint);
+                    };
                 }
             }
             catch (Exception ex)
@@ -222,7 +225,6 @@ public partial class PlayScreen : Screen
     protected override void Update()
     {
         base.Update();
-        videoClock?.ProcessFrame();
 
         if (curTrack != null && track != null)
         {

@@ -4,7 +4,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\megastar.Resources\megastar.Resources.csproj"/>
+    <ProjectReference Include="..\megastar.Resources\megastar.Resources.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="files\"/>
+    <Folder Include="files\" />
     <Folder Include="Track\" />
   </ItemGroup>
 </Project>
