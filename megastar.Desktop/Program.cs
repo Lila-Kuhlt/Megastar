@@ -1,4 +1,6 @@
-﻿using megastar.Game;
+﻿using ManagedBass;
+using megastar.Game;
+using megastar.Game.Audio;
 using osu.Framework;
 using osu.Framework.Platform;
 
@@ -10,6 +12,7 @@ namespace megastar.Desktop
         {
             using GameHost host = Host.GetSuitableDesktopHost(@"megastar");
             using osu.Framework.Game game = new MegastarGame();
+
             host.Run(game);
         }
     }
