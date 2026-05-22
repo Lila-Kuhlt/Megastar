@@ -46,7 +46,8 @@ namespace megastar.Game
         protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
         {
             var dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
-            var translations = new TranslationStore();
+            // Default language is set here
+            var translations = new TranslationStore("de-DE");
 
             dependencies.CacheAs(translations);
 
