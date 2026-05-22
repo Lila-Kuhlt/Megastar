@@ -24,7 +24,7 @@ public partial class FileSelectorScreen : Screen
     [Resolved] private MegastarGameBase game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
-    private void load(TranslationManager t)
+    private void load(MsTranslationStore t)
     {
         InternalChildren = new Drawable[]
         {
@@ -97,7 +97,7 @@ public partial class FileSelectorScreen : Screen
         }, true);
     }
 
-    private void confirmSelection(TranslationManager t)
+    private void confirmSelection(MsTranslationStore t)
     {
         DirectoryInfo? currentDir = directorySelector.CurrentPath.Value;
 

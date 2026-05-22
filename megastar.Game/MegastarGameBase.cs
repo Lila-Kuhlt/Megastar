@@ -22,6 +22,7 @@ namespace megastar.Game
         // the screen scaling for all components including the test browser and framework overlays.
 
         protected override Container<Drawable> Content { get; }
+        private MsTranslationStore translationStore;
 
         protected MegastarGameBase()
         {
@@ -46,11 +47,9 @@ namespace megastar.Game
         protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
         {
             var dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
-            // Default language is set here
-            var translations = new TranslationManager("de-DE");
+            translationStore = new MsTranslationStore(new DllResourceStore(typeof(MegastarResources).Assembly));
 
-            dependencies.CacheAs(translations);
-
+            dependencies.CacheAs(translationStore);
             return dependencies;
         }
 
@@ -70,6 +69,7 @@ namespace megastar.Game
                 handler.Enabled.Value = false;
 
             Resources.AddStore(new DllResourceStore(typeof(MegastarResources).Assembly));
+            translationStore.SetLanguage("en-US");
         }
     }
 }

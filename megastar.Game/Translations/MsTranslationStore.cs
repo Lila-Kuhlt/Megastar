@@ -15,31 +15,37 @@ using osu.Framework.IO.Stores;
 
 namespace megastar.Game.Translations;
 
-public class TranslationManager : IResourceStore<FluentBundle>
+/// <summary>
+/// Megastar Translation Store (not TranslationStore because of naming conflicts with framework internal translation handler)
+/// </summary>
+public class MsTranslationStore : IResourceStore<FluentBundle>
 {
-    private readonly IResourceStore<byte[]> baseStore;
+    private readonly IResourceStore<byte[]> store;
     private string selectedLanguage;
 
     /// <summary>
-    /// Creates a new TranslationManager. With an optional default language.
+    /// Creates a new MsTranslationStore. With an optional default language.
     /// </summary>
+    /// <param name="baseStore">
+    /// The underlying store containing the translation files.
+    /// </param>
     /// <param name="defaultLanguage">
     /// (optional) Language code of the language to use. If not set or language not available, uses the first available translation in the Translations directory.
     /// </param>
-    public TranslationManager(string defaultLanguage = null)
+    public MsTranslationStore(IResourceStore<byte[]> baseStore, string defaultLanguage = null)
     {
         var resourceAssembly = typeof(MegastarResources).Assembly;
-        baseStore = new NamespacedResourceStore<byte[]>(new DllResourceStore(resourceAssembly), "Translations");
+        store = new NamespacedResourceStore<byte[]>(baseStore, "Translations");;
         selectedLanguage = defaultLanguage != null && GetAvailableResources().Contains(defaultLanguage) ? defaultLanguage : GetAvailableResources().First();
     }
 
     /// <summary>
-    /// Updates the default language used for translations.
+    /// Updates the language used for translations.
     /// </summary>
     /// <param name="language">
     /// Language code of the language to use. If language not available, keeps the previous language
     /// </param>
-    public void SetDefaultLanguage(string language)
+    public void SetLanguage(string language)
     {
         selectedLanguage = language;
     }
@@ -47,7 +53,6 @@ public class TranslationManager : IResourceStore<FluentBundle>
     /// <summary>
     ///     Passthrough method for <see cref="IReadBundle.GetAttrMessage" />, so there is less method chaining.
     /// </summary>
-    /// <param name="language">The language to use.</param>
     /// <param name="msgWithAttr">The message with attribute to retrieve.</param>
     /// <param name="args">Optional arguments to format the message.</param>
     /// <returns>The attribute message from the read bundle.</returns>
@@ -102,7 +107,7 @@ public class TranslationManager : IResourceStore<FluentBundle>
     {
         if (!language.EndsWith(".ftl"))
             language += ".ftl";
-        var data = baseStore.Get(language);
+        var data = store.Get(language);
 
         var (bundle, errors) = LinguiniBuilder.Builder().CultureInfo(new CultureInfo(Regex.Replace(language, "\\.ftl$", ""))).AddResource(new StreamReader(new MemoryStream(data))).Build();
 
@@ -127,7 +132,7 @@ public class TranslationManager : IResourceStore<FluentBundle>
     {
         if (!language.EndsWith(".ftl"))
             language += ".ftl";
-        var data = await baseStore.GetAsync(language, cancellationToken);
+        var data = await store.GetAsync(language, cancellationToken);
 
         var (bundle, errors) = LinguiniBuilder.Builder().CultureInfo(new CultureInfo(Regex.Replace(language, "\\.ftl$", ""))).AddResource(new StreamReader(new MemoryStream(data))).Build();
 
@@ -139,12 +144,12 @@ public class TranslationManager : IResourceStore<FluentBundle>
         return bundle;
     }
 
-    public Stream GetStream(string name) => baseStore.GetStream(name);
+    public Stream GetStream(string name) => store.GetStream(name);
 
     /// <summary>
     /// Returns a list of all available languages by language code.
     /// </summary>
-    public IEnumerable<string> GetAvailableResources() => baseStore.GetAvailableResources().Select(r => Regex.Replace(r, "\\.ftl$", ""));
+    public IEnumerable<string> GetAvailableResources() => store.GetAvailableResources().Select(r => Regex.Replace(r, "\\.ftl$", ""));
 
-    public void Dispose() => baseStore?.Dispose();
+    public void Dispose() => store?.Dispose();
 }

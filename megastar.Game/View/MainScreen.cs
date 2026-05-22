@@ -18,7 +18,7 @@ namespace megastar.Game.View
     public partial class MainScreen : Screen
     {
         [BackgroundDependencyLoader]
-        private void load(TranslationManager t)
+        private void load(MsTranslationStore t)
         {
             InternalChildren =
             [

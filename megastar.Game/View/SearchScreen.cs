@@ -19,7 +19,7 @@ public partial class SearchScreen : Screen
     [Resolved] private MegastarGameBase game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
-    private void load(TranslationManager t)
+    private void load(MsTranslationStore t)
     {
         var searchBox = new BasicTextBox
         {

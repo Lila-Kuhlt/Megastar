@@ -62,13 +62,13 @@ public partial class PlayScreen : Screen
     private StorageBackedResourceStore activeTextureResourceStore;
     private StorageBackedResourceStore activeAudioResourceStore;
     private StorageBackedResourceStore activeVideoRessourceStore;
-    private TranslationManager t;
+    private MsTranslationStore t;
 
     [BackgroundDependencyLoader]
-    private void load(AudioManager audio, TranslationManager translationManager)
+    private void load(AudioManager audio, MsTranslationStore msTranslationStore)
     {
         audioManager = audio;
-        t = translationManager;
+        t = msTranslationStore;
 
         InternalChildren = new Drawable[]
         {
