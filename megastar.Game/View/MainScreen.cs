@@ -1,4 +1,6 @@
+using Linguini.Bundle;
 using megastar.Game.Preset;
+using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -16,7 +18,7 @@ namespace megastar.Game.View
     public partial class MainScreen : Screen
     {
         [BackgroundDependencyLoader]
-        private void load()
+        private void load(MsTranslationStore t)
         {
             InternalChildren =
             [
@@ -27,7 +29,7 @@ namespace megastar.Game.View
                 new SpriteText
                 {
                     Y = 20,
-                    Text = "ULTRA MEGA PREMIUM DELUXE KARAOKE",
+                    Text = t["main-title"],
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
                     Font = FontUsage.Default.With(size: 80),
@@ -47,26 +49,26 @@ namespace megastar.Game.View
                     {
                         new BasicButton
                         {
-                            Text = "Start Game",
+                            Text = t["main-start-game"],
                             Size = new Vector2(200, 40),
                             BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new PlayScreen()),
                         },
                         new BasicButton
                         {
-                            Text = "Search",
+                            Text = t["main-search"],
                             Size = new Vector2(200, 40),
                             BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new SearchScreen()),
                         },
                         new BasicButton
                         {
-                            Text = "Index Files",
+                            Text = t["main-index"],
                             Size = new Vector2(200, 40),
                             BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new FileSelectorScreen()),
                         },
-                        new BackButton(Game.Exit, "Exit")
+                        new BackButton(Game.Exit, t["main-exit"])
                     }
                 }
             ];
