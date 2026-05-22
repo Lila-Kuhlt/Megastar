@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ppy.osu.Framework" Version="2026.513.0" />
+    <PackageReference Include="Linguini.Bundle" Version="0.11.0" />
     <PackageReference Include="ppy.osu.Framework" Version="2026.513.0"/>
     <PackageReference Include="ppy.osu.Framework.NativeLibs" Version="2025.806.0-nativelibs"/>
   </ItemGroup>

@@ -5,6 +5,7 @@ using System.Linq;
 using megastar.Game.notes;
 using megastar.Game.Preset;
 using megastar.Game.Track;
+using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
@@ -61,11 +62,13 @@ public partial class PlayScreen : Screen
     private StorageBackedResourceStore activeTextureResourceStore;
     private StorageBackedResourceStore activeAudioResourceStore;
     private StorageBackedResourceStore activeVideoRessourceStore;
+    private MsTranslationStore t;
 
     [BackgroundDependencyLoader]
-    private void load(AudioManager audio)
+    private void load(AudioManager audio, MsTranslationStore msTranslationStore)
     {
         audioManager = audio;
+        t = msTranslationStore;
 
         InternalChildren = new Drawable[]
         {
@@ -75,7 +78,7 @@ public partial class PlayScreen : Screen
                 RelativeSizeAxes = Axes.Both,
             },
             backgroundLayer,
-            new BackButton(this.Exit, "Go Back"),
+            new BackButton(this.Exit, t["common-back"]),
             notesContainer
         };
     }
@@ -94,7 +97,7 @@ public partial class PlayScreen : Screen
             Console.WriteLine(exception);
             AddInternal(new SpriteText()
             {
-                Text = "Error, Song konnte nicht geladen werden",
+                Text = t["play-song-error"],
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
             });
@@ -169,7 +172,7 @@ public partial class PlayScreen : Screen
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Failed to load karaoke track background image.");
+                Logger.Error(ex, t["play-background-image-error"]);
             }
         }
     }
@@ -217,7 +220,7 @@ public partial class PlayScreen : Screen
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Failed to load karaoke track background video.");
+                Logger.Error(ex, t["play-background-video-error"]);
             }
         }
     }
@@ -260,7 +263,7 @@ public partial class PlayScreen : Screen
         }
         catch (Exception ex)
         {
-            Logger.Error(ex, "Failed to load karaoke audio track.");
+            Logger.Error(ex, t["play-audio-error"]);
             return null;
         }
     }
