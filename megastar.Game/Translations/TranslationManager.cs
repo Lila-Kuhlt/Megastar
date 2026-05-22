@@ -14,18 +14,18 @@ using osu.Framework.IO.Stores;
 
 namespace megastar.Game.Translations;
 
-public class TranslationStore : IResourceStore<FluentBundle>
+public class TranslationManager : IResourceStore<FluentBundle>
 {
     private readonly IResourceStore<byte[]> baseStore;
     private string selectedLanguage;
 
     /// <summary>
-    /// Creates a new TranslationStore. With an optional default language.
+    /// Creates a new TranslationManager. With an optional default language.
     /// </summary>
     /// <param name="defaultLanguage">
     /// (optional) Language code of the language to use. If not set or language not available, uses the first available translation in the Translations directory.
     /// </param>
-    public TranslationStore(string defaultLanguage = null)
+    public TranslationManager(string defaultLanguage = null)
     {
         var resourceAssembly = typeof(MegastarResources).Assembly;
         baseStore = new NamespacedResourceStore<byte[]>(new DllResourceStore(resourceAssembly), "Translations");

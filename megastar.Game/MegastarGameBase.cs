@@ -47,7 +47,7 @@ namespace megastar.Game
         {
             var dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
             // Default language is set here
-            var translations = new TranslationStore("de-DE");
+            var translations = new TranslationManager("de-DE");
 
             dependencies.CacheAs(translations);
 
