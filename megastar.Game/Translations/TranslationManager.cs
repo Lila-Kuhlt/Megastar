@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Linguini.Bundle.Builder;
 using Linguini.Bundle;
+using Linguini.Bundle.Errors;
 using Linguini.Shared.Types.Bundle;
 using megastar.Resources;
 using osu.Framework.IO.Stores;
@@ -64,7 +65,15 @@ public class TranslationManager : IResourceStore<FluentBundle>
     /// <returns>The attribute message from the read bundle.</returns>
     public string GetAttrMessage(string language, string msgWithAttr, params (string, IFluentType)[] args)
     {
-        return Get(language).GetAttrMessage(msgWithAttr, args);
+        try
+        {
+            return Get(language).GetAttrMessage(msgWithAttr, args);
+        }
+        catch (LinguiniException)
+        {
+            Console.Error.WriteLine($"[ERROR] Missing translation for key \"{msgWithAttr}\" in language {language}");
+            return $"[MISSING] key \"{msgWithAttr}\" in language {language}";
+        }
     }
 
     /// <summary>
