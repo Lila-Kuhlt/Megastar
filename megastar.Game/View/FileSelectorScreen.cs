@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Linguini.Shared.Types.Bundle;
 using megastar.Game.Preset;
 using megastar.Game.Track;
+using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
@@ -22,7 +24,7 @@ public partial class FileSelectorScreen : Screen
     [Resolved] private MegastarGameBase game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(TranslationManager t)
     {
         InternalChildren = new Drawable[]
         {
@@ -35,7 +37,7 @@ public partial class FileSelectorScreen : Screen
 
             new SpriteText
             {
-                Text = "Wähle den Song-Ordner aus:",
+                Text = t.GetAttrMessage("index-select-folder"),
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 Y = 20,
@@ -43,7 +45,7 @@ public partial class FileSelectorScreen : Screen
             },
             new BasicButton
             {
-                Text = "Go Back",
+                Text = t.GetAttrMessage("common-back"),
                 Anchor = Anchor.TopLeft,
                 Origin = Anchor.TopLeft,
                 Size = new Vector2(100, 40),
@@ -67,7 +69,7 @@ public partial class FileSelectorScreen : Screen
                 Y = -80,
                 Font = FontUsage.Default.With(size: 24),
             },
-            new BackButton(this.Exit, "Go Back"),
+            new BackButton(this.Exit, t.GetAttrMessage("common-back")),
             selectedPathText = new SpriteText
             {
                 Anchor = Anchor.BottomCentre,
@@ -79,23 +81,23 @@ public partial class FileSelectorScreen : Screen
             // A button to confirm the selection
             new BasicButton
             {
-                Text = "Select Current Folder",
+                Text = t.GetAttrMessage("index-select-current-folder"),
                 Anchor = Anchor.BottomCentre,
                 Origin = Anchor.BottomCentre,
                 Size = new Vector2(200, 50),
                 Y = -20,
-                Action = confirmSelection
+                Action = () => confirmSelection(t)
             }
         };
 
         // Track when the user clicks into different directories
         directorySelector.CurrentPath.BindValueChanged(pathChanged =>
         {
-            selectedPathText.Text = $"Selected: {pathChanged.NewValue?.FullName}";
+            selectedPathText.Text = t.GetAttrMessage("index-folder-selected", ("folderName", (FluentString) pathChanged.NewValue?.FullName));
         }, true);
     }
 
-    private void confirmSelection()
+    private void confirmSelection(TranslationManager t)
     {
         DirectoryInfo? currentDir = directorySelector.CurrentPath.Value;
 
@@ -140,7 +142,7 @@ public partial class FileSelectorScreen : Screen
             AddInternal(
                 new SpriteText()
                 {
-                    Text = "Folder successfully selected.",
+                    Text = t.GetAttrMessage("index-selection-successful"),
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
                     Y = -110,

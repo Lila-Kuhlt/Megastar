@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using megastar.Game.Preset;
 using megastar.Game.Track;
+using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -18,11 +19,11 @@ public partial class SearchScreen : Screen
     [Resolved] private MegastarGameBase game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(TranslationManager t)
     {
         var searchBox = new BasicTextBox
         {
-            PlaceholderText = "Enter your search query...",
+            PlaceholderText = t.GetAttrMessage("search-query"),
             Size = new Vector2(400, 40),
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
@@ -63,7 +64,7 @@ public partial class SearchScreen : Screen
                 RelativeSizeAxes = Axes.Both,
             },
             searchBox,
-            new BackButton(this.Exit, "Go Back"),
+            new BackButton(this.Exit, t.GetAttrMessage("common-back")),
 
             new BasicScrollContainer
             {
