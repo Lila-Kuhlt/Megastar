@@ -37,7 +37,7 @@ public partial class FileSelectorScreen : Screen
 
             new SpriteText
             {
-                Text = t.GetAttrMessage("index-select-folder"),
+                Text = t["index-select-folder"],
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 Y = 20,
@@ -45,7 +45,7 @@ public partial class FileSelectorScreen : Screen
             },
             new BasicButton
             {
-                Text = t.GetAttrMessage("common-back"),
+                Text = t["common-back"],
                 Anchor = Anchor.TopLeft,
                 Origin = Anchor.TopLeft,
                 Size = new Vector2(100, 40),
@@ -69,7 +69,7 @@ public partial class FileSelectorScreen : Screen
                 Y = -80,
                 Font = FontUsage.Default.With(size: 24),
             },
-            new BackButton(this.Exit, t.GetAttrMessage("common-back")),
+            new BackButton(this.Exit, t["common-back"]),
             selectedPathText = new SpriteText
             {
                 Anchor = Anchor.BottomCentre,
@@ -81,7 +81,7 @@ public partial class FileSelectorScreen : Screen
             // A button to confirm the selection
             new BasicButton
             {
-                Text = t.GetAttrMessage("index-select-current-folder"),
+                Text = t["index-select-current-folder"],
                 Anchor = Anchor.BottomCentre,
                 Origin = Anchor.BottomCentre,
                 Size = new Vector2(200, 50),
@@ -142,7 +142,7 @@ public partial class FileSelectorScreen : Screen
             AddInternal(
                 new SpriteText()
                 {
-                    Text = t.GetAttrMessage("index-selection-successful"),
+                    Text = t["index-selection-successful"],
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
                     Y = -110,

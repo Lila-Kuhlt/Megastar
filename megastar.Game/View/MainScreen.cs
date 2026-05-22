@@ -29,7 +29,7 @@ namespace megastar.Game.View
                 new SpriteText
                 {
                     Y = 20,
-                    Text = t.GetAttrMessage("main-title"),
+                    Text = t["main-title"],
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
                     Font = FontUsage.Default.With(size: 80),
@@ -49,26 +49,26 @@ namespace megastar.Game.View
                     {
                         new BasicButton
                         {
-                            Text = t.GetAttrMessage("main-start-game"),
+                            Text = t["main-start-game"],
                             Size = new Vector2(200, 40),
                             BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new PlayScreen()),
                         },
                         new BasicButton
                         {
-                            Text = t.GetAttrMessage("main-search"),
+                            Text = t["main-search"],
                             Size = new Vector2(200, 40),
                             BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new SearchScreen()),
                         },
                         new BasicButton
                         {
-                            Text = t.GetAttrMessage("main-index"),
+                            Text = t["main-index"],
                             Size = new Vector2(200, 40),
                             BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new FileSelectorScreen()),
                         },
-                        new BackButton(Game.Exit, t.GetAttrMessage("main-exit"))
+                        new BackButton(Game.Exit, t["main-exit"])
                     }
                 }
             ];

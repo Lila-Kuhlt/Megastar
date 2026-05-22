@@ -23,7 +23,7 @@ public partial class SearchScreen : Screen
     {
         var searchBox = new BasicTextBox
         {
-            PlaceholderText = t.GetAttrMessage("search-query"),
+            PlaceholderText = t["search-query"],
             Size = new Vector2(400, 40),
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
@@ -64,7 +64,7 @@ public partial class SearchScreen : Screen
                 RelativeSizeAxes = Axes.Both,
             },
             searchBox,
-            new BackButton(this.Exit, t.GetAttrMessage("common-back")),
+            new BackButton(this.Exit, t["common-back"]),
 
             new BasicScrollContainer
             {

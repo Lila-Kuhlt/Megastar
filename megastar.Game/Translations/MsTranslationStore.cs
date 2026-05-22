@@ -41,6 +41,8 @@ public class MsTranslationStore : IResourceStore<FluentBundle>
         fallbackLanguage =  defaultLanguage != null && GetAvailableResources().Contains(defaultLanguage) ? defaultLanguage : GetAvailableResources().First();
     }
 
+    public string this[string key] => GetAttrMessage(key);
+
     /// <summary>
     /// Updates the language used for translations.
     /// </summary>

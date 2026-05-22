@@ -78,7 +78,7 @@ public partial class PlayScreen : Screen
                 RelativeSizeAxes = Axes.Both,
             },
             backgroundLayer,
-            new BackButton(this.Exit, t.GetAttrMessage("common-back")),
+            new BackButton(this.Exit, t["common-back"]),
             notesContainer
         };
     }
@@ -97,7 +97,7 @@ public partial class PlayScreen : Screen
             Console.WriteLine(exception);
             AddInternal(new SpriteText()
             {
-                Text = t.GetAttrMessage("play-song-error"),
+                Text = t["play-song-error"],
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
             });
@@ -172,7 +172,7 @@ public partial class PlayScreen : Screen
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, t.GetAttrMessage("play-background-image-error"));
+                Logger.Error(ex, t["play-background-image-error"]);
             }
         }
     }
@@ -220,7 +220,7 @@ public partial class PlayScreen : Screen
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, t.GetAttrMessage("play-background-video-error"));
+                Logger.Error(ex, t["play-background-video-error"]);
             }
         }
     }
@@ -263,7 +263,7 @@ public partial class PlayScreen : Screen
         }
         catch (Exception ex)
         {
-            Logger.Error(ex, t.GetAttrMessage("play-audio-error"));
+            Logger.Error(ex, t["play-audio-error"]);
             return null;
         }
     }
