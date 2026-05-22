@@ -1,10 +1,8 @@
 using Linguini.Bundle.Builder;
-using System;
-using System.Linq;
+using System.Globalization;
 using megastar.Game.View;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.IO.Stores;
 using osu.Framework.Screens;
 
 namespace megastar.Game
