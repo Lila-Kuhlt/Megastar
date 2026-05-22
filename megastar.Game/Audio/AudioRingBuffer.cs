@@ -6,31 +6,51 @@ public class AudioRingBuffer(int size)
 {
     private int writeIndex = 0;
     private int readIndex = 0;
-    private float[] buffer =  new float[size];
+    private float[] buffer = new float[size];
 
     public void Write(ReadOnlySpan<float> samples)
     {
-
-    }
-
-    public float[] ReadRange(int howMuch)
-    {
-        float[] samples = new float[howMuch];
-        if (readIndex + howMuch <= buffer.Length)
+        if (samples.Length <= buffer.Length - writeIndex)
         {
-
-            Array.Copy(buffer, readIndex, samples, 0, howMuch);
-            readIndex += howMuch;
+            Span<float> targetBuffer = buffer.AsSpan().Slice(writeIndex, samples.Length);
+            samples.CopyTo(targetBuffer);
         }
         else
         {
-            int index = buffer.Length - readIndex;
-            Array.Copy(buffer, readIndex, samples, 0,index);
-            readIndex = 0;
-            Array.Copy(buffer, index, samples, readIndex, howMuch - index);
-            readIndex += howMuch - index;
+            Span<float> targetBack = buffer.AsSpan().Slice(writeIndex, buffer.Length - writeIndex);
+            Span<float> targetFront = buffer.AsSpan().Slice(0, samples.Length - buffer.Length - writeIndex);
+
+            ReadOnlySpan<float> samplesFront = samples.Slice(0, buffer.Length - writeIndex);
+            ReadOnlySpan<float> samplesBack = samples.Slice(writeIndex, samples.Length - buffer.Length - writeIndex);
+
+            samplesFront.CopyTo(targetBack);
+            samplesBack.CopyTo(targetFront);
+
         }
-        return samples;
+
+        writeIndex = (samples.Length + writeIndex) % buffer.Length;
+    }
+
+    public void ReadTo(Span<float> destination)
+    {
+        if (destination.Length <= buffer.Length - readIndex)
+        {
+            ReadOnlySpan<float> bufferSlice = buffer.AsSpan().Slice(readIndex, destination.Length);
+            bufferSlice.CopyTo(destination);
+        }
+        else
+        {
+            ReadOnlySpan<float> bufferBack = buffer.AsSpan().Slice(readIndex, buffer.Length - readIndex);
+            ReadOnlySpan<float> bufferFront = buffer.AsSpan().Slice(0, destination.Length - buffer.Length - readIndex);
+
+            Span<float> destinationFront = destination.Slice(0, buffer.Length - readIndex);
+            Span<float> destinationBack = destination.Slice(writeIndex, destination.Length - buffer.Length - readIndex);
+
+            bufferBack.CopyTo(destinationFront);
+            bufferFront.CopyTo(destinationBack);
+        }
+
+        readIndex = (destination.Length + readIndex) % buffer.Length;
     }
 
     public void Clear()
