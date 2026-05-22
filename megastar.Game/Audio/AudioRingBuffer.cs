@@ -17,11 +17,14 @@ public class AudioRingBuffer(int size)
         }
         else
         {
-            Span<float> targetBack = buffer.AsSpan().Slice(writeIndex, buffer.Length - writeIndex);
-            Span<float> targetFront = buffer.AsSpan().Slice(0, samples.Length - buffer.Length - writeIndex);
+            int tailSpace = buffer.Length - writeIndex;
+            int wrapSpace = samples.Length - tailSpace;
 
-            ReadOnlySpan<float> samplesFront = samples.Slice(0, buffer.Length - writeIndex);
-            ReadOnlySpan<float> samplesBack = samples.Slice(writeIndex, samples.Length - buffer.Length - writeIndex);
+            Span<float> targetBack = buffer.AsSpan().Slice(writeIndex, tailSpace);
+            Span<float> targetFront = buffer.AsSpan().Slice(0, wrapSpace);
+
+            ReadOnlySpan<float> samplesFront = samples.Slice(0, tailSpace);
+            ReadOnlySpan<float> samplesBack = samples.Slice(tailSpace, wrapSpace);
 
             samplesFront.CopyTo(targetBack);
             samplesBack.CopyTo(targetFront);
@@ -40,11 +43,14 @@ public class AudioRingBuffer(int size)
         }
         else
         {
-            ReadOnlySpan<float> bufferBack = buffer.AsSpan().Slice(readIndex, buffer.Length - readIndex);
-            ReadOnlySpan<float> bufferFront = buffer.AsSpan().Slice(0, destination.Length - buffer.Length - readIndex);
+            int tailSamples = buffer.Length - readIndex;
+            int wrapSamples = destination.Length - tailSamples;
 
-            Span<float> destinationFront = destination.Slice(0, buffer.Length - readIndex);
-            Span<float> destinationBack = destination.Slice(writeIndex, destination.Length - buffer.Length - readIndex);
+            ReadOnlySpan<float> bufferBack = buffer.AsSpan().Slice(readIndex, tailSamples);
+            ReadOnlySpan<float> bufferFront = buffer.AsSpan().Slice(0, wrapSamples);
+
+            Span<float> destinationFront = destination.Slice(0, tailSamples);
+            Span<float> destinationBack = destination.Slice(tailSamples, wrapSamples);
 
             bufferBack.CopyTo(destinationFront);
             bufferFront.CopyTo(destinationBack);

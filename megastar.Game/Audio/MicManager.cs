@@ -6,12 +6,11 @@ namespace megastar.Game.Audio;
 
 public class MicManager
 {
-    private List<MicDevice> availableMics;
+    private List<MicDevice> availableMics = new();
 
     public void AddMic(int deviceIndex)
     {
-        MicDevice newMic = new MicDevice(deviceIndex);
-        availableMics.Add(newMic);
+        availableMics.Add(new MicDevice(deviceIndex));
     }
 
     public void RemoveMic(int deviceIndex)
