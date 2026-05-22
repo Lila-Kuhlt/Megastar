@@ -3,27 +3,43 @@ using ManagedBass;
 
 namespace megastar.Game.Audio;
 
-public class MicDevice(int deviceIndex)
+public class MicDevice()
 {
-    private int deviceIndex { get; set; } = deviceIndex;
+    private int deviceIndex { get; set; }
     private AudioRingBuffer buffer { get; } = new AudioRingBuffer(48000);
     public YinPitchDetector PitchDetector = new YinPitchDetector();
     private readonly BassCaptureStream captureStream = new BassCaptureStream();
 
     private int recordChannel;
 
+    public MicDevice(int deviceIndex) : this()
+    {
+        this.deviceIndex = deviceIndex;
+        captureStream.AudioReceived += OnAudioReceived;
+    }
+
     public void Start()
     {
         captureStream.Start(deviceIndex);
     }
 
-    public void OnAudioRecieved(ReadOnlySpan<float> samples)
+    private void OnAudioReceived(
+        ReadOnlySpan<float> samples)
     {
         buffer.Write(samples);
     }
 
     public void Stop()
     {
+        captureStream.Stop();
+        buffer.Clear();
+    }
+
+    public void Dispose()
+    {
+        captureStream.AudioReceived -= OnAudioReceived;
+
+        buffer.Clear();
         captureStream.Stop();
     }
 }

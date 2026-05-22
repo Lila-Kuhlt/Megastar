@@ -31,13 +31,11 @@ public class BassCaptureStream
 
     public void Start(int deviceIndex)
     {
-        // Initialize recording device
         if (!Bass.RecordInit(deviceIndex))
             throw new Exception($"RecordInit failed: {Bass.LastError}");
 
-        // 44100 Hz, mono, 16-bit PCM
         recordChannel = Bass.RecordStart(
-            44100,
+            48000,
             1,
             BassFlags.RecordPause,
             RecordProc
@@ -52,7 +50,11 @@ public class BassCaptureStream
 
     public void Stop()
     {
-        Bass.ChannelStop(recordChannel);
+        if (recordChannel != 0)
+        {
+            Bass.ChannelStop(recordChannel);
+            recordChannel = 0;
+        }
         Bass.RecordFree();
     }
 }

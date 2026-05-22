@@ -57,6 +57,6 @@ public class AudioRingBuffer(int size)
     {
         writeIndex = 0;
         readIndex = 0;
-        buffer = new float[size];
+        Array.Clear(buffer);
     }
 }
