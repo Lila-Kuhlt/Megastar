@@ -47,7 +47,7 @@ namespace megastar.Game
         protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
         {
             var dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
-            translationStore = new MsTranslationStore(new DllResourceStore(typeof(MegastarResources).Assembly));
+            translationStore = new MsTranslationStore(new DllResourceStore(typeof(MegastarResources).Assembly), "en-US");
 
             dependencies.CacheAs(translationStore);
             return dependencies;
@@ -69,7 +69,6 @@ namespace megastar.Game
                 handler.Enabled.Value = false;
 
             Resources.AddStore(new DllResourceStore(typeof(MegastarResources).Assembly));
-            translationStore.SetLanguage("en-US");
         }
     }
 }

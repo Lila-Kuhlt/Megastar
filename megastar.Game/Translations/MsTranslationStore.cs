@@ -22,6 +22,7 @@ public class MsTranslationStore : IResourceStore<FluentBundle>
 {
     private readonly IResourceStore<byte[]> store;
     private string selectedLanguage;
+    private readonly string fallbackLanguage;
 
     /// <summary>
     /// Creates a new MsTranslationStore. With an optional default language.
@@ -30,13 +31,14 @@ public class MsTranslationStore : IResourceStore<FluentBundle>
     /// The underlying store containing the translation files.
     /// </param>
     /// <param name="defaultLanguage">
-    /// (optional) Language code of the language to use. If not set or language not available, uses the first available translation in the Translations directory.
+    /// (optional) Language code of the fallback and initial language. If not set or language not available, uses the first available translation in the Translations directory.
     /// </param>
     public MsTranslationStore(IResourceStore<byte[]> baseStore, string defaultLanguage = null)
     {
         var resourceAssembly = typeof(MegastarResources).Assembly;
         store = new NamespacedResourceStore<byte[]>(baseStore, "Translations");;
         selectedLanguage = defaultLanguage != null && GetAvailableResources().Contains(defaultLanguage) ? defaultLanguage : GetAvailableResources().First();
+        fallbackLanguage =  defaultLanguage != null && GetAvailableResources().Contains(defaultLanguage) ? defaultLanguage : GetAvailableResources().First();
     }
 
     /// <summary>
@@ -76,8 +78,17 @@ public class MsTranslationStore : IResourceStore<FluentBundle>
         }
         catch (LinguiniException)
         {
-            Console.Error.WriteLine($"[ERROR] Missing translation for key \"{msgWithAttr}\" in language {language}");
-            return $"[MISSING] key \"{msgWithAttr}\" in language {language}";
+            // Try grabbing translation from fallback language
+            try
+            {
+                Console.Error.WriteLine($"[ERROR] Missing translation for key \"{msgWithAttr}\" in language {language}");
+                return Get(fallbackLanguage).GetAttrMessage(msgWithAttr, args);
+            }
+            catch (LinguiniException)
+            {
+                Console.Error.WriteLine($"[ERROR] Missing translation for key \"{msgWithAttr}\" in language {language} and {fallbackLanguage}");
+                return $"[MISSING] key \"{msgWithAttr}\" in language {language} and {fallbackLanguage}";
+            };
         }
     }
 
