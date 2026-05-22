@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using megastar.Game.Track;
+using megastar.Game.Translations;
 using megastar.Resources;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Textures;
+using osu.Framework.Allocation;
 using osu.Framework.IO.Stores;
 using osuTK;
 
@@ -28,6 +31,26 @@ namespace megastar.Game
                 // You may want to change TargetDrawSize to your "default" resolution, which will decide how things scale and position when using absolute coordinates.
                 TargetDrawSize = new Vector2(1366, 768)
             });
+        }
+
+        /// <summary>
+        /// Injects the translationStore into the cached dependencies, so it can be accessed like this:
+        /// <code>
+        /// [BackgroundDependencyLoader]
+        /// private void load(TranslationStore translations)
+        /// </code>
+        /// </summary>
+        /// <param name="parent">
+        /// The parent DependencyContainer
+        /// </param>
+        protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
+        {
+            var dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
+            var translations = new TranslationStore();
+
+            dependencies.CacheAs(translations);
+
+            return dependencies;
         }
 
         public List<UsdxTrack> LoadedSongs { get; private set; } = [];
