@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using megastar.Game.notes;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -11,25 +12,50 @@ namespace megastar.Game.Track;
 public class UsdxTrack : ITrack
 {
     public ITrackMetadata TrackMetadata { get; set; }
-    public List<INote> Notes { get; set; }
+    private List<IBeatPaced> notes;
+    public List<IBeatPaced> Notes
+    {
+        get
+        {
+            // If notes haven't been loaded yet and we have a valid metadata path, parse them
+            if (notes == null && !string.IsNullOrEmpty(TrackMetadata?.Path))
+            {
+                if (File.Exists(TrackMetadata.Path))
+                {
+                    string rawString = File.ReadAllText(TrackMetadata.Path);
+                    notes = Parser.ParseUsdxNotes(rawString);
+                }
+                else
+                {
+                    // Fallback to an empty list if the file doesn't exist to prevent repeated crashes
+                    notes = new List<IBeatPaced>();
+                }
+            }
+            return notes;
+        }
+        set => notes = value;
+    }
 
     public UsdxTrack(UsdxTrackMetadata metadata)
     {
         TrackMetadata = metadata;
     }
 
-    public UsdxTrack(ITrackMetadata trackMetadata, List<INote> notes)
+
+
+    public UsdxTrack(ITrackMetadata trackMetadata, List<IBeatPaced> notes)
     {
         TrackMetadata = trackMetadata;
         Notes = notes;
     }
 }
 
-
 public sealed partial class UsdxTrackDrawable : CompositeDrawable, IFilterable
 {
     private UsdxTrack data { get; }
-    public IEnumerable<LocalisableString> FilterTerms => new LocalisableString[] { data.TrackMetadata.Artist, data.TrackMetadata.Title };
+
+    public IEnumerable<LocalisableString> FilterTerms => new LocalisableString[]
+        { data.TrackMetadata.Artist, data.TrackMetadata.Title };
 
     private bool matchingFilter = true;
 

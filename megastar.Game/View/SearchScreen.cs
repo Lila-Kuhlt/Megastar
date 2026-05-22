@@ -15,8 +15,7 @@ namespace megastar.Game.View;
 
 public partial class SearchScreen : Screen
 {
-    [Resolved]
-    private MegastarGameBase game { get; set; } = null!;
+    [Resolved] private MegastarGameBase game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -27,7 +26,7 @@ public partial class SearchScreen : Screen
             Size = new Vector2(400, 40),
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
-            Y = 50
+            Y = 50,
         };
 
         var searchContainer = new SearchContainer<UsdxTrackDrawable>
@@ -37,10 +36,13 @@ public partial class SearchScreen : Screen
             AutoSizeAxes = Axes.Both,
             Direction = FillDirection.Vertical,
             Spacing = new Vector2(0, 10),
+            X = -100,
 
             // Generates completely new UI objects every time the screen is entered
             Children = game.LoadedSongs.Select(trackData => new UsdxTrackDrawable(trackData)).ToArray(),
         };
+
+
 
         //Bind the text changes to the search
         searchBox.Current.BindValueChanged(change =>
@@ -53,8 +55,8 @@ public partial class SearchScreen : Screen
             Console.WriteLine($"Search committed for: {sender.Text}");
         };
 
-        InternalChildren = new Drawable[]
-        {
+        InternalChildren =
+        [
             new Box
             {
                 Colour = Color4.Violet,
@@ -63,7 +65,16 @@ public partial class SearchScreen : Screen
             searchBox,
             new BackButton(this.Exit, "Go Back"),
 
-            searchContainer
-        };
+            new BasicScrollContainer
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                Size = new Vector2(500, 600),
+                X = -100,
+                Y = 30,
+
+                Child = searchContainer
+            }
+        ];
     }
 }

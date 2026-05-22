@@ -40,8 +40,34 @@ public interface ITrackMetadata
     string SongFile { get; set; }
 
     /// <summary>
+    /// The Path of the text file
+    /// </summary>
+    string Path { get; set; }
+
+    /// <summary>
+    /// The Path of the directory
+    /// </summary>
+    string DirPath { get; set; }
+
+    /// <summary>
     /// Background image path, relative to the song directory
     /// </summary>
     [CanBeNull]
     string BackgroundImageFile { get; set; }
+
+    /// <summary>
+    /// Background video path, relative to the song directory
+    /// </summary>
+    [CanBeNull]
+    string BackgroundVideoFile { get; set; }
+    /// <summary>
+    /// Background video path, relative to the song directory
+    /// </summary>
+    [CanBeNull]
+    double VideoGap { get; set; }
+
+    /// <summary>
+    /// Gap between the start of the song and the first note. Should be 0 if none exists
+    /// </summary>
+    double Gap { get; set; }
 }

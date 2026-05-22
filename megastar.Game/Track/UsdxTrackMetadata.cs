@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using megastar.Game.Track;
 
 namespace megastar.Game;
@@ -15,19 +16,12 @@ public class UsdxTrackMetadata()
     public string Version { get; set; }
     public string SongFile { get; set; }
     public string BackgroundImageFile { get; set; }
+    public string BackgroundVideoFile { get; set; }
 
-    public UsdxTrackMetadata(string artist, string title, string creator, uint length, double bpm, string version, string songFile, string backgroundImageFile)
-        : this()
-    {
-        this.Artist = artist;
-        this.Title = title;
-        this.Creator = creator;
-        this.Length = length;
-        this.BPM = bpm;
-        this.Version = version;
-        this.SongFile = songFile;
-        this.BackgroundImageFile = backgroundImageFile;
-    }
+    public string Path { get; set; }
+    public double Gap { get; set; }
+    public double VideoGap { get; set; }
+    public string DirPath { get; set; }
 
     public UsdxTrackMetadata(Dictionary<string, string> trackMetadata)
         : this()
@@ -41,13 +35,21 @@ public class UsdxTrackMetadata()
         if (trackMetadata.ContainsKey("length"))
             Length = Convert.ToUInt32(trackMetadata["length"]);
         if (trackMetadata.ContainsKey("bpm"))
-            BPM = Convert.ToDouble(trackMetadata["bpm"]);
+            BPM = Convert.ToDouble(trackMetadata["bpm"], CultureInfo.InvariantCulture);
         if (trackMetadata.ContainsKey("version"))
             Version = trackMetadata["version"];
         if (trackMetadata.ContainsKey("songFile"))
             SongFile = trackMetadata["songFile"];
-        if (trackMetadata.ContainsKey("backgroundImageFile"))
-            BackgroundImageFile = trackMetadata["backgroundImageFile"];
+        if (trackMetadata.ContainsKey("mp3"))
+            SongFile = trackMetadata["mp3"];
+        if (trackMetadata.ContainsKey("audio"))
+            SongFile = trackMetadata["audio"];
+        if (trackMetadata.ContainsKey("video"))
+            BackgroundVideoFile = trackMetadata["video"];
+        if (trackMetadata.ContainsKey("background"))
+            BackgroundImageFile = trackMetadata["background"];
+        if (trackMetadata.ContainsKey("gap"))
+            Gap = Convert.ToDouble(trackMetadata["gap"], CultureInfo.InvariantCulture);
     }
 
     public new void ToString()
