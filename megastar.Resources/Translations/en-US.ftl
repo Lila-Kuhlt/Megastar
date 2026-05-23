@@ -9,7 +9,6 @@ main-search = Search
 main-index = Index songs
 main-settings = Settings
 main-exit = Exit
-main-settings = Settings
 
 ## File Selector Screen
 index-select-folder = Select a songs folder:
@@ -25,6 +24,7 @@ search-query = Enter your search query...
 
 ## Settings Screen
 settings-language = Language:
+settings-difficulty = Difficulty:
 
 ## Language Names
 de-DE = German (de-DE)

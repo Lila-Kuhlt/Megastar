@@ -68,15 +68,8 @@ namespace megastar.Game.View
                         {
                             Text = Fluent.GetString("main-settings"),
                             Size = new Vector2(200, 40),
-                            BackgroundColour = Color4.Red,
-                            Action = () => this.Push(new BetterSettingsScreen()),
-                        },
-                        new BasicButton
-                        {
-                            Text = Fluent.GetString("main-settings"),
-                            Size = new Vector2(200, 40),
                             BackgroundColour = Color4.Teal,
-                            Action = () => this.Push(new SettingsScreen()),
+                            Action = () => this.Push(new BetterSettingsScreen()),
                         },
                         new BackButton(Game.Exit, Fluent.GetString("main-exit"))
                     }

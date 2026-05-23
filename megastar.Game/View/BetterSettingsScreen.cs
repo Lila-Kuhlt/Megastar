@@ -11,13 +11,16 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
+using osu.Framework.Testing.Drawables.Steps;
 using osuTK;
 using osuTK.Graphics;
 
 namespace megastar.Game.View;
 
-public class Language {
-    public Language(string code, LocalisableString name, LocalisationManager localisationManager) {
+public class Language
+{
+    public Language(string code, LocalisableString name, LocalisationManager localisationManager)
+    {
         Code = code;
         Name = name;
         manager = localisationManager;
@@ -82,51 +85,96 @@ public partial class BetterSettingsScreen : Screen
                 RelativeSizeAxes = Axes.Both,
             },
             new BackButton(this.Exit, Fluent.GetString("common-back")),
-            new Container()
+            new SpriteText
             {
-                Margin = new MarginPadding(100),
-                Children = new Drawable[]
+                Y = 20,
+                Text = Fluent.GetString("main-settings"),
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                Font = FontUsage.Default.With(size: 80),
+                Colour = Color4.Purple,
+                Shadow = true,
+                ShadowColour = Color4.Pink,
+            },
+            new BasicScrollContainer
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Width = 0.6f,
+                Height = 0.7f,
+
+                Child = new FillFlowContainer()
                 {
-                    new FillFlowContainer()
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(0, 20),
+                    Children = new Drawable[]
                     {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        Direction = FillDirection.Horizontal,
-                        Children = new Drawable[]
+                        new StepSlider<int>("Volume", 0, 100, 100)
                         {
-                            new FillFlowContainer()
+                            RelativeSizeAxes = Axes.X,
+                            Width = 1f,
+                            Height = 40,
+                            Current = { BindTarget = Settings.GetSettings().SoundVolume }
+                        },
+                        new FillFlowContainer()
+                        {
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                            Direction = FillDirection.Horizontal,
+                            Children = new Drawable[]
                             {
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
-                                Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 20),
-                                Width = 200,
-                                Children = new Drawable[]
+                                new FillFlowContainer()
                                 {
-                                    // Spalte für Einstellungstexte
-                                    new SpriteText
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    Direction = FillDirection.Vertical,
+                                    Spacing = new Vector2(0, 20),
+                                    Width = 200,
+                                    Children = new Drawable[]
                                     {
-                                        Text = Fluent.GetString("settings-language"),
-                                        Margin = new MarginPadding(2),// Gleicher Margin wie der text im dropdown, sodass das zentriert ist
+                                        // Spalte für Einstellungstexte
+                                        new SpriteText
+                                        {
+                                            Text = Fluent.GetString("settings-language"),
+                                            Margin = new MarginPadding(
+                                                2), // Gleicher Margin wie der text im dropdown, sodass das zentriert ist
+                                        },
+                                        new SpriteText
+                                        {
+                                            Text = Fluent.GetString("settings-difficulty"),
+                                            Margin = new MarginPadding(
+                                                2), // Gleicher Margin wie der text im dropdown, sodass das zentriert ist
+                                        }
                                     }
-                                }
-                            },
-                            new FillFlowContainer()
-                            {
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
-                                Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 20), // Gap between buttons
-                                Children = new Drawable[]
+                                },
+                                new FillFlowContainer()
                                 {
-                                    // Spalte für Inputelemente
-                                    dropdown
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    Direction = FillDirection.Vertical,
+                                    Spacing = new Vector2(0, 20), // Gap between buttons
+                                    Children = new Drawable[]
+                                    {
+                                        // Spalte für Inputelemente
+                                        dropdown,
+                                        new BasicDropdown<GameDifficulty>
+                                        {
+                                            RelativeSizeAxes = Axes.X,
+                                            Width = 1f,
+
+                                            Items = System.Enum.GetValues<GameDifficulty>(),
+                                            Current = { BindTarget = Settings.GetSettings().Difficulty }
+                                        },
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            },
+            }
         ];
     }
 }
