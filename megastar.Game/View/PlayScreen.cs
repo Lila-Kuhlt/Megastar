@@ -6,6 +6,7 @@ using megastar.Game.notes;
 using megastar.Game.Preset;
 using megastar.Game.Track;
 using megastar.Game.Translations;
+using NUnit.Framework;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
@@ -110,6 +111,7 @@ public partial class PlayScreen : Screen
 
         //Load notes
         curNotes = usdxTrack.Notes;
+        List<List<IBeatPaced>> phrases = usdxTrack.NotePhrases;
         notesContainer.Children = curNotes.Select(note => note.Visual).ToArray();
 
         track = loadSong(audioManager, usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.SongFile);

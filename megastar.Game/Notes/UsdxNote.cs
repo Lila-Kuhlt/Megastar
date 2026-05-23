@@ -55,4 +55,9 @@ public class UsdxNote
         Text = text;
         NoteType = noteType;
     }
+
+    public override string ToString()
+    {
+        return this.Text;
+    }
 }
