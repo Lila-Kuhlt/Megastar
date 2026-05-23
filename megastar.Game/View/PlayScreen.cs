@@ -117,6 +117,7 @@ public partial class PlayScreen : Screen
         loadBackgroundImage(usdxTrack);
         loadBackgroundVideo(usdxTrack);
         curTrack = usdxTrack;
+        track.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
     }
 
     private void cleanUpOldStores()

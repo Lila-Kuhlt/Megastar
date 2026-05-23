@@ -9,6 +9,7 @@ main-search = Search
 main-index = Index songs
 main-settings = Settings
 main-exit = Exit
+main-settings = Settings
 
 ## File Selector Screen
 index-select-folder = Select a songs folder:

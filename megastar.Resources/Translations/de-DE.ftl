@@ -8,6 +8,7 @@ main-search = Suche
 main-index = Lieder indizieren
 main-settings = Einstellungen
 main-exit = Schließen
+main-settings = Einstellungen
 
 ## File Selector Screen
 index-select-folder = Wähle den Song-Ordner aus:

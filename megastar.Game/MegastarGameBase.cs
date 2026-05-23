@@ -46,6 +46,8 @@ namespace megastar.Game
 
         protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
         {
+            Settings.Initialize(Host.Storage);
+
             var dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
 
             dependencies.CacheAs(locales);
