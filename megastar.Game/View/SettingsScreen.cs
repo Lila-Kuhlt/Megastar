@@ -62,6 +62,23 @@ namespace megastar.Game.View
                                 Height = 40,
                                 Current = { BindTarget = Settings.GetSettings().SoundVolume }
                             },
+                            new BasicDropdown<GameDifficulty>
+                            {
+                                RelativeSizeAxes = Axes.X,
+                                Width = 1f,
+
+                                Items = System.Enum.GetValues<GameDifficulty>(),
+                                Current = { BindTarget = Settings.GetSettings().Difficulty }
+                            },
+                            new BasicDropdown<string>
+                            {
+                                RelativeSizeAxes = Axes.X,
+                                Width = 1f,
+
+                                Items = t.GetAvailableResources(),
+
+                                Current = { BindTarget = Settings.GetSettings().Language }
+                            }
                         }
                     }
                 },
