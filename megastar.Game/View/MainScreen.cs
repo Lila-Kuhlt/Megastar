@@ -18,7 +18,7 @@ namespace megastar.Game.View
     public partial class MainScreen : Screen
     {
         [BackgroundDependencyLoader]
-        private void load(MsTranslationStore t)
+        private void load()
         {
             InternalChildren =
             [
@@ -29,7 +29,7 @@ namespace megastar.Game.View
                 new SpriteText
                 {
                     Y = 20,
-                    Text = t["main-title"],
+                    Text = Fluent.GetString("main-title"),
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
                     Font = FontUsage.Default.With(size: 80),
@@ -49,26 +49,33 @@ namespace megastar.Game.View
                     {
                         new BasicButton
                         {
-                            Text = t["main-start-game"],
+                            Text = Fluent.GetString("main-start-game"),
                             Size = new Vector2(200, 40),
                             BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new PlayScreen()),
                         },
                         new BasicButton
                         {
-                            Text = t["main-search"],
+                            Text = Fluent.GetString("main-search"),
                             Size = new Vector2(200, 40),
                             BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new SearchScreen()),
                         },
                         new BasicButton
                         {
-                            Text = t["main-index"],
+                            Text = Fluent.GetString("main-index"),
                             Size = new Vector2(200, 40),
                             BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new FileSelectorScreen()),
                         },
-                        new BackButton(Game.Exit, t["main-exit"])
+                        new BasicButton
+                        {
+                            Text = Fluent.GetString("main-settings"),
+                            Size = new Vector2(200, 40),
+                            BackgroundColour = Color4.Teal,
+                            Action = () => this.Push(new SettingsScreen()),
+                        },
+                        new BackButton(Game.Exit, Fluent.GetString("main-exit"))
                     }
                 }
             ];
