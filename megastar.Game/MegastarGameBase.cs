@@ -87,6 +87,8 @@ namespace megastar.Game
                 locales.Add(lang);
             }
 
+            // FrameworkSetting.Locale will be "" if the selected language is the system default language, since the framework does not persist the default language to file.
+            // Why exactly it then does not load the system default language into the locale config on startup if it is empty is beyond me.
             if (config.Get<string>(FrameworkSetting.Locale) == null || config.Get<string>(FrameworkSetting.Locale) == "")
             {
                 string systemLocale = CultureInfo.CurrentUICulture.Name;

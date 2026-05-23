@@ -19,13 +19,22 @@ using osu.Framework.Logging;
 namespace megastar.Game.Translations;
 
 /// <summary>
-/// Megastar Translation Store (not TranslationStore because of naming conflicts with framework internal translation handler)
+/// Fluent Translation Store, handles translations with fluent files.
 /// </summary>
 public class FluentTranslationStore : ILocalisationStore
 {
     private readonly IResourceStore<byte[]> baseStore;
     private readonly FluentBundle fluentBundle;
 
+    /// <summary>
+    /// Gets the appropriate translation for this key. (Warning, this does not handle parametrised strings)
+    /// </summary>
+    /// <param name="name">
+    /// The name of the key.
+    /// </param>
+    /// <returns>
+    /// A valid translation for this key
+    /// </returns>
     public string Get(string name)
     {
         return GetAttrMessage(name);
@@ -36,7 +45,15 @@ public class FluentTranslationStore : ILocalisationStore
         return new  Task<string>(() => Get(name), cancellationToken);
     }
 
-
+    /// <summary>
+    /// Creates a new store for exactly one fluent locale.
+    /// </summary>
+    /// <param name="baseStore">
+    /// The store that contains the fluent .ftl files
+    /// </param>
+    /// <param name="language">
+    /// The locale code for the file.
+    /// </param>
     public FluentTranslationStore(IResourceStore<byte[]> baseStore, string language)
     {
         if (!language.EndsWith(".ftl"))
@@ -48,14 +65,14 @@ public class FluentTranslationStore : ILocalisationStore
 
         if (errors != null && errors.Any())
         {
-            errors.ForEach(e => Console.Error.WriteLine(e));
+            throw new LinguiniException(errors);
         }
 
         fluentBundle = bundle;
     }
 
     /// <summary>
-    ///     Passthrough method for <see cref="IReadBundle.GetAttrMessage" />, so there is less method chaining.
+    /// Passthrough method for <see cref="IReadBundle.GetAttrMessage" />.
     /// </summary>
     /// <param name="msgWithAttr">The message with attribute to retrieve.</param>
     /// <param name="args">Optional arguments to format the message.</param>
@@ -78,7 +95,7 @@ public class FluentTranslationStore : ILocalisationStore
     /// <summary>
     /// Returns a list of all available languages by language code.
     /// </summary>
-    public IEnumerable<string> GetAvailableResources() => fluentBundle.GetFuncEnumerable();
+    public IEnumerable<string> GetAvailableResources() => fluentBundle.Locales;
 
     public CultureInfo EffectiveCulture => fluentBundle.Culture;
 

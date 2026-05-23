@@ -92,7 +92,6 @@ public partial class SettingsScreen : Screen
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         Direction = FillDirection.Horizontal,
-                        Spacing = new Vector2(10, 0), // Gap between buttons
                         Children = new Drawable[]
                         {
                             new FillFlowContainer()
@@ -100,14 +99,15 @@ public partial class SettingsScreen : Screen
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
                                 Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 20), // Gap between buttons
+                                Spacing = new Vector2(0, 20),
                                 Width = 200,
                                 Children = new Drawable[]
                                 {
+                                    // Spalte für Einstellungstexte
                                     new SpriteText
                                     {
                                         Text = Fluent.GetString("settings-language"),
-                                        Margin = new MarginPadding(2)
+                                        Margin = new MarginPadding(2),// Gleicher Margin wie der text im dropdown, sodass das zentriert ist
                                     }
                                 }
                             },
@@ -119,6 +119,7 @@ public partial class SettingsScreen : Screen
                                 Spacing = new Vector2(0, 20), // Gap between buttons
                                 Children = new Drawable[]
                                 {
+                                    // Spalte für Inputelemente
                                     dropdown
                                 }
                             }

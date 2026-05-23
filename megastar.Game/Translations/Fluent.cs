@@ -18,8 +18,12 @@ public class Fluent : IEquatable<Fluent>, ILocalisableStringData
         values = args;
     }
 
+    /// <summary>
+    /// A string that works best with a <see cref="FluentTranslationStore"/> as LocalisationStore
+    /// </summary>
     public static LocalisableString GetString(string msgWithAttr, params (string, IFluentType)[] args)
     {
+        // LocalisableString is the class that is actually translated by the TranslationManager, Fluent just provides the interface to work with the FluentTranslationStore
         return new LocalisableString(new Fluent(msgWithAttr, args));
     }
 
@@ -27,6 +31,7 @@ public class Fluent : IEquatable<Fluent>, ILocalisableStringData
     {
         if (parameters.Store is FluentTranslationStore fluentTranslationStore)
         {
+            // Straight up passthrough for fluent/Linguini method
             return fluentTranslationStore.GetAttrMessage(key, values);
         }
 
@@ -41,11 +46,15 @@ public class Fluent : IEquatable<Fluent>, ILocalisableStringData
 
     public bool Equals(Fluent other)
     {
-        throw new NotImplementedException();
+        return other != null && key == other.key && values == other.values;
     }
 
     public bool Equals(ILocalisableStringData other)
     {
-        throw new NotImplementedException();
+        if (other is Fluent fluent)
+        {
+            return Equals(fluent);
+        }
+        return false;
     }
 }
