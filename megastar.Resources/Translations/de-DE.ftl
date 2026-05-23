@@ -24,6 +24,7 @@ search-query = Suchanfrage eingeben...
 ## Settings Screen
 settings-language = Sprache:
 settings-difficulty = Schwierigkeit:
+settings-volume = Lautstärke
 
 ## Language Names
 de-DE = Deutsch (de-DE)

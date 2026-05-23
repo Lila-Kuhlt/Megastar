@@ -23,27 +23,27 @@ public partial class SettingsScreen : Screen
     [Resolved] private FrameworkConfigManager config { get; set; }
 
     [BackgroundDependencyLoader]
-    private void load(List<Language> locales)
+    private void load(List<Language> locales, LocalisationManager localisation)
     {
-        List<Language> languages = new List<Language>();
         string savedLanguage = config.Get<string>(FrameworkSetting.Locale);
         Language initialLang = locales.Find((l) => l.Code == savedLanguage);
 
-        BasicDropdown<Language> dropdown = new BasicDropdown<Language>
+        BasicDropdown<Language> languageDropdown = new BasicDropdown<Language>
         {
             Anchor = Anchor.TopLeft,
             Origin = Anchor.TopLeft,
             Width = 200,
-            Items = languages,
+            Items = locales,
         };
 
-        dropdown.Current.Value = initialLang ?? languages[0];
+        languageDropdown.Current.Value = initialLang ?? locales[0];
 
-        dropdown.Current.ValueChanged += e =>
+        languageDropdown.Current.ValueChanged += e =>
         {
             config.SetValue(FrameworkSetting.Locale, e.NewValue.Code);
             Logger.Log("[UPDATED LANGUAGE] " + e.NewValue.Code);
-            dropdown.Items = languages;
+            languageDropdown.Items = locales;
+
         };
 
 
@@ -76,7 +76,7 @@ public partial class SettingsScreen : Screen
 
                 Children = new Drawable[]
                 {
-                    new StepSlider<int>("Volume", 0, 100, 100)
+                    new StepSlider<int>(localisation.GetLocalisedString(Fluent.Translate("settings-volume")), 0, 100, 100)
                     {
                         RelativeSizeAxes = Axes.X,
                         Width = 1f,
@@ -122,7 +122,7 @@ public partial class SettingsScreen : Screen
                                 Children = new Drawable[]
                                 {
                                     // Spalte für Inputelemente
-                                    dropdown,
+                                    languageDropdown,
                                     new BasicDropdown<GameDifficulty>
                                     {
                                         Anchor = Anchor.TopLeft,

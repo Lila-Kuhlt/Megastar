@@ -25,6 +25,7 @@ search-query = Enter your search query...
 ## Settings Screen
 settings-language = Language:
 settings-difficulty = Difficulty:
+settings-volume = Volume
 
 ## Language Names
 de-DE = German (de-DE)

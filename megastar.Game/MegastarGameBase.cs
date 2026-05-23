@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using megastar.Game.Track;
@@ -84,7 +85,7 @@ namespace megastar.Game
 
             foreach (var file in translations.GetAvailableResources())
             {
-                string lang = Regex.Replace(file, "\\.ftl$", "");
+                string lang = Path.ChangeExtension(file, null);
                 ILocalisationStore store = new FluentTranslationStore(translations, lang);
                 localisation.AddLanguage(lang, store);
                 Language language = new Language(lang, Fluent.Translate(lang), localisation);
