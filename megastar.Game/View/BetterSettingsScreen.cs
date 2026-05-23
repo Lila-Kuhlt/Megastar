@@ -33,7 +33,7 @@ public class Language {
     }
 };
 
-public partial class SettingsScreen : Screen
+public partial class BetterSettingsScreen : Screen
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
     [Resolved] private FrameworkConfigManager config { get; set; }
