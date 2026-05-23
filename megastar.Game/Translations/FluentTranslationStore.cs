@@ -56,12 +56,12 @@ public class FluentTranslationStore : ILocalisationStore
     /// </param>
     public FluentTranslationStore(IResourceStore<byte[]> baseStore, string language)
     {
-        if (!language.EndsWith(".ftl"))
-            language += ".ftl";
+        language = Path.ChangeExtension(language, ".ftl");
+
         var data = baseStore.Get(language);
         this.baseStore = baseStore;
 
-        var (bundle, errors) = LinguiniBuilder.Builder().CultureInfo(new CultureInfo(Regex.Replace(language, "\\.ftl$", ""))).AddResource(new StreamReader(new MemoryStream(data))).Build();
+        var (bundle, errors) = LinguiniBuilder.Builder().CultureInfo(new CultureInfo(Path.ChangeExtension(language, null))).AddResource(new StreamReader(new MemoryStream(data))).Build();
 
         if (errors != null && errors.Any())
         {
@@ -86,7 +86,7 @@ public class FluentTranslationStore : ILocalisationStore
         catch (LinguiniException e)
         {
             Logger.Error(e, $"[ERROR] Missing translation for key \"{msgWithAttr}\" in language {EffectiveCulture.Name}");
-            return null;
+            return $"[MISSING KEY] \"{msgWithAttr}\" ({EffectiveCulture.Name})";
         }
     }
 

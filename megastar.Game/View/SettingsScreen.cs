@@ -17,46 +17,17 @@ using osuTK.Graphics;
 
 namespace megastar.Game.View;
 
-public class Language
-{
-    public Language(string code, LocalisableString name, LocalisationManager localisationManager)
-    {
-        Code = code;
-        Name = name;
-        manager = localisationManager;
-    }
-
-    public string Code { get; }
-    public LocalisableString Name { get; }
-    private LocalisationManager manager;
-
-    public override string ToString()
-    {
-        return manager.GetLocalisedString(Name);
-    }
-};
-
 public partial class SettingsScreen : Screen
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
     [Resolved] private FrameworkConfigManager config { get; set; }
 
     [BackgroundDependencyLoader]
-    private void load(LocalisationManager localisation, List<string> locales)
+    private void load(List<Language> locales)
     {
         List<Language> languages = new List<Language>();
         string savedLanguage = config.Get<string>(FrameworkSetting.Locale);
-        Language initialLang = null;
-
-        foreach (string lang in locales)
-        {
-            Language language = new Language(lang, Fluent.GetString(lang), localisation);
-            languages.Add(language);
-            if (lang == savedLanguage)
-            {
-                initialLang = language;
-            }
-        }
+        Language initialLang = locales.Find((l) => l.Code == savedLanguage);
 
         BasicDropdown<Language> dropdown = new BasicDropdown<Language>
         {
@@ -65,7 +36,6 @@ public partial class SettingsScreen : Screen
             Width = 200,
             Items = languages,
         };
-
 
         dropdown.Current.Value = initialLang ?? languages[0];
 
@@ -84,11 +54,11 @@ public partial class SettingsScreen : Screen
                 Colour = Color4.Violet,
                 RelativeSizeAxes = Axes.Both,
             },
-            new BackButton(this.Exit, Fluent.GetString("common-back")),
+            new BackButton(this.Exit, Fluent.Translate("common-back")),
             new SpriteText
             {
                 Y = 20,
-                Text = Fluent.GetString("main-settings"),
+                Text = Fluent.Translate("main-settings"),
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 Font = FontUsage.Default.With(size: 80),
@@ -133,12 +103,12 @@ public partial class SettingsScreen : Screen
                                     // Spalte für Einstellungstexte
                                     new SpriteText
                                     {
-                                        Text = Fluent.GetString("settings-language"),
+                                        Text = Fluent.Translate("settings-language"),
                                         Padding = new MarginPadding { Vertical = 5 },
                                     },
                                     new SpriteText
                                     {
-                                        Text = Fluent.GetString("settings-difficulty"),
+                                        Text = Fluent.Translate("settings-difficulty"),
                                         Padding = new MarginPadding { Vertical = 5 },
                                     }
                                 }

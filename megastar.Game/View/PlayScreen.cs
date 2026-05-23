@@ -77,7 +77,7 @@ public partial class PlayScreen : Screen
                 RelativeSizeAxes = Axes.Both,
             },
             backgroundLayer,
-            new BackButton(this.Exit, Fluent.GetString("common-back")),
+            new BackButton(this.Exit, Fluent.Translate("common-back")),
             notesContainer
         };
     }
@@ -96,7 +96,7 @@ public partial class PlayScreen : Screen
             Console.WriteLine(exception);
             AddInternal(new SpriteText()
             {
-                Text = Fluent.GetString("play-song-error"),
+                Text = Fluent.Translate("play-song-error"),
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
             });

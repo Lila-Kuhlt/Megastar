@@ -21,7 +21,7 @@ public class Fluent : IEquatable<Fluent>, ILocalisableStringData
     /// <summary>
     /// A string that works best with a <see cref="FluentTranslationStore"/> as LocalisationStore
     /// </summary>
-    public static LocalisableString GetString(string msgWithAttr, params (string, IFluentType)[] args)
+    public static LocalisableString Translate(string msgWithAttr, params (string, IFluentType)[] args)
     {
         // LocalisableString is the class that is actually translated by the TranslationManager, Fluent just provides the interface to work with the FluentTranslationStore
         return new LocalisableString(new Fluent(msgWithAttr, args));

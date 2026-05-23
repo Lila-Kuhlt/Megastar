@@ -37,7 +37,7 @@ public partial class FileSelectorScreen : Screen
 
             new SpriteText
             {
-                Text = Fluent.GetString("index-select-folder"),
+                Text = Fluent.Translate("index-select-folder"),
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 Y = 20,
@@ -45,7 +45,7 @@ public partial class FileSelectorScreen : Screen
             },
             new BasicButton
             {
-                Text = Fluent.GetString("common-back"),
+                Text = Fluent.Translate("common-back"),
                 Anchor = Anchor.TopLeft,
                 Origin = Anchor.TopLeft,
                 Size = new Vector2(100, 40),
@@ -69,7 +69,7 @@ public partial class FileSelectorScreen : Screen
                 Y = -80,
                 Font = FontUsage.Default.With(size: 24),
             },
-            new BackButton(this.Exit, Fluent.GetString("common-back")),
+            new BackButton(this.Exit, Fluent.Translate("common-back")),
             selectedPathText = new SpriteText
             {
                 Anchor = Anchor.BottomCentre,
@@ -81,11 +81,10 @@ public partial class FileSelectorScreen : Screen
             // A button to confirm the selection
             new TextFitButton
             {
-                Text = Fluent.GetString("index-select-current-folder"),
+                Text = Fluent.Translate("index-select-current-folder"),
                 Anchor = Anchor.BottomCentre,
                 Origin = Anchor.BottomCentre,
                 Height = 50,
-                AutoSizeAxes = Axes.X,
                 Y = -20,
                 Action = () => confirmSelection()
             }
@@ -94,7 +93,7 @@ public partial class FileSelectorScreen : Screen
         // Track when the user clicks into different directories
         directorySelector.CurrentPath.BindValueChanged(pathChanged =>
         {
-            selectedPathText.Text = Fluent.GetString("index-folder-selected", ("folderName", (FluentString) pathChanged.NewValue?.FullName));
+            selectedPathText.Text = Fluent.Translate("index-folder-selected", ("folderName", (FluentString) pathChanged.NewValue?.FullName));
         }, true);
     }
 
@@ -143,7 +142,7 @@ public partial class FileSelectorScreen : Screen
             AddInternal(
                 new SpriteText()
                 {
-                    Text = Fluent.GetString("index-selection-successful"),
+                    Text = Fluent.Translate("index-selection-successful"),
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
                     Y = -110,

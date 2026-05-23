@@ -13,6 +13,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Allocation;
 using osu.Framework.Configuration;
+using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.IO.Stores;
 using osu.Framework.Localisation;
 using osuTK;
@@ -27,7 +28,7 @@ namespace megastar.Game
         // the screen scaling for all components including the test browser and framework overlays.
 
         protected override Container<Drawable> Content { get; }
-        private readonly List<string> locales = new List<string>();
+        private readonly List<Language> locales = new List<Language>();
 
         [Resolved]
         private FrameworkConfigManager config { get; set; }
@@ -86,7 +87,8 @@ namespace megastar.Game
                 string lang = Regex.Replace(file, "\\.ftl$", "");
                 ILocalisationStore store = new FluentTranslationStore(translations, lang);
                 localisation.AddLanguage(lang, store);
-                locales.Add(lang);
+                Language language = new Language(lang, Fluent.Translate(lang), localisation);
+                locales.Add(language);
             }
 
             // FrameworkSetting.Locale will be "" if the selected language is the system default language, since the framework does not persist the default language to file.
@@ -94,8 +96,16 @@ namespace megastar.Game
             if (config.Get<string>(FrameworkSetting.Locale) == null || config.Get<string>(FrameworkSetting.Locale) == "")
             {
                 string systemLocale = CultureInfo.CurrentUICulture.Name;
+                Language systemLanguage = locales.Find(l => l.Code == systemLocale);
 
-                config.SetValue(FrameworkSetting.Locale, locales.Contains(systemLocale) ? systemLocale : "en-US");
+                if (systemLanguage == null)
+                {
+                    config.SetValue(FrameworkSetting.Locale, "en-US");
+                }
+                else
+                {
+                    config.SetValue(FrameworkSetting.Locale, systemLocale);
+                }
             }
         }
     }
