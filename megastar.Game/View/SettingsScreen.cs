@@ -1,0 +1,131 @@
+using System.Collections.Generic;
+using megastar.Game.Preset;
+using megastar.Game.Translations;
+using osu.Framework.Allocation;
+using osu.Framework.Configuration;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Localisation;
+using osu.Framework.Logging;
+using osu.Framework.Screens;
+using osuTK;
+using osuTK.Graphics;
+
+namespace megastar.Game.View;
+
+public class Language {
+    public Language(string code, LocalisableString name, LocalisationManager localisationManager) {
+        Code = code;
+        Name = name;
+        manager = localisationManager;
+    }
+
+    public string Code { get; }
+    public LocalisableString Name { get; }
+    private LocalisationManager manager;
+
+    public override string ToString()
+    {
+        return manager.GetLocalisedString(Name);
+    }
+};
+
+public partial class SettingsScreen : Screen
+{
+    [Resolved] private MegastarGameBase game { get; set; } = null!;
+    [Resolved] private FrameworkConfigManager config { get; set; }
+
+    [BackgroundDependencyLoader]
+    private void load(LocalisationManager localisation, List<string> locales)
+    {
+        List<Language> languages = new List<Language>();
+        string savedLanguage = config.Get<string>(FrameworkSetting.Locale);
+        Language initialLang = null;
+
+        foreach (string lang in locales)
+        {
+            Language language = new Language(lang, Fluent.GetString(lang), localisation);
+            languages.Add(language);
+            if (lang == savedLanguage)
+            {
+                initialLang = language;
+            }
+        }
+
+        BasicDropdown<Language> dropdown = new BasicDropdown<Language>
+        {
+            Anchor = Anchor.TopLeft,
+            Origin = Anchor.TopLeft,
+            Width = 200,
+            Items = languages,
+        };
+
+
+        dropdown.Current.Value = initialLang ?? languages[0];
+
+        dropdown.Current.ValueChanged += e =>
+        {
+            config.SetValue(FrameworkSetting.Locale, e.NewValue.Code);
+            Logger.Log("[UPDATED LANGUAGE] " + e.NewValue.Code);
+            dropdown.Items = languages;
+        };
+
+
+        InternalChildren =
+        [
+            new Box
+            {
+                Colour = Color4.Violet,
+                RelativeSizeAxes = Axes.Both,
+            },
+            new BackButton(this.Exit, Fluent.GetString("common-back")),
+            new Container()
+            {
+                Margin = new MarginPadding(100),
+                Children = new Drawable[]
+                {
+                    new FillFlowContainer()
+                    {
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        Direction = FillDirection.Horizontal,
+                        Spacing = new Vector2(10, 0), // Gap between buttons
+                        Children = new Drawable[]
+                        {
+                            new FillFlowContainer()
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                Direction = FillDirection.Vertical,
+                                Spacing = new Vector2(0, 20), // Gap between buttons
+                                Width = 200,
+                                Children = new Drawable[]
+                                {
+                                    new SpriteText
+                                    {
+                                        Text = Fluent.GetString("settings-language"),
+                                        Margin = new MarginPadding(2)
+                                    }
+                                }
+                            },
+                            new FillFlowContainer()
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                Direction = FillDirection.Vertical,
+                                Spacing = new Vector2(0, 20), // Gap between buttons
+                                Children = new Drawable[]
+                                {
+                                    dropdown
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+        ];
+    }
+}
