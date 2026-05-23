@@ -1,17 +1,13 @@
-using Linguini.Bundle;
 using megastar.Game.Preset;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shaders;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
-using Veldrid;
 
 namespace megastar.Game.View
 {
@@ -67,6 +63,13 @@ namespace megastar.Game.View
                             Size = new Vector2(200, 40),
                             BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new FileSelectorScreen()),
+                        },
+                        new BasicButton
+                        {
+                            Text = t["main-settings"],
+                            Size = new Vector2(200, 40),
+                            BackgroundColour = Color4.Teal,
+                            Action = () => this.Push(new SettingsScreen()),
                         },
                         new BackButton(Game.Exit, t["main-exit"])
                     }

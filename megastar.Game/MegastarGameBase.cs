@@ -69,6 +69,9 @@ namespace megastar.Game
                 handler.Enabled.Value = false;
 
             Resources.AddStore(new DllResourceStore(typeof(MegastarResources).Assembly));
+
+
+            Settings.Initialize(Host.Storage);
         }
     }
 }

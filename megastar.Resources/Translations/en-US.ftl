@@ -7,6 +7,7 @@ main-start-game = Start game
 main-search = Search
 main-index = Index files
 main-exit = Exit
+main-settings = Settings
 
 ## File Selector Screen
 index-select-folder = Select a songs folder:
