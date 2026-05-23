@@ -55,6 +55,7 @@ public partial class SearchScreen : Screen
         searchBox.OnCommit += (sender, isNew) =>
         {
             Console.WriteLine($"Search committed for: {sender.Text}");
+            Y = 50;
         };
 
         InternalChildren =
@@ -67,16 +68,7 @@ public partial class SearchScreen : Screen
             searchBox,
             new BackButton(this.Exit, Fluent.Translate("common-back")),
 
-            new BasicScrollContainer
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                Size = new Vector2(500, 600),
-                X = -100,
-                Y = 30,
-
-                Child = searchContainer
-            }
+            new TrackCardScrollContainer(trackRepository.AllTracks().Select(trackData => new TrackCard(trackData)))
         ];
     }
 }
