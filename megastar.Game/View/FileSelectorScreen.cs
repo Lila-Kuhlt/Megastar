@@ -24,7 +24,7 @@ public partial class FileSelectorScreen : Screen
     [Resolved] private MegastarGameBase game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
-    private void load(MsTranslationStore t)
+    private void load()
     {
         InternalChildren = new Drawable[]
         {
@@ -37,7 +37,7 @@ public partial class FileSelectorScreen : Screen
 
             new SpriteText
             {
-                Text = t["index-select-folder"],
+                Text = Fluent.Translate("index-select-folder"),
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 Y = 20,
@@ -45,7 +45,7 @@ public partial class FileSelectorScreen : Screen
             },
             new BasicButton
             {
-                Text = t["common-back"],
+                Text = Fluent.Translate("common-back"),
                 Anchor = Anchor.TopLeft,
                 Origin = Anchor.TopLeft,
                 Size = new Vector2(100, 40),
@@ -69,7 +69,7 @@ public partial class FileSelectorScreen : Screen
                 Y = -80,
                 Font = FontUsage.Default.With(size: 24),
             },
-            new BackButton(this.Exit, t["common-back"]),
+            new BackButton(this.Exit, Fluent.Translate("common-back")),
             selectedPathText = new SpriteText
             {
                 Anchor = Anchor.BottomCentre,
@@ -79,25 +79,25 @@ public partial class FileSelectorScreen : Screen
             },
 
             // A button to confirm the selection
-            new BasicButton
+            new TextFitButton
             {
-                Text = t["index-select-current-folder"],
+                Text = Fluent.Translate("index-select-current-folder"),
                 Anchor = Anchor.BottomCentre,
                 Origin = Anchor.BottomCentre,
-                Size = new Vector2(200, 50),
+                Height = 50,
                 Y = -20,
-                Action = () => confirmSelection(t)
+                Action = () => confirmSelection()
             }
         };
 
         // Track when the user clicks into different directories
         directorySelector.CurrentPath.BindValueChanged(pathChanged =>
         {
-            selectedPathText.Text = t.GetAttrMessage("index-folder-selected", ("folderName", (FluentString) pathChanged.NewValue?.FullName));
+            selectedPathText.Text = Fluent.Translate("index-folder-selected", ("folderName", (FluentString) pathChanged.NewValue?.FullName));
         }, true);
     }
 
-    private void confirmSelection(MsTranslationStore t)
+    private void confirmSelection()
     {
         DirectoryInfo? currentDir = directorySelector.CurrentPath.Value;
 
@@ -142,7 +142,7 @@ public partial class FileSelectorScreen : Screen
             AddInternal(
                 new SpriteText()
                 {
-                    Text = t["index-selection-successful"],
+                    Text = Fluent.Translate("index-selection-successful"),
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
                     Y = -110,
