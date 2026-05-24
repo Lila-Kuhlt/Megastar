@@ -1,6 +1,7 @@
 ﻿using System;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Localisation;
 using osuTK;
 
 namespace megastar.Game.Preset;
@@ -11,7 +12,7 @@ public sealed partial class BackButton : BasicButton
     /// A reusable back button with predefined styling.
     /// </summary>
     /// <param name="action">The method to execute when the button is clicked.</param>
-    public BackButton(Action action, string text)
+    public BackButton(Action action, LocalisableString text)
     {
         Text = text;
         Size = new Vector2(100, 40);

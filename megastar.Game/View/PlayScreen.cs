@@ -62,13 +62,12 @@ public partial class PlayScreen : Screen
     private StorageBackedResourceStore activeTextureResourceStore;
     private StorageBackedResourceStore activeAudioResourceStore;
     private StorageBackedResourceStore activeVideoRessourceStore;
-    private MsTranslationStore t;
+    private FluentTranslationStore t;
 
     [BackgroundDependencyLoader]
-    private void load(AudioManager audio, MsTranslationStore msTranslationStore)
+    private void load(AudioManager audio)
     {
         audioManager = audio;
-        t = msTranslationStore;
 
         InternalChildren = new Drawable[]
         {
@@ -78,7 +77,7 @@ public partial class PlayScreen : Screen
                 RelativeSizeAxes = Axes.Both,
             },
             backgroundLayer,
-            new BackButton(this.Exit, t["common-back"]),
+            new BackButton(this.Exit, Fluent.Translate("common-back")),
             notesContainer
         };
     }
@@ -97,7 +96,7 @@ public partial class PlayScreen : Screen
             Console.WriteLine(exception);
             AddInternal(new SpriteText()
             {
-                Text = t["play-song-error"],
+                Text = Fluent.Translate("play-song-error"),
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
             });
@@ -173,7 +172,7 @@ public partial class PlayScreen : Screen
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, t["play-background-image-error"]);
+                Logger.Error(ex, "Failed to load karaoke track background image.");
             }
         }
     }
@@ -221,7 +220,7 @@ public partial class PlayScreen : Screen
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, t["play-background-video-error"]);
+                Logger.Error(ex, "Failed to load karaoke track background video.");
             }
         }
     }
@@ -264,7 +263,7 @@ public partial class PlayScreen : Screen
         }
         catch (Exception ex)
         {
-            Logger.Error(ex, t["play-audio-error"]);
+            Logger.Error(ex, "Failed to load karaoke track audio.");
             return null;
         }
     }
