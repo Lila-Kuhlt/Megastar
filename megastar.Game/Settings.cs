@@ -28,7 +28,6 @@ public enum GameSetting
 {
     SoundVolume,
     Difficulty,
-    Language
 }
 
 public class Settings : IniConfigManager<GameSetting>
@@ -55,11 +54,9 @@ public class Settings : IniConfigManager<GameSetting>
     {
         SetDefault(GameSetting.SoundVolume, 100, 0, 100); // Key, Default, Min, Max
         SetDefault(GameSetting.Difficulty, GameDifficulty.Muuuuuhtig);
-        SetDefault(GameSetting.Language, "en");
     }
 
     // Expose Settings here
     public Bindable<int> SoundVolume => GetBindable<int>(GameSetting.SoundVolume);
     public Bindable<GameDifficulty> Difficulty => GetBindable<GameDifficulty>(GameSetting.Difficulty);
-    public Bindable<string> Language => GetBindable<string>(GameSetting.Language);
 }

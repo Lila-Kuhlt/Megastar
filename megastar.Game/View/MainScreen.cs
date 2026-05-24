@@ -14,7 +14,7 @@ namespace megastar.Game.View
     public partial class MainScreen : Screen
     {
         [BackgroundDependencyLoader]
-        private void load(MsTranslationStore t)
+        private void load()
         {
             InternalChildren =
             [
@@ -25,7 +25,7 @@ namespace megastar.Game.View
                 new SpriteText
                 {
                     Y = 20,
-                    Text = t["main-title"],
+                    Text = Fluent.Translate("main-title"),
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
                     Font = FontUsage.Default.With(size: 80),
@@ -51,7 +51,7 @@ namespace megastar.Game.View
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
-                            Text = t["main-start-game"],
+                            Text = Fluent.Translate("main-start-game"),
                             Action = () => this.Push(new PlayScreen()),
                             Size = new Vector2(150),
                             Depth = 1,
@@ -61,7 +61,7 @@ namespace megastar.Game.View
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
-                            Text = t["main-search"],
+                            Text = Fluent.Translate("main-search"),
                             Action = () => this.Push(new SearchScreen()),
                             Size = new Vector2(150),
                             Depth = 2,
@@ -71,7 +71,7 @@ namespace megastar.Game.View
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
-                            Text = t["main-index"],
+                            Text = Fluent.Translate("main-index"),
                             Action = () => this.Push(new FileSelectorScreen()),
                             Size = new Vector2(150),
                             Depth = 3,
@@ -81,13 +81,13 @@ namespace megastar.Game.View
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
-                            Text = t["main-settings"],
+                            Text = Fluent.Translate("main-settings"),
                             BackgroundColour = StandardColours.MAIN,
                             Action = () => this.Push(new SettingsScreen()),
                             Size = new Vector2(150),
                             Depth = 4
                         },
-                        new BackButton(Game.Exit, t["main-exit"])
+                        new BackButton(Game.Exit, Fluent.Translate("main-exit"))
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
