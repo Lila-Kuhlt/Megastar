@@ -34,6 +34,7 @@ public class UsdxNote
                         Size = new Vector2(this.Length * SCALE_FACTOR, HEIGHT_FACTOR),
                         Y = Pitch * HEIGHT_FACTOR
                     },
+                    /*
                     new SpriteText
                     {
                         Text = this.Text,
@@ -41,7 +42,7 @@ public class UsdxNote
                         Anchor = Anchor.BottomCentre,
                         Origin = Anchor.TopCentre,
                         Y = 40
-                    }
+                    } */
                 }
             };
         }

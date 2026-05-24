@@ -34,6 +34,15 @@ public partial class PlayScreen : Screen
 
     private List<IBeatPaced> curNotes = new List<IBeatPaced>();
 
+    //Phrasing on Lyrics
+    private List<List<INote>> allPhrases;
+    private int currentPhraseIndex = 0;
+    private LyricsContainer currentLyricsContainer;
+    private readonly Container lyricsLayer = new Container
+    {
+        RelativeSizeAxes = Axes.Both,
+        Padding = new MarginPadding { Bottom = 50 }
+    };
 
     //The offset from the start of the screen where notes beginn to spawn
     private static float START_OFFSET = 1000f;
@@ -42,6 +51,7 @@ public partial class PlayScreen : Screen
     private UsdxTrack curTrack;
     private Video backgroundVideo;
 
+    //Container for the floating notes on their respective pitch
     private Container notesContainer = new Container
     {
         AutoSizeAxes = Axes.Both,
@@ -75,12 +85,13 @@ public partial class PlayScreen : Screen
         {
             new Box
             {
-                Colour = Color4.Violet,
+                Colour = Colour4.Violet,
                 RelativeSizeAxes = Axes.Both,
             },
             backgroundLayer,
             new BackButton(this.Exit, t["common-back"]),
-            notesContainer
+            notesContainer,
+            lyricsLayer
         };
     }
 
@@ -109,9 +120,9 @@ public partial class PlayScreen : Screen
     {
         cleanUpOldStores();
 
-        //Load notes
         curNotes = usdxTrack.Notes;
-        List<List<IBeatPaced>> phrases = usdxTrack.NotePhrases;
+        allPhrases = usdxTrack.NotePhrases;
+
         notesContainer.Children = curNotes.Select(note => note.Visual).ToArray();
 
         track = loadSong(audioManager, usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.SongFile);
@@ -121,6 +132,27 @@ public partial class PlayScreen : Screen
         loadBackgroundVideo(usdxTrack);
         curTrack = usdxTrack;
         track.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
+
+        // first phrase
+        currentPhraseIndex = 0;
+        if (allPhrases != null && allPhrases.Count > 0)
+        {
+            showPhrase(currentPhraseIndex);
+        }
+    }
+
+
+    private void showPhrase(int index)
+    {
+        lyricsLayer.Clear();
+
+        currentLyricsContainer = new LyricsContainer(allPhrases[index])
+        {
+            Anchor = Anchor.BottomCentre,
+            Origin = Anchor.BottomCentre
+        };
+
+        lyricsLayer.Add(currentLyricsContainer);
     }
 
     private void cleanUpOldStores()
@@ -170,7 +202,7 @@ public partial class PlayScreen : Screen
                     });
 
                     // Fade between backgrounds
-                    currentBackground.FadeIn(500, Easing.OutQuint);
+                    currentBackground.FadeIn(100, Easing.OutQuint);
                 }
             }
             catch (Exception ex)
@@ -216,8 +248,7 @@ public partial class PlayScreen : Screen
 
                     backgroundVideo.OnLoadComplete += v =>
                     {
-                        Console.WriteLine("FERTIG GELADNE");
-                        v.FadeIn(500, Easing.OutQuint);
+                        v.FadeIn(0, Easing.OutQuint);
                     };
                 }
             }
@@ -235,11 +266,40 @@ public partial class PlayScreen : Screen
         if (curTrack != null && track != null)
         {
             double ultraStarBpm = curTrack.TrackMetadata.BPM;
+            double currentBeat = ((track.CurrentTime - curTrack.TrackMetadata.Gap) / 60000.0) * ultraStarBpm * 4;
+            notesContainer.X = (float)((-currentBeat * UsdxNote.SCALE_FACTOR)) + START_OFFSET;
 
-            //track.CurrentTime should be in milliseconds.
-            double currentBeat = ((track.CurrentTime - START_OFFSET - curTrack.TrackMetadata.Gap) / 60000.0) *
-                                 ultraStarBpm * 4;
-            notesContainer.X = (float)((-currentBeat * UsdxNote.SCALE_FACTOR));
+
+            if (currentLyricsContainer != null)
+            {
+                currentLyricsContainer.beatTime = currentBeat;
+            }
+
+            // Handle phrase switching
+            if (allPhrases != null && currentPhraseIndex + 1 < allPhrases.Count)
+            {
+                var currentPhrase = allPhrases[currentPhraseIndex];
+                var nextPhrase = allPhrases[currentPhraseIndex + 1];
+
+                // Failsafe in case a phrase has 0 notes
+                if (currentPhrase.Count > 0 && nextPhrase.Count > 0)
+                {
+                    var lastNote = currentPhrase.Last();
+                    var nextNote = nextPhrase.First();
+
+                    double phraseEndBeat = lastNote.StartBeat + lastNote.Length;
+                    double nextPhraseStartBeat = nextNote.StartBeat;
+
+                    // Switch phrase exactly halfway between the end of the current one and the start of the next one
+                    double switchBeat = phraseEndBeat + ((nextPhraseStartBeat - phraseEndBeat) / 2.0);
+
+                    if (currentBeat >= switchBeat)
+                    {
+                        currentPhraseIndex++;
+                        showPhrase(currentPhraseIndex);
+                    }
+                }
+            }
         }
     }
 

@@ -7,7 +7,7 @@ public interface ITrack
 {
     ITrackMetadata TrackMetadata { get; set; }
     List<IBeatPaced> Notes { get; set; }
-    List<List<IBeatPaced>> NotePhrases { get; }
+    List<List<INote>> NotePhrases { get; }
 
     public void clearStorage();
 }

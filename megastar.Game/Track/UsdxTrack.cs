@@ -13,6 +13,7 @@ public class UsdxTrack : ITrack
 {
     public ITrackMetadata TrackMetadata { get; set; }
     private List<IBeatPaced> notes;
+
     public List<IBeatPaced> Notes
     {
         get
@@ -31,19 +32,21 @@ public class UsdxTrack : ITrack
                     notes = new List<IBeatPaced>();
                 }
             }
+
             return notes;
         }
         set => notes = value;
     }
 
-    private List<List<IBeatPaced>> notePhrases;
-    public List<List<IBeatPaced>> NotePhrases
+    private List<List<INote>> notePhrases;
+
+    public List<List<INote>> NotePhrases
     {
         get
         {
             if (notePhrases == null || notePhrases.Count == 0)
             {
-                notePhrases = new List<List<IBeatPaced>>();
+                notePhrases = new List<List<INote>>();
                 bool nextPhrase = true;
 
                 foreach (var note in Notes)
@@ -52,18 +55,19 @@ public class UsdxTrack : ITrack
                     {
                         nextPhrase = true;
                     }
-                    else
+                    else if (note is UsdxNote)
                     {
                         if (nextPhrase)
                         {
                             nextPhrase = false;
-                            notePhrases.Add(new List<IBeatPaced>());
+                            notePhrases.Add(new List<INote>());
                         }
 
-                        notePhrases[notePhrases.Count - 1].Add(note);
+                        notePhrases[notePhrases.Count - 1].Add((UsdxNote) note);
                     }
                 }
             }
+
             return notePhrases;
         }
     }
@@ -72,7 +76,6 @@ public class UsdxTrack : ITrack
     {
         TrackMetadata = metadata;
     }
-
 
 
     public UsdxTrack(ITrackMetadata trackMetadata, List<IBeatPaced> notes)
