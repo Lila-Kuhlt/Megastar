@@ -18,5 +18,11 @@
     <EmbeddedResource Include="funfacts.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+    <None Update="Webapp\USDXWebapp.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Webapp\" />
   </ItemGroup>
 </Project>

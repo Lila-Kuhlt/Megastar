@@ -13,6 +13,8 @@ namespace megastar.Game.View
 {
     public partial class MainScreen : Screen
     {
+        [Resolved] private MegastarGameBase game { get; set; } = null!;
+
         [BackgroundDependencyLoader]
         private void load(MsTranslationStore t)
         {
@@ -20,6 +22,8 @@ namespace megastar.Game.View
             [
                 //Background
                 new ShaderBackground("sh_background.fs"),
+
+                game.LocalQueueServer,
 
                 //Title
                 new SpriteText

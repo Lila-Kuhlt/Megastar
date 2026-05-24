@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Megastar Queue</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 20px; background: #f4f4f9; margin: 0; }
+        h2 { color: #333; margin-top: 0; }
+        .list-container { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .song-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .song-item:last-child { border-bottom: none; padding-bottom: 0; }
+        button { background: #007bff; color: white; border: none; padding: 10px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        button.remove { background: #dc3545; }
+        .song-info { display: flex; flex-direction: column; }
+        .song-title { font-weight: bold; font-size: 16px; color: #111; }
+        .song-artist { font-size: 14px; color: #666; }
+    </style>
+</head>
+<body>
+
+    <div class="list-container">
+        <h2>Up Next</h2>
+        <div id="queue-list">Waiting for connection...</div>
+    </div>
+
+    <div class="list-container">
+        <h2>Available Songs</h2>
+        <div id="loaded-list">Loading...</div>
+    </div>
+
+    <script>
+        const wsUrl = `ws://${window.location.host}/ws`;
+        const socket = new WebSocket(wsUrl);
+
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            renderQueue(data.Queued);
+            renderLoaded(data.Loaded);
+        };
+
+        function sendAction(actionObj) {
+            if(socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify(actionObj));
+            }
+        }
+
+        function renderQueue(queuedSongs) {
+            const container = document.getElementById('queue-list');
+            container.innerHTML = '';
+            
+            if (queuedSongs.length === 0) {
+                container.innerHTML = '<p style="color:gray;">Queue is empty.</p>';
+                return;
+            }
+
+            queuedSongs.forEach(song => {
+                const div = document.createElement('div');
+                div.className = 'song-item';
+                div.innerHTML = `
+                    <div class="song-info">
+                        <span class="song-title">${song.Title}</span>
+                        <span class="song-artist">${song.Artist}</span>
+                    </div>
+                    <button class="remove" onclick='sendAction({action: "REMOVE", queueIndex: ${song.Index}})'>Remove</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderLoaded(loadedSongs) {
+            const container = document.getElementById('loaded-list');
+            container.innerHTML = '';
+
+            loadedSongs.forEach(song => {
+                const div = document.createElement('div');
+                div.className = 'song-item';
+                div.innerHTML = `
+                    <div class="song-info">
+                        <span class="song-title">${song.Title}</span>
+                        <span class="song-artist">${song.Artist}</span>
+                    </div>
+                    <button onclick='sendAction({action: "ADD", songIndex: ${song.Index}})'>Add</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>

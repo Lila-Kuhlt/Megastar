@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using megastar.Game.Track;
 using megastar.Game.Translations;
 using megastar.Resources;
@@ -61,10 +62,16 @@ namespace megastar.Game
             return dependencies;
         }
 
-        public List<UsdxTrack> LoadedSongs { get; private set; } = [];
+
+
+
+        public List<UsdxTrack> LoadedSongs { get; private set; } = new List<UsdxTrack>();
 
         //QUEWE
         public List<UsdxTrack> QueuedSongs { get; private set; } = new List<UsdxTrack>();
+
+        public LocalQueueServer LocalQueueServer = new LocalQueueServer();
+
 
         [BackgroundDependencyLoader]
         private void load()
