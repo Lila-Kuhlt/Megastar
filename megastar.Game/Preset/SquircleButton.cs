@@ -2,6 +2,7 @@
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Localisation;
 using osuTK;
 
 public partial class SquircleButton : ClickableContainer
@@ -23,7 +24,7 @@ public partial class SquircleButton : ClickableContainer
         set => iconSprite.Icon = value;
     }
 
-    public string Text
+    public LocalisableString Text
     {
         get => textSprite.Text.ToString();
         set => textSprite.Text = value;
