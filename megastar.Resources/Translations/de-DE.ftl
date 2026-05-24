@@ -42,3 +42,7 @@ end-screen-search = Suche nach Künstler oder Titel...
 ## Language Names
 de-DE = Deutsch (de-DE)
 en-US = Englisch (en-US)
+
+## Language Names
+de-DE = Deutsch (de-DE)
+en-US = Englisch (en-US)
