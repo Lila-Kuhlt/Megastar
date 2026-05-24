@@ -45,7 +45,7 @@ public partial class PlayScreen : Screen
     };
 
     //The offset from the start of the screen where notes beginn to spawn
-    private static float START_OFFSET = 1000f;
+    private static float START_OFFSET = 300f;
 
     private static AudioManager audioManager;
     private UsdxTrack curTrack;
@@ -262,6 +262,7 @@ public partial class PlayScreen : Screen
     protected override void Update()
     {
         base.Update();
+
 
         if (curTrack != null && track != null)
         {
