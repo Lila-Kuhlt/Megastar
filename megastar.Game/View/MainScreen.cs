@@ -38,40 +38,61 @@ namespace megastar.Game.View
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    AutoSizeAxes = Axes.Both, // Shrink-wraps to fit the buttons
-                    Direction = FillDirection.Vertical,
-                    Spacing = new Vector2(0, 10), // Gap between buttons
+                    AutoSizeAxes = Axes.Both,
+                    Direction = FillDirection.Horizontal,
+                    Spacing = new Vector2(10, 10),
                     Children = new Drawable[]
                     {
-                        new BasicButton
+                        new StarButton()
                         {
+                            Size = new Vector2(200),
+                        },
+                        new SquircleButton()
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
                             Text = t["main-start-game"],
-                            Size = new Vector2(200, 40),
-                            BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new PlayScreen()),
+                            Size = new Vector2(150),
+                            Depth = 1,
+                            BackgroundColour = StandardColours.MAIN
                         },
-                        new BasicButton
+                        new SquircleButton
                         {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
                             Text = t["main-search"],
-                            Size = new Vector2(200, 40),
-                            BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new SearchScreen()),
+                            Size = new Vector2(150),
+                            Depth = 2,
+                            BackgroundColour = StandardColours.SECOND
                         },
-                        new BasicButton
+                        new SquircleButton
                         {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
                             Text = t["main-index"],
-                            Size = new Vector2(200, 40),
-                            BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new FileSelectorScreen()),
+                            Size = new Vector2(150),
+                            Depth = 3,
+                            BackgroundColour = StandardColours.THIRD
                         },
-                        new BasicButton
+                        new SquircleButton
                         {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
                             Text = t["main-settings"],
-                            Size = new Vector2(200, 40),
-                            BackgroundColour = Color4.Teal,
+                            BackgroundColour = StandardColours.MAIN,
                             Action = () => this.Push(new SettingsScreen()),
+                            Size = new Vector2(150),
+                            Depth = 4
                         },
                         new BackButton(Game.Exit, t["main-exit"])
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            Depth = 5
+                        }
                     }
                 }
             ];
