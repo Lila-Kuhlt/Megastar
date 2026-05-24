@@ -12,7 +12,6 @@ public enum LyricState
     Passed
 }
 
-// A dedicated component for a single word to handle its own smooth animations
 public partial class LyricWord : CompositeDrawable
 {
     private LyricState currentState = LyricState.Upcoming;

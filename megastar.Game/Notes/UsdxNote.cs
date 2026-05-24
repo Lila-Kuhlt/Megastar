@@ -9,8 +9,6 @@ namespace megastar.Game.notes;
 public class UsdxNote : INote
 {
     public static int SCALE_FACTOR = 10;
-
-    // Increased slightly so the notes are thicker and easier to see/hit
     public static int HEIGHT_FACTOR = 15;
 
     public uint StartBeat { get; set; }
@@ -19,9 +17,7 @@ public class UsdxNote : INote
     public string Text { get; set; }
     public UsdxNoteType NoteType { get; set; }
 
-    // Cache the visual so we don't accidentally create thousands of containers
-    private Drawable cachedVisual;
-    public Drawable Visual => cachedVisual ??= CreateVisual();
+    public Drawable Visual => CreateVisual();
 
     public UsdxNote(uint startBeat, int length, int pitch, string text, UsdxNoteType noteType)
     {
@@ -37,36 +33,42 @@ public class UsdxNote : INote
         Colour4 baseColor;
         Colour4 glowColor;
 
-        // Customize these based on your actual UsdxNoteType enum values!
         switch (NoteType)
         {
             case UsdxNoteType.Golden:
                 baseColor = Colour4.Gold;
                 glowColor = Colour4.Goldenrod.Opacity(0.8f);
                 break;
-            case UsdxNoteType.Freestyle: // Spoken/Rap notes usually don't have a specific pitch
+            case UsdxNoteType.Freestyle:
                 baseColor = Colour4.Gray;
                 glowColor = Colour4.Transparent;
                 break;
+            case UsdxNoteType.Sung:
+                baseColor = Colour4.LimeGreen;
+                glowColor = Colour4.LimeGreen.Opacity(0.8f);
+                break;
             default:
-                baseColor = Colour4.Pink;
-                glowColor = Colour4.DeepPink.Opacity(0.5f);
+                baseColor = Colour4.DeepSkyBlue;
+                glowColor = Colour4.DeepSkyBlue.Opacity(0.5f);
                 break;
         }
+
+        int finalHeight = NoteType == UsdxNoteType.Sung ? HEIGHT_FACTOR - 4 : HEIGHT_FACTOR;
+
+        float yOffset = NoteType == UsdxNoteType.Sung ? 2 : 0;
 
         return new Container
         {
             X = this.StartBeat * SCALE_FACTOR,
-            Y = this.Pitch * HEIGHT_FACTOR,
-            Size = new Vector2(this.Length * SCALE_FACTOR, HEIGHT_FACTOR),
-
+            Y = -(this.Pitch * HEIGHT_FACTOR) + yOffset,
+            Size = new Vector2(this.Length * SCALE_FACTOR, finalHeight),
 
             Masking = true,
-            CornerRadius = HEIGHT_FACTOR / 2f,
-            BorderColour = Colour4.White,
-            BorderThickness = 1.5f,
+            CornerRadius = finalHeight / 2f,
 
-            // Outer glow effect
+            BorderColour = Colour4.White,
+            BorderThickness = NoteType == UsdxNoteType.Sung ? 0 : 1.5f,
+
             EdgeEffect = new EdgeEffectParameters
             {
                 Type = EdgeEffectType.Glow,
@@ -77,17 +79,15 @@ public class UsdxNote : INote
 
             Children = new Drawable[]
             {
-                // Base note color
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
                     Colour = baseColor,
                 },
-                // Top half highlight to give a subtle 3D "glass" or glossy effect
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Height = 0.5f, // Only cover the top half
+                    Height = 0.5f,
                     Colour = Colour4.White.Opacity(0.3f),
                 }
             }

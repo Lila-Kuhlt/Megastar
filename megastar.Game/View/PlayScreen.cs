@@ -38,11 +38,23 @@ public partial class PlayScreen : Screen
     private List<List<INote>> allPhrases;
     private int currentPhraseIndex = 0;
     private LyricsContainer currentLyricsContainer;
+
     private readonly Container lyricsLayer = new Container
     {
         RelativeSizeAxes = Axes.Both,
         Padding = new MarginPadding { Bottom = 50 }
     };
+
+    private readonly Container notesLayer = new Container
+    {
+        RelativeSizeAxes = Axes.Both,
+        Anchor = Anchor.Centre,
+        Origin = Anchor.Centre,
+        AlwaysPresent = true
+    };
+
+    private PhraseNotesContainer currentNotesContainer;
+
 
     //The offset from the start of the screen where notes beginn to spawn
     private static float START_OFFSET = 300f;
@@ -51,16 +63,8 @@ public partial class PlayScreen : Screen
     private UsdxTrack curTrack;
     private Video backgroundVideo;
 
-    //Container for the floating notes on their respective pitch
-    private Container notesContainer = new Container
-    {
-        AutoSizeAxes = Axes.Both,
+    private double currentBeat = 0f;
 
-        Anchor = Anchor.CentreLeft,
-        Origin = Anchor.CentreLeft,
-
-        AlwaysPresent = true
-    };
 
     // Dedicated layer to safely swap background sprites behind UI elements
     private readonly Container backgroundLayer = new Container
@@ -74,6 +78,8 @@ public partial class PlayScreen : Screen
     private StorageBackedResourceStore activeAudioResourceStore;
     private StorageBackedResourceStore activeVideoRessourceStore;
     private MsTranslationStore t;
+
+    private uint lastReceivedNoteBeat = 0;
 
     [BackgroundDependencyLoader]
     private void load(AudioManager audio, MsTranslationStore msTranslationStore)
@@ -90,7 +96,7 @@ public partial class PlayScreen : Screen
             },
             backgroundLayer,
             new BackButton(this.Exit, t["common-back"]),
-            notesContainer,
+            notesLayer,
             lyricsLayer
         };
     }
@@ -123,8 +129,6 @@ public partial class PlayScreen : Screen
         curNotes = usdxTrack.Notes;
         allPhrases = usdxTrack.NotePhrases;
 
-        notesContainer.Children = curNotes.Select(note => note.Visual).ToArray();
-
         track = loadSong(audioManager, usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.SongFile);
         track?.Start();
 
@@ -145,14 +149,19 @@ public partial class PlayScreen : Screen
     private void showPhrase(int index)
     {
         lyricsLayer.Clear();
+        notesLayer.Clear();
 
-        currentLyricsContainer = new LyricsContainer(allPhrases[index])
+        var currentPhrase = allPhrases[index];
+
+        currentLyricsContainer = new LyricsContainer(currentPhrase)
         {
             Anchor = Anchor.BottomCentre,
             Origin = Anchor.BottomCentre
         };
-
         lyricsLayer.Add(currentLyricsContainer);
+
+        currentNotesContainer = new PhraseNotesContainer(currentPhrase);
+        notesLayer.Add(currentNotesContainer);
     }
 
     private void cleanUpOldStores()
@@ -218,14 +227,15 @@ public partial class PlayScreen : Screen
         {
             try
             {
-                string videoPath = Path.Combine(usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.BackgroundVideoFile);
+                string videoPath = Path.Combine(usdxTrack.TrackMetadata.DirPath,
+                    usdxTrack.TrackMetadata.BackgroundVideoFile);
 
                 if (File.Exists(videoPath))
                 {
                     // Let C# handle the file reading safely to bypass FFmpeg pathing issues
                     Stream videoStream = File.OpenRead(videoPath);
 
-                    backgroundVideo = new Video(videoStream) // Pass the stream, not the string!
+                    backgroundVideo = new Video(videoStream)
                     {
                         RelativeSizeAxes = Axes.Both,
                         Anchor = Anchor.Centre,
@@ -267,8 +277,8 @@ public partial class PlayScreen : Screen
         if (curTrack != null && track != null)
         {
             double ultraStarBpm = curTrack.TrackMetadata.BPM;
-            double currentBeat = ((track.CurrentTime - curTrack.TrackMetadata.Gap) / 60000.0) * ultraStarBpm * 4;
-            notesContainer.X = (float)((-currentBeat * UsdxNote.SCALE_FACTOR)) + START_OFFSET;
+            currentBeat = ((track.CurrentTime - curTrack.TrackMetadata.Gap) / 60000.0) * ultraStarBpm * 4;
+            currentNotesContainer?.UpdateBeat(currentBeat);
 
 
             if (currentLyricsContainer != null)
@@ -282,7 +292,6 @@ public partial class PlayScreen : Screen
                 var currentPhrase = allPhrases[currentPhraseIndex];
                 var nextPhrase = allPhrases[currentPhraseIndex + 1];
 
-                // Failsafe in case a phrase has 0 notes
                 if (currentPhrase.Count > 0 && nextPhrase.Count > 0)
                 {
                     var lastNote = currentPhrase.Last();
@@ -291,8 +300,8 @@ public partial class PlayScreen : Screen
                     double phraseEndBeat = lastNote.StartBeat + lastNote.Length;
                     double nextPhraseStartBeat = nextNote.StartBeat;
 
-                    // Switch phrase exactly halfway between the end of the current one and the start of the next one
-                    double switchBeat = phraseEndBeat + ((nextPhraseStartBeat - phraseEndBeat) / 2.0);
+                    // Switch phrase 1/4 between the end of the current one and the start of the next one
+                    double switchBeat = phraseEndBeat + ((nextPhraseStartBeat - phraseEndBeat) / 4.0);
 
                     if (currentBeat >= switchBeat)
                     {
@@ -302,6 +311,8 @@ public partial class PlayScreen : Screen
                 }
             }
         }
+        //TODO hier nur zu testzwecken bis wirklicher input eingelesen wird
+        ReceiveSungNote(new UsdxNote((uint)currentBeat, Random.Shared.Next(1, 5), Random.Shared.Next(5, 20), "", UsdxNoteType.Sung));
     }
 
     public override bool OnExiting(ScreenExitEvent e)
@@ -330,5 +341,28 @@ public partial class PlayScreen : Screen
             Logger.Error(ex, t["play-audio-error"]);
             return null;
         }
+    }
+
+    /// <summary>
+    /// This method takes notes that get sung and displays them above the pitches
+    /// This automatically only receives the first note per beat and ignores all following ones
+    /// </summary>
+    /// <param name="sungNote"></param>
+    public void ReceiveSungNote(INote sungNote)
+    {
+        if ((uint) currentBeat > lastReceivedNoteBeat)
+        {
+            currentNotesContainer?.AddSungNote(sungNote);
+            lastReceivedNoteBeat = sungNote.StartBeat + (uint) sungNote.Length;
+        }
+    }
+
+    /// <summary>
+    /// Returns the Beat at which the song currently is. New Input Notes should be set to this beat
+    /// </summary>
+    /// <returns></returns>
+    public double GetCurrentBeat()
+    {
+        return currentBeat;
     }
 }
