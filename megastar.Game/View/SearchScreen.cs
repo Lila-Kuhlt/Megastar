@@ -7,6 +7,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Screens;
 using osuTK;
@@ -17,6 +18,7 @@ namespace megastar.Game.View;
 public partial class SearchScreen : Screen
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
+    private FillFlowContainer queueContainer;
 
     [BackgroundDependencyLoader]
     private void load(MsTranslationStore t)
@@ -40,9 +42,29 @@ public partial class SearchScreen : Screen
             X = -100,
 
             // Generates completely new UI objects every time the screen is entered
-            Children = game.LoadedSongs.Select(trackData => new UsdxTrackDrawable(trackData)).ToArray(),
+            Children = game.LoadedSongs.Select(trackData =>
+                new UsdxTrackDrawable(trackData, track => AddToQueue(track))).ToArray(),
         };
 
+
+        var queueBox = new SpriteText()
+        {
+            Text = t["Queue"],
+            Size = new Vector2(400, 40),
+            Anchor = Anchor.TopRight,
+            Origin = Anchor.TopRight,
+            Y = 50,
+        };
+
+        queueContainer = new FillFlowContainer()
+        {
+            Direction = FillDirection.Vertical,
+            Spacing = new Vector2(0, 5),
+            AutoSizeAxes = Axes.Y,
+            RelativeSizeAxes = Axes.X,
+            Anchor = Anchor.TopRight,
+            Origin = Anchor.TopRight,
+        };
 
 
         //Bind the text changes to the search
@@ -56,6 +78,7 @@ public partial class SearchScreen : Screen
             Console.WriteLine($"Search committed for: {sender.Text}");
         };
 
+
         InternalChildren =
         [
             new Box
@@ -64,6 +87,8 @@ public partial class SearchScreen : Screen
                 RelativeSizeAxes = Axes.Both,
             },
             searchBox,
+            queueBox,
+            queueContainer,
             new BackButton(this.Exit, t["common-back"]),
 
             new BasicScrollContainer
@@ -75,7 +100,21 @@ public partial class SearchScreen : Screen
                 Y = 30,
 
                 Child = searchContainer
-            }
+            },
         ];
+    }
+
+    //Quewe
+    private void AddToQueue(UsdxTrack track)
+    {
+        MegastarGameBase.QueuedSongs.Enqueue(track);
+        queueContainer.Add(new UsdxTrackDrawable(track));
+
+        AddInternal(new SpriteText()
+        {
+            Text = "Added to Queue",
+            Anchor = Anchor.BottomCentre,
+            Origin = Anchor.BottomCentre,
+        });
     }
 }

@@ -88,7 +88,7 @@ public partial class PlayScreen : Screen
         base.OnEntering(e);
 
         //TODO hier sollte irgendwie auch die nächsten Lieder abgespielt werden
-        try
+        /*try
         {
             setUpTrack(game.QueuedSongs.First());
         }
@@ -101,7 +101,7 @@ public partial class PlayScreen : Screen
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
             });
-        }
+        }*/
     }
 
     private void setUpTrack(UsdxTrack usdxTrack)

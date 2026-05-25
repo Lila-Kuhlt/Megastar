@@ -64,7 +64,8 @@ namespace megastar.Game
         public List<UsdxTrack> LoadedSongs { get; private set; } = [];
 
         //QUEWE
-        public List<UsdxTrack> QueuedSongs { get; private set; } = new List<UsdxTrack>();
+        public static Queue<UsdxTrack> QueuedSongs { get; private set; } = new Queue<UsdxTrack>();
+
 
         [BackgroundDependencyLoader]
         private void load()

@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using megastar.Game.notes;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
+using osuTK;
 using osuTK.Graphics;
 
 namespace megastar.Game.Track;
@@ -13,6 +15,7 @@ public class UsdxTrack : ITrack
 {
     public ITrackMetadata TrackMetadata { get; set; }
     private List<IBeatPaced> notes;
+
     public List<IBeatPaced> Notes
     {
         get
@@ -31,6 +34,7 @@ public class UsdxTrack : ITrack
                     notes = new List<IBeatPaced>();
                 }
             }
+
             return notes;
         }
         set => notes = value;
@@ -40,7 +44,6 @@ public class UsdxTrack : ITrack
     {
         TrackMetadata = metadata;
     }
-
 
 
     public UsdxTrack(ITrackMetadata trackMetadata, List<IBeatPaced> notes)
@@ -53,6 +56,7 @@ public class UsdxTrack : ITrack
 public sealed partial class UsdxTrackDrawable : CompositeDrawable, IFilterable
 {
     private UsdxTrack data { get; }
+
 
     public IEnumerable<LocalisableString> FilterTerms => new LocalisableString[]
         { data.TrackMetadata.Artist, data.TrackMetadata.Title };
@@ -71,17 +75,36 @@ public sealed partial class UsdxTrackDrawable : CompositeDrawable, IFilterable
 
     public bool FilteringActive { get; set; }
 
-    public UsdxTrackDrawable(UsdxTrack data)
+    public UsdxTrackDrawable(UsdxTrack data, Action<UsdxTrack> addToQueue = null)
     {
         this.data = data;
         AutoSizeAxes = Axes.Y;
         RelativeSizeAxes = Axes.X;
 
-        InternalChild = new SpriteText
-        {
-            Text = $"{this.data.TrackMetadata.Title} - {this.data.TrackMetadata.Artist}",
-            Font = FontUsage.Default.With(size: 20),
-            Colour = Color4.White
-        };
+        InternalChildren =
+        [
+            new SpriteText
+            {
+                Text = $"{this.data.TrackMetadata.Title} - {this.data.TrackMetadata.Artist}",
+                Font = FontUsage.Default.With(size: 20),
+                Colour = Color4.White
+            },
+            new ClickableContainer()
+            {
+                Anchor = Anchor.CentreRight,
+                Origin = Anchor.CentreRight,
+                Width = 30,
+                Height = 30,
+                X = 0,
+
+                Child = new SpriteIcon()
+                {
+                    Icon = FontAwesome.Solid.Plus,
+                    Size = new Vector2(16)
+                },
+
+                Action = () => addToQueue?.Invoke(data)
+            }
+        ];
     }
 }
