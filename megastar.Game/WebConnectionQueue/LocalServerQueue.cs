@@ -140,7 +140,7 @@ namespace megastar.Game // Adjust to your preferred namespace
                 using JsonDocument doc = JsonDocument.Parse(jsonMessage);
                 string action = doc.RootElement.GetProperty("action").GetString();
 
-                // Extract data immediately
+                // Extract data before pushing
                 int? songIndex = action == "ADD" ? doc.RootElement.GetProperty("songIndex").GetInt32() : null;
                 int? queueIndex = action == "REMOVE" ? doc.RootElement.GetProperty("queueIndex").GetInt32() : null;
 
@@ -150,7 +150,7 @@ namespace megastar.Game // Adjust to your preferred namespace
                     if (action == "ADD" && songIndex.HasValue)
                     {
                         if (songIndex >= 0 && songIndex < LoadedSongs.Count)
-                            QueuedSongs.Add(LoadedSongs[songIndex.Value]);
+                            game.QueueSong(LoadedSongs[songIndex.Value]);
                     }
                     else if (action == "REMOVE" && queueIndex.HasValue)
                     {

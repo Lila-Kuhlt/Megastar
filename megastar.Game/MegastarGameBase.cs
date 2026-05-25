@@ -32,8 +32,7 @@ namespace megastar.Game
         protected override Container<Drawable> Content { get; }
         private readonly List<Language> locales = new List<Language>();
 
-        [Resolved]
-        private FrameworkConfigManager config { get; set; }
+        [Resolved] private FrameworkConfigManager config { get; set; }
 
         private IResourceStore<byte[]> translations;
 
@@ -58,14 +57,47 @@ namespace megastar.Game
         }
 
 
-
-
         public List<UsdxTrack> LoadedSongs { get; private set; } = new List<UsdxTrack>();
 
         //QUEWE
         public List<UsdxTrack> QueuedSongs { get; private set; } = new List<UsdxTrack>();
 
         public LocalQueueServer LocalQueueServer = new LocalQueueServer();
+
+
+        public void QueueSong(UsdxTrack track, bool allowDuplicates = false)
+        {
+            if (allowDuplicates || !QueuedSongs.Contains(track))
+            {
+                QueuedSongs.Add(track);
+            }
+
+            if (LocalQueueServer != null)
+            {
+                LocalQueueServer.BroadcastStateAsync();
+            }
+        }
+
+        /// <summary>
+        /// This returns the next song of the queue and pop the current song
+        /// If there is no song in the queue, it will return null
+        /// If there is only one song in the queue, it returns it
+        /// </summary>
+        /// <returns>The next song in the queue</returns>
+        public UsdxTrack GetNextSong()
+        {
+            if (QueuedSongs.Count == 0)
+            {
+                return null;
+            }
+
+            if (QueuedSongs.Count == 1)
+            {
+                return QueuedSongs[0];
+            }
+            QueuedSongs.RemoveAt(0);
+            return QueuedSongs[0];
+        }
 
 
         [BackgroundDependencyLoader]
@@ -101,7 +133,8 @@ namespace megastar.Game
 
             // FrameworkSetting.Locale will be "" if the selected language is the system default language, since the framework does not persist the default language to file.
             // Why exactly it then does not load the system default language into the locale config on startup if it is empty is beyond me.
-            if (config.Get<string>(FrameworkSetting.Locale) == null || config.Get<string>(FrameworkSetting.Locale) == "")
+            if (config.Get<string>(FrameworkSetting.Locale) == null ||
+                config.Get<string>(FrameworkSetting.Locale) == "")
             {
                 string systemLocale = CultureInfo.CurrentUICulture.Name;
                 Language systemLanguage = locales.Find(l => l.Code == systemLocale);
