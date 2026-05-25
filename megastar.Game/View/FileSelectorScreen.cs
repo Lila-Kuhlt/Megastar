@@ -129,8 +129,9 @@ public partial class FileSelectorScreen : Screen
                 }
             }
 
-            //TODO HIER IRGENDWIE Adden, dass man songs queuen kann
-            game.QueuedSongs.Add(game.LoadedSongs[0]);
+            // TODO HIER IRGENDWIE Adden, dass man songs queuen kann
+            // game.QueuedSongs.Add(game.LoadedSongs[0]);
+            // Game crashed if no songs found       ^^^
 
             AddInternal(
                 new SpriteText()
