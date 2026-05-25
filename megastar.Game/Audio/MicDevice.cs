@@ -5,12 +5,11 @@ namespace megastar.Game.Audio;
 
 public class MicDevice()
 {
-    private int deviceIndex { get; set; }
+    private int deviceIndex { get; }
     private AudioRingBuffer buffer { get; } = new AudioRingBuffer(48000);
     public YinPitchDetector PitchDetector = new YinPitchDetector();
     private readonly BassCaptureStream captureStream = new BassCaptureStream();
 
-    private int recordChannel;
 
     public MicDevice(int deviceIndex) : this()
     {

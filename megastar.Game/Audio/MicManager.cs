@@ -17,6 +17,7 @@ public class MicManager
     {
         try
         {
+            availableMics[deviceIndex].Dispose();
             availableMics.RemoveAt(deviceIndex);
         }
         catch (ArgumentOutOfRangeException e)
