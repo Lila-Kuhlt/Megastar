@@ -6,5 +6,6 @@ public enum UsdxNoteType
     Golden,
     Freestyle,
     Rap,
-    RapGolden
+    RapGolden,
+    Sung
 }
