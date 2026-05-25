@@ -1,15 +1,22 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using megastar.Game.Track;
 using megastar.Game.Translations;
+using megastar.Game.View;
 using megastar.Resources;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Allocation;
+using osu.Framework.Configuration;
+using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.IO.Stores;
+using osu.Framework.Localisation;
 using osuTK;
 
 namespace megastar.Game
@@ -22,7 +29,12 @@ namespace megastar.Game
         // the screen scaling for all components including the test browser and framework overlays.
 
         protected override Container<Drawable> Content { get; }
-        private MsTranslationStore translationStore;
+        private readonly List<Language> locales = new List<Language>();
+
+        [Resolved]
+        private FrameworkConfigManager config { get; set; }
+
+        private IResourceStore<byte[]> translations;
 
         protected MegastarGameBase()
         {
@@ -34,22 +46,13 @@ namespace megastar.Game
             });
         }
 
-        /// <summary>
-        /// Injects the translationStore into the cached dependencies, so it can be accessed like this:
-        /// <code>
-        /// [BackgroundDependencyLoader]
-        /// private void load(TranslationStore translations)
-        /// </code>
-        /// </summary>
-        /// <param name="parent">
-        /// The parent DependencyContainer
-        /// </param>
         protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
         {
-            var dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
-            translationStore = new MsTranslationStore(new DllResourceStore(typeof(MegastarResources).Assembly), "en-US");
+            Settings.Initialize(Host.Storage);
 
-            dependencies.CacheAs(translationStore);
+            var dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
+
+            dependencies.CacheAs(locales);
             return dependencies;
         }
 
@@ -68,7 +71,43 @@ namespace megastar.Game
                          handler.GetType().Name.Contains("Tablet", StringComparison.OrdinalIgnoreCase)))
                 handler.Enabled.Value = false;
 
-            Resources.AddStore(new DllResourceStore(typeof(MegastarResources).Assembly));
+            IResourceStore<byte[]> resourceAssembly = new DllResourceStore(typeof(MegastarResources).Assembly);
+            Resources.AddStore(resourceAssembly);
+
+            translations = new NamespacedResourceStore<byte[]>(resourceAssembly, "Translations");
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            LocalisationManager localisation = Dependencies.Get<LocalisationManager>();
+
+            foreach (var file in translations.GetAvailableResources())
+            {
+                string lang = Path.ChangeExtension(file, null);
+                ILocalisationStore store = new FluentTranslationStore(translations, lang);
+                localisation.AddLanguage(lang, store);
+                Language language = new Language(lang, Fluent.Translate(lang), localisation);
+                locales.Add(language);
+            }
+
+            // FrameworkSetting.Locale will be "" if the selected language is the system default language, since the framework does not persist the default language to file.
+            // Why exactly it then does not load the system default language into the locale config on startup if it is empty is beyond me.
+            if (config.Get<string>(FrameworkSetting.Locale) == null || config.Get<string>(FrameworkSetting.Locale) == "")
+            {
+                string systemLocale = CultureInfo.CurrentUICulture.Name;
+                Language systemLanguage = locales.Find(l => l.Code == systemLocale);
+
+                if (systemLanguage == null)
+                {
+                    config.SetValue(FrameworkSetting.Locale, "en-US");
+                }
+                else
+                {
+                    config.SetValue(FrameworkSetting.Locale, systemLocale);
+                }
+            }
         }
     }
 }
