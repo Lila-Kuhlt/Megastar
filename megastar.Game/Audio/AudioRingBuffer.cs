@@ -4,7 +4,7 @@ namespace megastar.Game.Audio;
 
 public class AudioRingBuffer(int size)
 {
-    private int writeIndex = 0;
+    public int writeIndex = 0;
     private int readIndex = 0;
     private float[] buffer = new float[size];
 

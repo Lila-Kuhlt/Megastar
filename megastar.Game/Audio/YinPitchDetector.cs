@@ -10,11 +10,9 @@ public class YinPitchDetector
     private readonly int minTau;
     private readonly int maxTau;
 
-    private float[] difference;
-    private float[] cumulativeMean;
+    private readonly float[] difference;
+    private readonly float[] cumulativeMean;
 
-    public float LastFrequency { get; private set; } = -1f;
-    public float LastAperiodicity { get; private set; } = 1f;
 
     public YinPitchDetector()
     {
@@ -31,47 +29,16 @@ public class YinPitchDetector
 
     public float DetectPitch(ReadOnlySpan<float> samples)
     {
-        if (samples.Length < frameSize)
-            throw new ArgumentException(
-                $"Buffer muss mindestens {frameSize} Samples enthalten.", nameof(samples));
-
-        float rms = CalculateRms(samples);
-        if (rms < 0.005f)
-        {
-            LastFrequency = -1f;
-            LastAperiodicity = 1f;
-            return -1f;
-        }
-
         computeDifferenceFunction(samples);
         cumulativeMeanNormalizedDifference();
 
         int tauInt = absoluteThreshold();
 
-        if (tauInt < 0)
-        {
-            LastFrequency = -1f;
-            LastAperiodicity = 1f;
-            return -1f;
-        }
 
         float tauRefined = parabolicInterpolation(tauInt);
         float frequency = sampleRate / tauRefined;
 
-        LastFrequency = frequency;
-        LastAperiodicity = cumulativeMean[tauInt];
-
         return frequency;
-    }
-
-    private float CalculateRms(ReadOnlySpan<float> samples)
-    {
-        float sumSquares = 0f;
-        for (int i = 0; i < samples.Length; i++)
-        {
-            sumSquares += samples[i] * samples[i];
-        }
-        return MathF.Sqrt(sumSquares / samples.Length);
     }
 
     private void computeDifferenceFunction(
@@ -82,8 +49,9 @@ public class YinPitchDetector
         for (int tau = 1; tau < maxTau; tau++)
         {
             float sum = 0f;
+            int limit = difference.Length - tau;
 
-            for (int i = 0; i < integrationWindow; i++)
+            for (int i = 0; i < limit; i++)
             {
                 float delta =
                     samples[i] - samples[i + tau];

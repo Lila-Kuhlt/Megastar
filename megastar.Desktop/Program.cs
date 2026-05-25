@@ -14,6 +14,10 @@ namespace megastar.Desktop
             using GameHost host = Host.GetSuitableDesktopHost(@"megastar");
             using osu.Framework.Game game = new MegastarGame();
 
+            MicManager micManager = new MicManager();
+            micManager.AddMic(-1);
+            micManager.StartAll();
+
             host.Run(game);
         }
     }

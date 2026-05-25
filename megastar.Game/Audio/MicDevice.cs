@@ -29,7 +29,6 @@ public class MicDevice()
         ReadOnlySpan<float> samples)
     {
         buffer.Write(samples);
-        Console.WriteLine($"{samples.Length} samples received");
     }
 
     public void Stop()
@@ -56,6 +55,10 @@ public class MicDevice()
         {
             float smoothedPitch = medianFilter.Filter(rawPitch);
             Console.WriteLine(smoothedPitch);
+        }
+        else
+        {
+            Console.WriteLine(":(");
         }
     }
 }
