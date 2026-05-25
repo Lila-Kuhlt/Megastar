@@ -130,8 +130,10 @@ public partial class FileSelectorScreen : Screen
             }
 
             // TODO HIER IRGENDWIE Adden, dass man songs queuen kann
-            // game.QueuedSongs.Add(game.LoadedSongs[0]);
-            // Game crashed if no songs found       ^^^
+            if (game.LoadedSongs.Count != 0)
+            {
+                game.QueuedSongs.Add(game.LoadedSongs[0]);
+            }
 
             AddInternal(
                 new SpriteText()
