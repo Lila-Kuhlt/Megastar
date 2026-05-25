@@ -1,4 +1,5 @@
-﻿using ManagedBass;
+﻿using System;
+using ManagedBass;
 using megastar.Game;
 using megastar.Game.Audio;
 using osu.Framework;

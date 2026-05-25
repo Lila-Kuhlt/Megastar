@@ -6,6 +6,7 @@ public class YinPitchDetector
 {
     private readonly int sampleRate;
     private readonly int frameSize;
+    private readonly int integrationWindow;
     private readonly int minTau;
     private readonly int maxTau;
 
@@ -19,9 +20,10 @@ public class YinPitchDetector
     {
         this.sampleRate = 48000;
         this.frameSize = 2048;
+        this.integrationWindow = 1024;
 
         this.minTau = 80;
-        this.maxTau = 1100;
+        this.maxTau = 1024;
 
         difference = new float[maxTau];
         cumulativeMean = new float[maxTau];
@@ -32,6 +34,14 @@ public class YinPitchDetector
         if (samples.Length < frameSize)
             throw new ArgumentException(
                 $"Buffer muss mindestens {frameSize} Samples enthalten.", nameof(samples));
+
+        float rms = CalculateRms(samples);
+        if (rms < 0.005f)
+        {
+            LastFrequency = -1f;
+            LastAperiodicity = 1f;
+            return -1f;
+        }
 
         computeDifferenceFunction(samples);
         cumulativeMeanNormalizedDifference();
@@ -54,6 +64,16 @@ public class YinPitchDetector
         return frequency;
     }
 
+    private float CalculateRms(ReadOnlySpan<float> samples)
+    {
+        float sumSquares = 0f;
+        for (int i = 0; i < samples.Length; i++)
+        {
+            sumSquares += samples[i] * samples[i];
+        }
+        return MathF.Sqrt(sumSquares / samples.Length);
+    }
+
     private void computeDifferenceFunction(
         ReadOnlySpan<float> samples)
     {
@@ -63,9 +83,7 @@ public class YinPitchDetector
         {
             float sum = 0f;
 
-            int limit = frameSize - tau;
-
-            for (int i = 0; i < limit; i++)
+            for (int i = 0; i < integrationWindow; i++)
             {
                 float delta =
                     samples[i] - samples[i + tau];
@@ -101,7 +119,7 @@ public class YinPitchDetector
         float threshold = 0.15f;
         for (int tau = 2; tau < maxTau; tau++)
         {
-            if (tau < threshold)
+            if (cumulativeMean[tau] < threshold)
             {
                 while ((tau + 1 < maxTau) && cumulativeMean[tau + 1] < cumulativeMean[tau])
                 {

@@ -56,7 +56,7 @@ public class AudioRingBuffer(int size)
             bufferFront.CopyTo(destinationBack);
         }
 
-        readIndex = (destination.Length + readIndex) % buffer.Length;
+        readIndex = (512 + readIndex) % buffer.Length;
     }
 
     public void Clear()
