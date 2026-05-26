@@ -61,10 +61,15 @@ public partial class SearchScreen : Screen
         {
             Direction = FillDirection.Vertical,
             Spacing = new Vector2(0, 5),
-            AutoSizeAxes = Axes.Y,
-            RelativeSizeAxes = Axes.X,
+
+            Width = 300,
+            RelativeSizeAxes = Axes.Y,
+
+            AutoSizeAxes = Axes.None,
+
             Anchor = Anchor.TopRight,
             Origin = Anchor.TopRight,
+            Y = 100,
         };
 
 
