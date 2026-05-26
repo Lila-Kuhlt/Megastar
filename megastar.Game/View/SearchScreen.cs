@@ -19,6 +19,7 @@ public partial class SearchScreen : Screen
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
     private FillFlowContainer queueContainer;
+    private bool queueTwiceAllowed = true;
 
     [BackgroundDependencyLoader]
     private void load(MsTranslationStore t)
@@ -107,17 +108,30 @@ public partial class SearchScreen : Screen
     //Quewe
     private void AddToQueue(UsdxTrack track)
     {
-        MegastarGameBase.QueuedSongs.Enqueue(track);
-        queueContainer.Add(new SpriteText()
+        if (!queueTwiceAllowed && MegastarGameBase.QueuedSongs.Contains(track))
         {
-            Text = $"{track.TrackMetadata.Title} - {track.TrackMetadata.Artist}"
-        });
+            AddInternal(new SpriteText()
+            {
+                Text = "Song was already added to the queue",
+                Anchor = Anchor.BottomRight,
+                Origin = Anchor.BottomRight,
+            });
+        }
+        else
+        {
+            MegastarGameBase.QueuedSongs.Enqueue(track);
+            queueContainer.Add(new SpriteText()
+            {
+                Text = $"{track.TrackMetadata.Title} - {track.TrackMetadata.Artist}"
+            });
 
-        AddInternal(new SpriteText()
-        {
-            Text = "Added to Queue",
-            Anchor = Anchor.BottomCentre,
-            Origin = Anchor.BottomCentre,
-        });
+
+            AddInternal(new SpriteText()
+            {
+                Text = "Added to Queue",
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre,
+            });
+        }
     }
 }
