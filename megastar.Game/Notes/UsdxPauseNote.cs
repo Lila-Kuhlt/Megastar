@@ -19,7 +19,7 @@ public class UsdxPauseNote(uint startBeat) : IBeatPaced
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                Text = "PAUSE",
+                Text = " ",
             };
         }
     }

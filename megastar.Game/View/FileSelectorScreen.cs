@@ -18,7 +18,7 @@ namespace megastar.Game.View;
 
 public partial class FileSelectorScreen : Screen
 {
-    private BasicDirectorySelector directorySelector = null!;
+    private AdvancedDirectorySelector directorySelector = null!;
     private SpriteText selectedPathText = null!;
 
     [Resolved] private MegastarGameBase game { get; set; } = null!;
@@ -26,6 +26,9 @@ public partial class FileSelectorScreen : Screen
     [BackgroundDependencyLoader]
     private void load()
     {
+        Settings settings = Settings.GetSettings();
+        string initialPath = settings.LastIndexPath.Value;
+
         InternalChildren = new Drawable[]
         {
             // Background
@@ -54,24 +57,17 @@ public partial class FileSelectorScreen : Screen
             },
 
             // The Directory Selector
-            directorySelector = new BasicDirectorySelector
+            directorySelector = new AdvancedDirectorySelector(initialPath)
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 Size = new Vector2(800, 500),
             },
-
+            new BackButton(this.Exit, Fluent.Translate("common-back")),
             // Visual feedback to show what is currently selected
             selectedPathText = new SpriteText
             {
-                Anchor = Anchor.BottomCentre,
-                Origin = Anchor.BottomCentre,
-                Y = -80,
-                Font = FontUsage.Default.With(size: 24),
-            },
-            new BackButton(this.Exit, Fluent.Translate("common-back")),
-            selectedPathText = new SpriteText
-            {
+                Text = Fluent.Translate("index-folder-selected", ("folderName", (FluentString) settings.LastIndexPath.Value)),
                 Anchor = Anchor.BottomCentre,
                 Origin = Anchor.BottomCentre,
                 Y = -80,
@@ -86,24 +82,21 @@ public partial class FileSelectorScreen : Screen
                 Origin = Anchor.BottomCentre,
                 Height = 50,
                 Y = -20,
-                Action = () => confirmSelection()
+                Action = () => confirmSelection(settings)
             }
         };
-
-        // Track when the user clicks into different directories
-        directorySelector.CurrentPath.BindValueChanged(pathChanged =>
-        {
-            selectedPathText.Text = Fluent.Translate("index-folder-selected", ("folderName", (FluentString) pathChanged.NewValue?.FullName));
-        }, true);
     }
 
-    private void confirmSelection()
+    private void confirmSelection(Settings settings)
     {
         DirectoryInfo? currentDir = directorySelector.CurrentPath.Value;
 
         if (currentDir != null && currentDir.Exists)
         {
             string songsPath = currentDir.FullName;
+            // Update last selected directory
+            settings.LastIndexPath.Value = songsPath;
+            selectedPathText.Text = Fluent.Translate("index-folder-selected", ("folderName", (FluentString) songsPath));
             Console.WriteLine(currentDir.FullName);
             var directories = new List<DirectoryInfo>();
             directories.Add(currentDir);
@@ -136,13 +129,16 @@ public partial class FileSelectorScreen : Screen
                 }
             }
 
-            //TODO HIER IRGENDWIE Adden, dass man songs queuen kann
-            game.QueueSong(game.LoadedSongs[0]);
+            // TODO HIER IRGENDWIE Adden, dass man songs queuen kann
+            if (game.LoadedSongs.Count != 0)
+            {
+                game.QueueSong(game.LoadedSongs[0]);
+            }
 
             AddInternal(
                 new SpriteText()
                 {
-                    Text = Fluent.Translate("index-selection-successful"),
+                    Text = Fluent.Translate("index-selection-successful", ("songCount", (FluentNumber) game.LoadedSongs.Count)),
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
                     Y = -110,

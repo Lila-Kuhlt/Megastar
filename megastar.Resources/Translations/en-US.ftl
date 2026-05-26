@@ -13,8 +13,8 @@ main-exit = Exit
 ## File Selector Screen
 index-select-folder = Select a songs folder:
 index-select-current-folder = Select current folder
-index-folder-selected = Selected: {$folderName}
-index-selection-successful = Folder successfully selected.
+index-folder-selected = Currently Selected: {$folderName}
+index-selection-successful = Folder successfully selected. Found {$songCount} songs.
 
 ## Play Screen
 play-song-error = Error, failed to load song.
@@ -26,6 +26,9 @@ search-query = Enter your search query...
 settings-language = Language:
 settings-difficulty = Difficulty:
 settings-volume = Volume
+
+## Directory Selector
+dir-select-toggle-hidden = Toggle hidden items
 
 ## Language Names
 de-DE = German (de-DE)
