@@ -108,7 +108,10 @@ public partial class SearchScreen : Screen
     private void AddToQueue(UsdxTrack track)
     {
         MegastarGameBase.QueuedSongs.Enqueue(track);
-        queueContainer.Add(new UsdxTrackDrawable(track));
+        queueContainer.Add(new SpriteText()
+        {
+            Text = $"{track.TrackMetadata.Title} - {track.TrackMetadata.Artist}"
+        });
 
         AddInternal(new SpriteText()
         {
