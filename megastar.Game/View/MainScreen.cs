@@ -18,12 +18,15 @@ namespace megastar.Game.View
         [BackgroundDependencyLoader]
         private void load()
         {
+            if (Settings.GetSettings().WebAppStart.Value)
+            {
+                AddInternal(game.LocalQueueServer);
+            }
             InternalChildren =
             [
                 //Background
                 new ShaderBackground("sh_background.fs"),
 
-                game.LocalQueueServer,
 
                 //Title
                 new SpriteText

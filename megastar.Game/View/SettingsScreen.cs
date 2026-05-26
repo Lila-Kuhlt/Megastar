@@ -43,7 +43,6 @@ public partial class SettingsScreen : Screen
             config.SetValue(FrameworkSetting.Locale, e.NewValue.Code);
             Logger.Log("[UPDATED LANGUAGE] " + e.NewValue.Code);
             languageDropdown.Items = locales;
-
         };
 
 
@@ -76,13 +75,14 @@ public partial class SettingsScreen : Screen
 
                 Children = new Drawable[]
                 {
-                    new StepSlider<int>(localisation.GetLocalisedString(Fluent.Translate("settings-volume")), 0, 100, 100)
+                    new StepSlider<int>(localisation.GetLocalisedString(Fluent.Translate("settings-volume")), 0,
+                        100, 100)
                     {
                         RelativeSizeAxes = Axes.X,
                         Width = 1f,
                         Height = 40,
                         Current = { BindTarget = Settings.GetSettings().SoundVolume },
-                        Margin = new MarginPadding{Bottom = 80},
+                        Margin = new MarginPadding { Bottom = 80 },
                     },
                     new FillFlowContainer()
                     {
@@ -132,7 +132,31 @@ public partial class SettingsScreen : Screen
                                         Current = { BindTarget = Settings.GetSettings().Difficulty }
                                     },
                                 }
-                            }
+                            },
+                            //TODO This container is bugged somehow
+                            new FillFlowContainer
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                Direction = FillDirection.Horizontal,
+                                Spacing = new Vector2(0, 20),
+                                Children = new Drawable[]
+                                {
+                                    new SpriteText
+                                    {
+                                        Anchor = Anchor.CentreLeft,
+                                        Origin = Anchor.CentreLeft,
+                                        Text = "Web App Start",
+                                        Font = FontUsage.Default.With(size: 20)
+                                    },
+                                    new BasicCheckbox
+                                    {
+                                        Anchor = Anchor.CentreLeft,
+                                        Origin = Anchor.CentreLeft,
+                                        Current = Settings.GetSettings().WebAppStart,
+                                    },
+                                }
+                            },
                         }
                     }
                 }
