@@ -72,6 +72,7 @@ namespace megastar.Game
                 QueuedSongs.Add(track);
             }
 
+
             if (LocalQueueServer != null)
             {
                 LocalQueueServer.BroadcastStateAsync();

@@ -16,8 +16,7 @@ namespace megastar.Game // Adjust to your preferred namespace
 {
     public partial class LocalQueueServer : Component
     {
-        [Resolved]
-        private MegastarGameBase game { get; set; } = null!;
+        [Resolved] private MegastarGameBase game { get; set; } = null!;
 
         public List<UsdxTrack> LoadedSongs => game.LoadedSongs;
         public List<UsdxTrack> QueuedSongs => game.QueuedSongs;
@@ -70,12 +69,11 @@ namespace megastar.Game // Adjust to your preferred namespace
         }
 
 
-
         private void ServeHtml(HttpListenerContext context)
         {
             try
             {
-                string html = File.ReadAllText(Path.Combine("Webapp","USDXWebapp.html"));
+                string html = File.ReadAllText(Path.Combine("Webapp", "USDXWebapp.html"));
                 byte[] buffer = Encoding.UTF8.GetBytes(html);
 
                 context.Response.ContentType = "text/html";
@@ -122,13 +120,17 @@ namespace megastar.Game // Adjust to your preferred namespace
                     HandleClientMessage(message);
                 }
             }
-            catch (Exception) { /* Handle disconnects silently */ }
+            catch (Exception)
+            {
+                /* Handle disconnects silently */
+            }
             finally
             {
                 lock (_activeSockets)
                 {
                     _activeSockets.Remove(socket);
                 }
+
                 socket.Dispose();
             }
         }
@@ -142,7 +144,9 @@ namespace megastar.Game // Adjust to your preferred namespace
 
                 // Extract data before pushing
                 int? songIndex = action == "ADD" ? doc.RootElement.GetProperty("songIndex").GetInt32() : null;
-                int? queueIndex = action == "REMOVE" ? doc.RootElement.GetProperty("queueIndex").GetInt32() : null;
+                int? queueIndex = (action is "REMOVE" or "MOVEUP" or "MOVEDOWN")
+                    ? doc.RootElement.GetProperty("queueIndex").GetInt32()
+                    : null;
 
                 // Perform the update immediately using a lock
                 lock (_listLock)
@@ -156,6 +160,24 @@ namespace megastar.Game // Adjust to your preferred namespace
                     {
                         if (queueIndex >= 0 && queueIndex < QueuedSongs.Count)
                             QueuedSongs.RemoveAt(queueIndex.Value);
+                    }
+                    else if (action == "MOVEUP" && queueIndex.HasValue)
+                    {
+                        if (queueIndex > 0 && queueIndex < QueuedSongs.Count)
+                        {
+                            UsdxTrack track = QueuedSongs[queueIndex.Value];
+                            QueuedSongs.RemoveAt(queueIndex.Value);
+                            QueuedSongs.Insert(queueIndex.Value - 1, track);
+                        }
+                    }
+                    else if (action == "MOVEDOWN" && queueIndex.HasValue)
+                    {
+                        if (queueIndex > 0 && queueIndex < QueuedSongs.Count - 1)
+                        {
+                            UsdxTrack track = QueuedSongs[queueIndex.Value];
+                            QueuedSongs.RemoveAt(queueIndex.Value);
+                            QueuedSongs.Insert(queueIndex.Value + 1, track);
+                        }
                     }
                 }
 
@@ -209,7 +231,10 @@ namespace megastar.Game // Adjust to your preferred namespace
                     {
                         await socket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
                     }
-                    catch { /* Ignore failed sockets */ }
+                    catch
+                    {
+                        /* Ignore failed sockets */
+                    }
                 }
             }
         }
@@ -230,6 +255,7 @@ namespace megastar.Game // Adjust to your preferred namespace
                 {
                     if (socket.State == WebSocketState.Open) socket.Abort();
                 }
+
                 _activeSockets.Clear();
             }
         }
