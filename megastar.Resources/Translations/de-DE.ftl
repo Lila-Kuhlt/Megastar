@@ -25,6 +25,8 @@ search-query = Suchanfrage eingeben...
 settings-language = Sprache:
 settings-difficulty = Schwierigkeit:
 settings-volume = Lautstärke
+settings-duplicates-queue = Duplikate in der Warteschlange erlauben
+settings-wepapp = Webapp auf Port 8080 starten
 
 ## Directory Selector
 dir-select-toggle-hidden = Verdeckte Ordner zeigen

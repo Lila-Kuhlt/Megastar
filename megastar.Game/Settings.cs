@@ -18,7 +18,8 @@ public enum GameSetting
     SoundVolume,
     Difficulty,
     LastIndexPath,
-    WebApp
+    WebApp,
+    DuplicateItems
 }
 
 public class Settings : IniConfigManager<GameSetting>
@@ -47,6 +48,7 @@ public class Settings : IniConfigManager<GameSetting>
         SetDefault(GameSetting.Difficulty, GameDifficulty.Muuuuuhtig);
         SetDefault(GameSetting.LastIndexPath, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
         SetDefault(GameSetting.WebApp, false);
+        SetDefault(GameSetting.DuplicateItems, false);
     }
 
     // Expose Settings here
@@ -54,4 +56,5 @@ public class Settings : IniConfigManager<GameSetting>
     public Bindable<GameDifficulty> Difficulty => GetBindable<GameDifficulty>(GameSetting.Difficulty);
     public Bindable<string> LastIndexPath => GetBindable<string>(GameSetting.LastIndexPath);
     public Bindable<bool> WebAppStart => GetBindable<bool>(GameSetting.WebApp);
+    public Bindable<bool> DuplicateItems => GetBindable<bool>(GameSetting.DuplicateItems);
 }

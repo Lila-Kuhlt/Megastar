@@ -65,9 +65,9 @@ namespace megastar.Game
         public LocalQueueServer LocalQueueServer = new LocalQueueServer();
 
 
-        public void QueueSong(UsdxTrack track, bool allowDuplicates = false)
+        public void QueueSong(UsdxTrack track)
         {
-            if (allowDuplicates || !QueuedSongs.Contains(track))
+            if (Settings.GetSettings().DuplicateItems.Value || !QueuedSongs.Contains(track))
             {
                 QueuedSongs.Add(track);
             }
@@ -95,6 +95,7 @@ namespace megastar.Game
             {
                 return QueuedSongs[0];
             }
+
             QueuedSongs.RemoveAt(0);
             return QueuedSongs[0];
         }

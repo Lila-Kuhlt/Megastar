@@ -1,3 +1,4 @@
+using System.Linq;
 using megastar.Game.Preset;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
@@ -18,10 +19,6 @@ namespace megastar.Game.View
         [BackgroundDependencyLoader]
         private void load()
         {
-            if (Settings.GetSettings().WebAppStart.Value)
-            {
-                AddInternal(game.LocalQueueServer);
-            }
             InternalChildren =
             [
                 //Background
@@ -82,6 +79,10 @@ namespace megastar.Game.View
                     }
                 }
             ];
+            if (Settings.GetSettings().WebAppStart.Value)
+            {
+                AddInternal(game.LocalQueueServer);
+            }
         }
     }
 }
