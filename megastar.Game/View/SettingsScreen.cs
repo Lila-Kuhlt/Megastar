@@ -43,7 +43,6 @@ public partial class SettingsScreen : Screen
             config.SetValue(FrameworkSetting.Locale, e.NewValue.Code);
             Logger.Log("[UPDATED LANGUAGE] " + e.NewValue.Code);
             languageDropdown.Items = locales;
-
         };
 
 
@@ -74,63 +73,111 @@ public partial class SettingsScreen : Screen
                 Width = 0.6f,
                 Height = 0.7f,
 
-                Children = new Drawable[]
+                Child = new FillFlowContainer
                 {
-                    new StepSlider<int>(localisation.GetLocalisedString(Fluent.Translate("settings-volume")), 0, 100, 100)
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(0, 30),
+
+                    Children = new Drawable[]
                     {
-                        RelativeSizeAxes = Axes.X,
-                        Width = 1f,
-                        Height = 40,
-                        Current = { BindTarget = Settings.GetSettings().SoundVolume },
-                        Margin = new MarginPadding{Bottom = 80},
-                    },
-                    new FillFlowContainer()
-                    {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        Direction = FillDirection.Horizontal,
-                        Children = new Drawable[]
+                        new StepSlider<int>(localisation.GetLocalisedString(Fluent.Translate("settings-volume")), 0,
+                            100, 100)
                         {
-                            new FillFlowContainer()
+                            RelativeSizeAxes = Axes.X,
+                            Height = 40,
+                            Current = { BindTarget = Settings.GetSettings().SoundVolume },
+                        },
+
+                        new FillFlowContainer
+                        {
+                            Direction = FillDirection.Horizontal,
+                            AutoSizeAxes = Axes.Both,
+                            Children = new Drawable[]
                             {
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
-                                Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 20),
-                                Width = 200,
-                                Children = new Drawable[]
+                                new FillFlowContainer
                                 {
-                                    // Spalte für Einstellungstexte
-                                    new SpriteText
+                                    Direction = FillDirection.Vertical,
+                                    Spacing = new Vector2(0, 20),
+                                    Width = 200,
+                                    AutoSizeAxes = Axes.Y,
+                                    Children = new Drawable[]
                                     {
-                                        Text = Fluent.Translate("settings-language"),
-                                        Padding = new MarginPadding { Vertical = 5 },
-                                    },
-                                    new SpriteText
+                                        new SpriteText
+                                        {
+                                            Text = Fluent.Translate("settings-language"),
+                                            Padding = new MarginPadding { Vertical = 5 }
+                                        },
+                                        new SpriteText
+                                        {
+                                            Text = Fluent.Translate("settings-difficulty"),
+                                            Padding = new MarginPadding { Vertical = 5 }
+                                        }
+                                    }
+                                },
+                                new FillFlowContainer
+                                {
+                                    Direction = FillDirection.Vertical,
+                                    Spacing = new Vector2(0, 20),
+                                    Width = 200,
+                                    AutoSizeAxes = Axes.Y,
+                                    Children = new Drawable[]
                                     {
-                                        Text = Fluent.Translate("settings-difficulty"),
-                                        Padding = new MarginPadding { Vertical = 5 },
+                                        languageDropdown,
+                                        new BasicDropdown<GameDifficulty>
+                                        {
+                                            Width = 200,
+                                            Items = System.Enum.GetValues<GameDifficulty>(),
+                                            Current = { BindTarget = Settings.GetSettings().Difficulty }
+                                        }
                                     }
                                 }
-                            },
-                            new FillFlowContainer()
+                            }
+                        },
+                        //Server start
+                        new FillFlowContainer
+                        {
+                            Direction = FillDirection.Horizontal,
+                            AutoSizeAxes = Axes.Both,
+                            Spacing = new Vector2(20, 0),
+                            Children = new Drawable[]
                             {
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
-                                Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 20), // Gap between buttons
-                                Children = new Drawable[]
+                                new SpriteText
                                 {
-                                    // Spalte für Inputelemente
-                                    languageDropdown,
-                                    new BasicDropdown<GameDifficulty>
-                                    {
-                                        Anchor = Anchor.TopLeft,
-                                        Origin = Anchor.TopLeft,
-                                        Width = 200,
-                                        Items = System.Enum.GetValues<GameDifficulty>(),
-                                        Current = { BindTarget = Settings.GetSettings().Difficulty }
-                                    },
+                                    Text = Fluent.Translate("settings-wepapp"),
+                                    Font = FontUsage.Default.With(size: 20),
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                },
+                                new BasicCheckbox
+                                {
+                                    Current = Settings.GetSettings().WebAppStart,
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                }
+                            }
+                        },
+                        //Duplicates in the Queue start
+                        new FillFlowContainer
+                        {
+                            Direction = FillDirection.Horizontal,
+                            AutoSizeAxes = Axes.Both,
+                            Spacing = new Vector2(20, 0),
+                            Children = new Drawable[]
+                            {
+                                new SpriteText
+                                {
+                                    Text = Fluent.Translate("settings-duplicates-queue"),
+                                    Font = FontUsage.Default.With(size: 20),
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                },
+                                new BasicCheckbox
+                                {
+                                    Current = Settings.GetSettings().DuplicateItems,
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
                                 }
                             }
                         }

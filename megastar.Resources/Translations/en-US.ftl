@@ -26,6 +26,8 @@ search-query = Enter your search query...
 settings-language = Language:
 settings-difficulty = Difficulty:
 settings-volume = Volume
+settings-duplicates-queue = Allow duplicates in the queue
+settings-wepapp = start the webapp on port 8080
 
 ## Directory Selector
 dir-select-toggle-hidden = Toggle hidden items
