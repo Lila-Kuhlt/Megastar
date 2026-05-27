@@ -34,7 +34,6 @@ public partial class StarButton : ClickableContainer
         Size = new Vector2(150);
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
-        Rotation = -30;
 
         InternalChildren = new Drawable[]
         {
@@ -44,7 +43,8 @@ public partial class StarButton : ClickableContainer
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 Icon = FontAwesome.Solid.Star,
-                Colour = Colour4.Gold
+                Colour = Colour4.Gold,
+                Rotation = -30,
             },
 
             new FillFlowContainer
@@ -54,6 +54,7 @@ public partial class StarButton : ClickableContainer
                 Direction = FillDirection.Vertical,
                 AutoSizeAxes = Axes.Both,
                 Spacing = new Vector2(0, 5),
+                X = 15,
                 Children = new Drawable[]
                 {
                     iconSprite = new SpriteIcon
@@ -68,9 +69,11 @@ public partial class StarButton : ClickableContainer
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
-                        Font = FrameworkFont.Regular.With(size: 18, weight: "Bold"),
+                        Font = FrameworkFont.Regular.With(size: 25, weight: "Bold"),
                         Colour = Colour4.White,
-                        Alpha = 0
+                        Alpha = 0,
+                        AllowMultiline = true,
+                        Width = 170,
                     }
                 }
             }

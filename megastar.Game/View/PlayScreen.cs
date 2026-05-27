@@ -73,7 +73,7 @@ public partial class PlayScreen : Screen
         {
             new Box
             {
-                Colour = Color4.Violet,
+                Colour = StandardColours.BACKGROUND,
                 RelativeSizeAxes = Axes.Both,
             },
             backgroundLayer,

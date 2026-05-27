@@ -22,6 +22,11 @@ public sealed partial class BackButton : BasicButton
         Origin = Anchor.TopLeft;
         Position = new Vector2(10, 10);
 
+        Masking = true;
+        CornerRadius = 20;
+
+        BackgroundColour = StandardColours.MAIN;
+
         Action = action;
     }
 }
