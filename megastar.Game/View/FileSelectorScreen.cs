@@ -122,7 +122,7 @@ public partial class FileSelectorScreen : Screen
                     metadata.DirPath = file.DirectoryName;
                     tracks.Add(metadata);
                     game.LoadedSongs.Add(new UsdxTrack(metadata));
-                    Console.WriteLine(((Object)tracks[^1]).ToString());
+                    game.LocalQueueServer.BroadcastStateAsync();
                 }
                 catch (InvalidDataException)
                 {
@@ -132,7 +132,7 @@ public partial class FileSelectorScreen : Screen
             // TODO HIER IRGENDWIE Adden, dass man songs queuen kann
             if (game.LoadedSongs.Count != 0)
             {
-                game.QueuedSongs.Add(game.LoadedSongs[0]);
+                game.QueueSong(game.LoadedSongs[0]);
             }
 
             AddInternal(

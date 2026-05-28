@@ -1,3 +1,4 @@
+using System.Linq;
 using megastar.Game.Preset;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
@@ -13,6 +14,8 @@ namespace megastar.Game.View
 {
     public partial class MainScreen : Screen
     {
+        [Resolved] private MegastarGameBase game { get; set; } = null!;
+
         [BackgroundDependencyLoader]
         private void load()
         {
@@ -20,6 +23,7 @@ namespace megastar.Game.View
             [
                 //Background
                 new ShaderBackground("sh_background.fs"),
+
 
                 //Title
                 new SpriteText
@@ -75,6 +79,10 @@ namespace megastar.Game.View
                     }
                 }
             ];
+            if (Settings.GetSettings().WebAppStart.Value)
+            {
+                AddInternal(game.LocalQueueServer);
+            }
         }
     }
 }

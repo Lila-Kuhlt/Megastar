@@ -107,7 +107,7 @@ public partial class PlayScreen : Screen
         //TODO hier sollte irgendwie auch die nächsten Lieder abgespielt werden
         try
         {
-            setUpTrack(game.QueuedSongs.First());
+            setUpTrack(game.NextSong());
         }
         catch (Exception exception)
         {
