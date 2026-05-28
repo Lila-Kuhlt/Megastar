@@ -10,7 +10,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using megastar.Game.Track; // Ensure this points to where UsdxTrack is located
+using megastar.Game.Track;
+using osu.Framework.Logging; // Ensure this points to where UsdxTrack is located
 
 namespace megastar.Game // Adjust to your preferred namespace
 {
@@ -151,32 +152,29 @@ namespace megastar.Game // Adjust to your preferred namespace
                 // Perform the update immediately using a lock
                 lock (_listLock)
                 {
-                    if (action == "ADD" && songIndex.HasValue)
+                    lock (_listLock)
                     {
-                        if (songIndex >= 0 && songIndex < LoadedSongs.Count)
-                            game.QueueSong(LoadedSongs[songIndex.Value]);
-                    }
-                    else if (action == "REMOVE" && queueIndex.HasValue)
-                    {
-                        if (queueIndex >= 0 && queueIndex < QueuedSongs.Count)
-                            QueuedSongs.RemoveAt(queueIndex.Value);
-                    }
-                    else if (action == "MOVEUP" && queueIndex.HasValue)
-                    {
-                        if (queueIndex > 0 && queueIndex < QueuedSongs.Count)
+                        switch (action)
                         {
-                            UsdxTrack track = QueuedSongs[queueIndex.Value];
-                            QueuedSongs.RemoveAt(queueIndex.Value);
-                            QueuedSongs.Insert(queueIndex.Value - 1, track);
-                        }
-                    }
-                    else if (action == "MOVEDOWN" && queueIndex.HasValue)
-                    {
-                        if (queueIndex > 0 && queueIndex < QueuedSongs.Count - 1)
-                        {
-                            UsdxTrack track = QueuedSongs[queueIndex.Value];
-                            QueuedSongs.RemoveAt(queueIndex.Value);
-                            QueuedSongs.Insert(queueIndex.Value + 1, track);
+                            case "ADD" when songIndex is >= 0 && songIndex < LoadedSongs.Count:
+                                game.QueueSong(LoadedSongs[songIndex.Value]);
+                                break;
+
+                            case "REMOVE" when queueIndex is >= 0 && queueIndex < QueuedSongs.Count:
+                                QueuedSongs.RemoveAt(queueIndex.Value);
+                                break;
+
+                            case "MOVEUP" when queueIndex is > 0 && queueIndex < QueuedSongs.Count:
+                                var trackUp = QueuedSongs[queueIndex.Value];
+                                QueuedSongs.RemoveAt(queueIndex.Value);
+                                QueuedSongs.Insert(queueIndex.Value - 1, trackUp);
+                                break;
+
+                            case "MOVEDOWN" when queueIndex is > 0 && queueIndex < QueuedSongs.Count - 1:
+                                var trackDown = QueuedSongs[queueIndex.Value];
+                                QueuedSongs.RemoveAt(queueIndex.Value);
+                                QueuedSongs.Insert(queueIndex.Value + 1, trackDown);
+                                break;
                         }
                     }
                 }
@@ -186,7 +184,7 @@ namespace megastar.Game // Adjust to your preferred namespace
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[LocalQueueServer] Error: {ex.Message}");
+                Logger.GetLogger().Add(("[LocalQueueServer] Error: " + ex.Message ), LogLevel.Verbose);
             }
         }
 
@@ -231,8 +229,9 @@ namespace megastar.Game // Adjust to your preferred namespace
                     {
                         await socket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        Logger.GetLogger().Add($"Websocket send failed with message : {ex.Message}", LogLevel.Debug);
                         /* Ignore failed sockets */
                     }
                 }

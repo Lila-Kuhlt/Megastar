@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -5,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using megastar.Game.Track;
 using megastar.Game.Translations;
 using megastar.Game.View;
@@ -85,20 +88,19 @@ namespace megastar.Game
         /// If there is only one song in the queue, it returns it
         /// </summary>
         /// <returns>The next song in the queue</returns>
-        public UsdxTrack GetNextSong()
+        [CanBeNull]
+        public UsdxTrack? NextSong()
         {
-            if (QueuedSongs.Count == 0)
+            switch (QueuedSongs.Count)
             {
-                return null;
+                case 0:
+                    return null;
+                case 1:
+                    return QueuedSongs[0];
+                default:
+                    QueuedSongs.RemoveAt(0);
+                    return QueuedSongs[0];
             }
-
-            if (QueuedSongs.Count == 1)
-            {
-                return QueuedSongs[0];
-            }
-
-            QueuedSongs.RemoveAt(0);
-            return QueuedSongs[0];
         }
 
 
