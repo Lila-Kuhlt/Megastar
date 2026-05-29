@@ -3,6 +3,7 @@ using megastar.Game.Preset;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Configuration;
+using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -21,6 +22,7 @@ public partial class SettingsScreen : Screen
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
     [Resolved] private FrameworkConfigManager config { get; set; }
+    [Resolved] private MainScreen mainScreen { get; set; }
 
     [BackgroundDependencyLoader]
     private void load(List<Language> locales, LocalisationManager localisation)
@@ -44,6 +46,35 @@ public partial class SettingsScreen : Screen
             Logger.Log("[UPDATED LANGUAGE] " + e.NewValue.Code);
             languageDropdown.Items = locales;
         };
+
+        Settings settings = Settings.GetSettings();
+
+        BasicCheckbox startWebapp = new BasicCheckbox
+        {
+            Anchor = Anchor.CentreLeft,
+            Origin = Anchor.CentreLeft,
+        };
+
+        startWebapp.Current = settings.StartWebApp;
+
+        BasicButton startWebappNow = new BasicButton
+        {
+            Text = Fluent.Translate("settings-start-webapp"),
+            Size = new Vector2(200, 30),
+            BackgroundColour = Color4.Teal,
+            Action = () => mainScreen.StartWebServer(),
+            Alpha = settings.StartWebApp.Value && !settings.WebAppStarted.Value ? 1 : 0,
+        };
+
+        settings.WebAppStarted.BindValueChanged(e =>
+        {
+            if (startWebappNow.IsNotNull()) startWebappNow.Alpha = startWebapp.Current.Value && !e.NewValue ? 1 : 0;
+        });
+
+        startWebapp.Current.BindValueChanged(e =>
+        {
+            if (startWebappNow.IsNotNull()) startWebappNow.Alpha = e.NewValue && !settings.WebAppStarted.Value ? 1 : 0;
+        });
 
 
         InternalChildren =
@@ -87,7 +118,7 @@ public partial class SettingsScreen : Screen
                         {
                             RelativeSizeAxes = Axes.X,
                             Height = 40,
-                            Current = { BindTarget = Settings.GetSettings().SoundVolume },
+                            Current = { BindTarget = settings.SoundVolume },
                         },
 
                         new FillFlowContainer
@@ -129,7 +160,7 @@ public partial class SettingsScreen : Screen
                                         {
                                             Width = 200,
                                             Items = System.Enum.GetValues<GameDifficulty>(),
-                                            Current = { BindTarget = Settings.GetSettings().Difficulty }
+                                            Current = { BindTarget = settings.Difficulty }
                                         }
                                     }
                                 }
@@ -150,12 +181,8 @@ public partial class SettingsScreen : Screen
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
                                 },
-                                new BasicCheckbox
-                                {
-                                    Current = Settings.GetSettings().WebAppStart,
-                                    Anchor = Anchor.CentreLeft,
-                                    Origin = Anchor.CentreLeft,
-                                }
+                                startWebapp,
+                                startWebappNow,
                             }
                         },
                         //Duplicates in the Queue start
@@ -175,7 +202,7 @@ public partial class SettingsScreen : Screen
                                 },
                                 new BasicCheckbox
                                 {
-                                    Current = Settings.GetSettings().DuplicateItems,
+                                    Current = settings.DuplicateItems,
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
                                 }

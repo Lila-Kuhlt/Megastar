@@ -27,6 +27,7 @@ settings-difficulty = Schwierigkeit:
 settings-volume = Lautstärke
 settings-duplicates-queue = Duplikate in der Warteschlange erlauben
 settings-wepapp = Webapp auf Port 8080 starten
+settings-start-webapp = Webapp jetzt starten
 
 ## Directory Selector
 dir-select-toggle-hidden = Verdeckte Ordner zeigen

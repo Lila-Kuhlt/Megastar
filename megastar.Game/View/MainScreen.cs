@@ -12,6 +12,7 @@ using osuTK.Graphics;
 
 namespace megastar.Game.View
 {
+    [Cached]
     public partial class MainScreen : Screen
     {
         [Resolved] private MegastarGameBase game { get; set; } = null!;
@@ -79,9 +80,19 @@ namespace megastar.Game.View
                     }
                 }
             ];
-            if (Settings.GetSettings().WebAppStart.Value)
+            if (Settings.GetSettings().StartWebApp.Value)
+            {
+                StartWebServer();
+            }
+        }
+
+        public void StartWebServer()
+        {
+            Settings settings = Settings.GetSettings();
+            if (!settings.WebAppStarted.Value)
             {
                 AddInternal(game.LocalQueueServer);
+                settings.WebAppStarted.Value = true;
             }
         }
     }

@@ -18,7 +18,7 @@ public enum GameSetting
     SoundVolume,
     Difficulty,
     LastIndexPath,
-    WebApp,
+    StartWebApp,
     DuplicateItems
 }
 
@@ -47,7 +47,7 @@ public class Settings : IniConfigManager<GameSetting>
         SetDefault(GameSetting.SoundVolume, 100, 0, 100); // Key, Default, Min, Max
         SetDefault(GameSetting.Difficulty, GameDifficulty.Muuuuuhtig);
         SetDefault(GameSetting.LastIndexPath, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
-        SetDefault(GameSetting.WebApp, false);
+        SetDefault(GameSetting.StartWebApp, false);
         SetDefault(GameSetting.DuplicateItems, false);
     }
 
@@ -55,6 +55,8 @@ public class Settings : IniConfigManager<GameSetting>
     public Bindable<int> SoundVolume => GetBindable<int>(GameSetting.SoundVolume);
     public Bindable<GameDifficulty> Difficulty => GetBindable<GameDifficulty>(GameSetting.Difficulty);
     public Bindable<string> LastIndexPath => GetBindable<string>(GameSetting.LastIndexPath);
-    public Bindable<bool> WebAppStart => GetBindable<bool>(GameSetting.WebApp);
+    public Bindable<bool> StartWebApp => GetBindable<bool>(GameSetting.StartWebApp);
     public Bindable<bool> DuplicateItems => GetBindable<bool>(GameSetting.DuplicateItems);
+    // Das ist extra, dass das per session immer false ist
+    public Bindable<bool> WebAppStarted { get; } = new Bindable<bool>(false);
 }
