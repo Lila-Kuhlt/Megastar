@@ -27,7 +27,7 @@ namespace megastar.Game.View;
 
 public partial class PlayScreen : Screen
 {
-    private osu.Framework.Audio.Track.Track track;
+    private osu.Framework.Audio.Track.Track audioTrack;
 
     [Resolved] private MegastarGameBase game { get; set; } = null!;
     [Resolved] private GameHost host { get; set; } = null!; // Resolved to manage NativeStorage instances safely
@@ -128,13 +128,13 @@ public partial class PlayScreen : Screen
         curNotes = usdxTrack.Notes;
         allPhrases = usdxTrack.NotePhrases;
 
-        track = loadSong(audioManager, usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.SongFile);
-        track?.Start();
+        audioTrack = loadSong(audioManager, usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.SongFile);
+        audioTrack?.Start();
 
         loadBackgroundImage(usdxTrack);
         loadBackgroundVideo(usdxTrack);
         curTrack = usdxTrack;
-        track.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
+        audioTrack.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
 
         // first phrase
         currentPhraseIndex = 0;
@@ -166,9 +166,9 @@ public partial class PlayScreen : Screen
     private void cleanUpOldStores()
     {
         //CLEANUP PREVIOUS SONG TRACK & RESOURCES
-        track?.Stop();
-        track?.Dispose();
-        track = null;
+        audioTrack?.Stop();
+        audioTrack?.Dispose();
+        audioTrack = null;
         activeAudioResourceStore?.Dispose();
         activeAudioResourceStore = null;
         activeVideoRessourceStore?.Dispose();
@@ -241,14 +241,14 @@ public partial class PlayScreen : Screen
                         Origin = Anchor.Centre,
                         FillMode = FillMode.Fill,
                         Alpha = 0,
-                        Loop = true,
+                        Loop = false,
                     };
 
                     double gap = usdxTrack.TrackMetadata.VideoGap.IsNotNull()
                         ? (double)usdxTrack.TrackMetadata.VideoGap
                         : 0;
 
-                    backgroundVideo.Clock = new osu.Framework.Timing.FramedOffsetClock(track)
+                    backgroundVideo.Clock = new osu.Framework.Timing.FramedOffsetClock(audioTrack)
                     {
                         Offset = gap
                     };
@@ -273,10 +273,10 @@ public partial class PlayScreen : Screen
         base.Update();
 
 
-        if (curTrack != null && track != null)
+        if (curTrack != null && audioTrack != null)
         {
             double ultraStarBpm = curTrack.TrackMetadata.BPM;
-            currentBeat = ((track.CurrentTime - curTrack.TrackMetadata.Gap) / 60000.0) * ultraStarBpm * 4;
+            currentBeat = ((audioTrack.CurrentTime - curTrack.TrackMetadata.Gap) / 60000.0) * ultraStarBpm * 4;
             currentNotesContainer?.UpdateBeat(currentBeat);
 
 
@@ -312,12 +312,31 @@ public partial class PlayScreen : Screen
         }
         //TODO hier nur zu testzwecken bis wirklicher input eingelesen wird
         ReceiveSungNote(new UsdxNote((uint)currentBeat, Random.Shared.Next(1, 5), Random.Shared.Next(5, 20), "", UsdxNoteType.Sung));
+
+
+
+
+        //TODO only for test purpose
+        if (audioTrack != null && Math.Abs(audioTrack.CurrentTime - audioTrack.Length) > 5)
+        {
+            audioTrack.Seek(audioTrack.Length - 4);
+            audioTrack.Looping = false;
+        }
+
+        //End screen on track end
+        if (audioTrack != null && audioTrack.HasCompleted && curTrack != null)
+        {
+            var backgroundImage = activeTextureStore.Get(curTrack.TrackMetadata.BackgroundImageFile);
+            //TODO Real score needs to be entered here
+            this.Push(new EndScreen(backgroundImage, curTrack, 67911, 676767));
+            this.setUpTrack(game.NextSong());
+        }
     }
 
     public override bool OnExiting(ScreenExitEvent e)
     {
-        track?.Stop();
-        track?.Dispose();
+        audioTrack?.Stop();
+        audioTrack?.Dispose();
         activeAudioResourceStore?.Dispose();
 
         activeTextureStore?.Dispose();
