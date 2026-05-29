@@ -17,6 +17,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
 using osu.Framework.Localisation;
 using osuTK;
+using Realms;
 
 namespace megastar.Game
 {
@@ -28,7 +29,9 @@ namespace megastar.Game
         // the screen scaling for all components including the test browser and framework overlays.
 
         protected override Container<Drawable> Content { get; }
-        private readonly List<Language> locales = new List<Language>();
+        private readonly List<Language> locales = [];
+
+        protected Realm Realm { get; private set; }
 
         [Resolved] private FrameworkConfigManager config { get; set; }
 
@@ -36,6 +39,7 @@ namespace megastar.Game
 
         protected MegastarGameBase()
         {
+            Realm = Realm.GetInstance("megastar.realm");
             // Ensure game and tests scale with window size and screen DPI.
             base.Content.Add(Content = new DrawSizePreservingFillContainer
             {
@@ -55,12 +59,12 @@ namespace megastar.Game
         }
 
 
-        public List<UsdxTrack> LoadedSongs { get; private set; } = new List<UsdxTrack>();
+        public List<UsdxTrack> LoadedSongs { get; private set; } = [];
 
         //QUEWE
-        public List<UsdxTrack> QueuedSongs { get; private set; } = new List<UsdxTrack>();
+        public List<UsdxTrack> QueuedSongs { get; private set; } = [];
 
-        public LocalQueueServer LocalQueueServer = new LocalQueueServer();
+        public LocalQueueServer LocalQueueServer = new();
 
 
         public void QueueSong(UsdxTrack track)

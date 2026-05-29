@@ -22,7 +22,7 @@ public interface ITrackMetadata
     /// <summary>
     ///  Length of the songs
     /// </summary>
-    uint Length { get; set; }
+    int Length { get; set; }
 
     /// <summary>
     /// Song BPM
