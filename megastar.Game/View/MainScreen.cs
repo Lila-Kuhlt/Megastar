@@ -13,7 +13,6 @@ using osuTK.Graphics;
 
 namespace megastar.Game.View
 {
-    [Cached]
     public partial class MainScreen : Screen
     {
         [Resolved] private MegastarGameBase game { get; set; } = null!;

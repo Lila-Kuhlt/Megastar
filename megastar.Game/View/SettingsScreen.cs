@@ -22,7 +22,6 @@ public partial class SettingsScreen : Screen
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
     [Resolved] private FrameworkConfigManager config { get; set; }
-    [Resolved] private MainScreen mainScreen { get; set; }
 
     [BackgroundDependencyLoader]
     private void load(List<Language> locales, LocalisationManager localisation)
