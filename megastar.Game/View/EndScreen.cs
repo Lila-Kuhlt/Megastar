@@ -2,17 +2,17 @@
 using System.Linq;
 using megastar.Game.Preset;
 using megastar.Game.Track;
-using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes; // Required for Box
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
+// Required for Box
 
 namespace megastar.Game.View
 {
@@ -44,7 +44,7 @@ namespace megastar.Game.View
 
             InternalChildren = new Drawable[]
             {
-                // --- Background Layer ---
+                //Background Layer
                 new ShaderBackground("sh_background.fs"),
                 new Sprite
                 {
@@ -139,9 +139,9 @@ namespace megastar.Game.View
                                     //TODO Replace this with a nicer button once we have presets for them
                                     new BasicButton()
                                     {
-                                        Text = "Play Next Song",
+                                        Text = $"Play Next Song : {game.PeakNextSong().TrackMetadata.Title} - {game.PeakNextSong().TrackMetadata.Artist}",
                                         Action = this.Exit,
-                                        Size = new Vector2(200, 50)
+                                        Size = new Vector2(500, 50)
                                     }
                                 }
                             }
@@ -205,13 +205,14 @@ namespace megastar.Game.View
                                         AutoSizeAxes = Axes.Y,
                                         Direction = FillDirection.Vertical,
                                         Spacing = new Vector2(0, 5),
-                                        // Placeholder items to visualize the queue
-                                        Children = new Drawable[]
-                                        {
-                                            new SpriteText { Text = "1. Placeholder Song A", Font = new FontUsage(size: 20), Colour = Color4.LightGray },
-                                            new SpriteText { Text = "2. Placeholder Song B", Font = new FontUsage(size: 20), Colour = Color4.LightGray },
-                                            new SpriteText { Text = "3. Placeholder Song C", Font = new FontUsage(size: 20), Colour = Color4.LightGray },
-                                        }
+                                        Children = game.QueuedSongs
+                                            .Skip(1) // Ignores the first song in the list
+                                            .Select((track, index) => new SpriteText
+                                            {
+                                                Text = $"{index + 1}. {track.TrackMetadata.Artist} - {track.TrackMetadata.Title}",
+                                                Font = new FontUsage(size: 20),
+                                                Colour = Color4.LightGray
+                                            }).ToArray()
                                     }
                                 }
                             }

@@ -127,6 +127,7 @@ public partial class PlayScreen : Screen
 
         curNotes = usdxTrack.Notes;
         allPhrases = usdxTrack.NotePhrases;
+        currentBeat = 0;
 
         audioTrack = loadSong(audioManager, usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.SongFile);
         audioTrack?.Start();
@@ -317,11 +318,11 @@ public partial class PlayScreen : Screen
 
 
         //TODO only for test purpose
-        //if (audioTrack != null && Math.Abs(audioTrack.CurrentTime - audioTrack.Length) > 10000)
-        //{
-        //    audioTrack.Seek(audioTrack.Length - 8000);
-        //    audioTrack.Looping = false;
-        //}
+        if (audioTrack != null && Math.Abs(audioTrack.CurrentTime - audioTrack.Length) > 10000)
+        {
+            audioTrack.Seek(audioTrack.Length - 8000);
+            audioTrack.Looping = false;
+        }
 
         //End screen on track end
         if (audioTrack != null && audioTrack.HasCompleted && curTrack != null && this.IsCurrentScreen())
