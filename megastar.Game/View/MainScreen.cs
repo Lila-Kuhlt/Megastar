@@ -1,6 +1,7 @@
 using System.Linq;
 using megastar.Game.Preset;
 using megastar.Game.Translations;
+using megastar.Game.WebConnectionQueue;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -25,6 +26,8 @@ namespace megastar.Game.View
                 //Background
                 new ShaderBackground("sh_background.fs"),
 
+                //Always
+                game.LocalQueueServer,
 
                 //Title
                 new SpriteText
@@ -80,20 +83,11 @@ namespace megastar.Game.View
                     }
                 }
             ];
-            if (Settings.GetSettings().StartWebApp.Value)
+            if (Settings.GetSettings().WebAppActive.Value)
             {
-                StartWebServer();
+                game.LocalQueueServer.StartWebserver();
             }
         }
 
-        public void StartWebServer()
-        {
-            Settings settings = Settings.GetSettings();
-            if (!settings.WebAppStarted.Value)
-            {
-                AddInternal(game.LocalQueueServer);
-                settings.WebAppStarted.Value = true;
-            }
-        }
     }
 }

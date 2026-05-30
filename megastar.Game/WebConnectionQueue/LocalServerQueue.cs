@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using megastar.Game.Track;
 using osu.Framework.Logging; // Ensure this points to where UsdxTrack is located
 
-namespace megastar.Game // Adjust to your preferred namespace
+namespace megastar.Game.WebConnectionQueue // Adjust to your preferred namespace
 {
     public partial class LocalQueueServer : Component
     {
@@ -28,17 +28,20 @@ namespace megastar.Game // Adjust to your preferred namespace
 
         private readonly object _listLock = new object();
 
-        [BackgroundDependencyLoader]
-        private void load()
+
+        public void StartWebserver()
         {
+            _listener.Start();
             _listener.Prefixes.Add($"http://+:{_port}/");
+
+            Task.Run(StartServerLoopAsync);
         }
 
-        //Starts the server by putting it into a screen like a normal UI Element
-        protected override void LoadComplete()
+        public void StopWebserver()
         {
-            base.LoadComplete();
-            Task.Run(StartServerLoopAsync);
+            _listener.Prefixes.Clear();
+            _listener.Stop();
+            _activeSockets.Clear();
         }
 
 

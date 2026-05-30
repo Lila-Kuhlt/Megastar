@@ -55,25 +55,19 @@ public partial class SettingsScreen : Screen
             Origin = Anchor.CentreLeft,
         };
 
-        startWebapp.Current = settings.StartWebApp;
+        startWebapp.Current = settings.WebAppActive;
 
-        BasicButton startWebappNow = new BasicButton
-        {
-            Text = Fluent.Translate("settings-start-webapp"),
-            Size = new Vector2(200, 30),
-            BackgroundColour = Color4.Teal,
-            Action = () => mainScreen.StartWebServer(),
-            Alpha = settings.StartWebApp.Value && !settings.WebAppStarted.Value ? 1 : 0,
-        };
-
-        settings.WebAppStarted.BindValueChanged(e =>
-        {
-            if (startWebappNow.IsNotNull()) startWebappNow.Alpha = startWebapp.Current.Value && !e.NewValue ? 1 : 0;
-        });
 
         startWebapp.Current.BindValueChanged(e =>
         {
-            if (startWebappNow.IsNotNull()) startWebappNow.Alpha = e.NewValue && !settings.WebAppStarted.Value ? 1 : 0;
+            if (startWebapp.Current.Value)
+            {
+                game.LocalQueueServer.StartWebserver();
+            }
+            else
+            {
+                game.LocalQueueServer.StopWebserver();
+            }
         });
 
 
@@ -182,7 +176,6 @@ public partial class SettingsScreen : Screen
                                     Origin = Anchor.CentreLeft,
                                 },
                                 startWebapp,
-                                startWebappNow,
                             }
                         },
                         //Duplicates in the Queue start
