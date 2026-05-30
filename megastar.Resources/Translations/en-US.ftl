@@ -28,7 +28,6 @@ settings-difficulty = Difficulty:
 settings-volume = Volume
 settings-duplicates-queue = Allow duplicates in the queue
 settings-wepapp = Start the webapp on port 8080
-settings-start-webapp = Start webapp now
 
 ## Directory Selector
 dir-select-toggle-hidden = Toggle hidden items
