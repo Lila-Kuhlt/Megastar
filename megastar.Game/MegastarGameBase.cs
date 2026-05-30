@@ -87,7 +87,6 @@ namespace megastar.Game
         /// If there is only one song in the queue, it returns it
         /// </summary>
         /// <returns>The next song in the queue</returns>
-        [CanBeNull]
         public UsdxTrack? NextSong()
         {
             switch (QueuedSongs.Count)

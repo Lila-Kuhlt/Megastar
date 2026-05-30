@@ -57,8 +57,8 @@ public sealed partial class NoteContainer : Container
 
         if (notes.Count <= 0) return;
 
-        // Pins the first note 210px from the left edge
         int phraseStartBeat = notes[0].StartBeat;
+        // Pins the first note 210px from the left edge
         offsetX = -phraseStartBeat * UsdxNote.SCALE_FACTOR + 210f;
 
         float totalPitch = 0;

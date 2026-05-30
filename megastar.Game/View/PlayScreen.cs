@@ -120,7 +120,7 @@ public partial class PlayScreen : Screen
         loadBackgroundImage(usdxTrack);
         loadBackgroundVideo(usdxTrack);
         currentTrack = usdxTrack;
-        if (loadedTrack != null) loadedTrack.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
+        loadedTrack.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
 
         var currentLyric = lyrics.LyricForBeat((int)Beat);
         if (currentLyric == null)
