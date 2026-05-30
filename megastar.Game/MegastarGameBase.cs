@@ -108,7 +108,7 @@ namespace megastar.Game
         /// Returns the next song in the Queue (at the second position) if it exists. Returns the current one, if there is only one and null if there is none
         /// </summary>
         /// <returns>the song that is next in the queue</returns>
-        public UsdxTrack? PeakNextSong()
+        public UsdxTrack? PeekNextSong()
         {
             switch (QueuedSongs.Count)
             {

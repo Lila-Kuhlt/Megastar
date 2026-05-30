@@ -32,6 +32,10 @@ settings-wepapp = start the webapp on port 8080
 ## Directory Selector
 dir-select-toggle-hidden = Toggle hidden items
 
+## End Screen
+end-screen-add-queue = Add to queue
+end-screen-next = Up next : 
+
 ## Language Names
 de-DE = German (de-DE)
 en-US = English (en-US)

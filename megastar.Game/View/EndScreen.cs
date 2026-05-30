@@ -2,6 +2,7 @@
 using System.Linq;
 using megastar.Game.Preset;
 using megastar.Game.Track;
+using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -12,7 +13,6 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
-// Required for Box
 
 namespace megastar.Game.View
 {
@@ -139,7 +139,7 @@ namespace megastar.Game.View
                                     //TODO Replace this with a nicer button once we have presets for them
                                     new BasicButton()
                                     {
-                                        Text = $"Play Next Song : {game.PeakNextSong().TrackMetadata.Title} - {game.PeakNextSong().TrackMetadata.Artist}",
+                                        Text = $"Play Next Song : {game.PeekNextSong().TrackMetadata.Title} - {game.PeekNextSong().TrackMetadata.Artist}",
                                         Action = this.Exit,
                                         Size = new Vector2(500, 50)
                                     }
@@ -163,7 +163,6 @@ namespace megastar.Game.View
                                     Alpha = 0.4f,
                                 },
 
-                                //TODO here search
                                 new FillFlowContainer
                                 {
                                     Anchor = Anchor.TopLeft,
@@ -175,7 +174,8 @@ namespace megastar.Game.View
                                     Spacing = new Vector2(0, 10),
                                     Children = new Drawable[]
                                     {
-                                        new SpriteText { Text = "Add to Queue", Font = new FontUsage(size: 24, weight: "Bold") },
+                                        new SpriteText { Text = Fluent.Translate("end-screen-add-queue"), Font = new FontUsage(size: 24, weight: "Bold") },
+                                        //TODO this is a placeholder and should be replaced with the same logic as the final search
                                         new BasicTextBox
                                         {
                                             RelativeSizeAxes = Axes.X,
@@ -184,7 +184,7 @@ namespace megastar.Game.View
                                         },
                                         new SpriteText
                                         {
-                                            Text = "Up Next",
+                                            Text = Fluent.Translate("end-screen-next"),
                                             Font = new FontUsage(size: 24, weight: "Bold"),
                                             Margin = new MarginPadding { Top = 20 }
                                         },
