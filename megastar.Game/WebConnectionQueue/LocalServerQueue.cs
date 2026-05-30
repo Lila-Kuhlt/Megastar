@@ -15,7 +15,6 @@ using osu.Framework.Logging;
 using osu.Framework.Logging;
 
 namespace megastar.Game.WebConnectionQueue;
-// Adjust to your preferred namespace
 
 /// <summary>
 /// A Webserver, that manages the Queue that is initiated in <see cref="MegastarGameBase"/>.
@@ -32,6 +31,13 @@ public partial class LocalQueueServer : Component
     private readonly string _port = "8080";
 
     private readonly object _listLock = new object();
+
+
+    [BackgroundDependencyLoader]
+    private void load()
+    {
+        _listener.Prefixes.Add($"http://+:{_port}/");
+    }
 
     /// <summary>
     /// Starts the webserver. Will make it listen to http on the set port
