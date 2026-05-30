@@ -57,6 +57,4 @@ public class Settings : IniConfigManager<GameSetting>
     public Bindable<string> LastIndexPath => GetBindable<string>(GameSetting.LastIndexPath);
     public Bindable<bool> WebAppActive => GetBindable<bool>(GameSetting.WebAppActive);
     public Bindable<bool> DuplicateItems => GetBindable<bool>(GameSetting.DuplicateItems);
-    // Das ist extra, dass das per session immer false ist
-    public Bindable<bool> WebAppStarted { get; } = new Bindable<bool>(false);
 }

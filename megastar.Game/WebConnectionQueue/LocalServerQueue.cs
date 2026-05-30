@@ -11,10 +11,13 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using megastar.Game.Track;
-using osu.Framework.Logging; // Ensure this points to where UsdxTrack is located
+using osu.Framework.Logging;
 
-namespace megastar.Game.WebConnectionQueue // Adjust to your preferred namespace
+namespace megastar.Game.WebConnectionQueue
 {
+    /// <summary>
+    /// A Webserver, that manages the Queue that is initiated in <see cref="MegastarGameBase"/>.
+    /// </summary>
     public partial class LocalQueueServer : Component
     {
         [Resolved] private MegastarGameBase game { get; set; } = null!;
@@ -29,6 +32,9 @@ namespace megastar.Game.WebConnectionQueue // Adjust to your preferred namespace
         private readonly object _listLock = new object();
 
 
+        /// <summary>
+        /// Starts the webserver. Will make it listen to http on the set port
+        /// </summary>
         public void StartWebserver()
         {
             _listener.Start();
@@ -37,6 +43,11 @@ namespace megastar.Game.WebConnectionQueue // Adjust to your preferred namespace
             Task.Run(StartServerLoopAsync);
         }
 
+        /// <summary>
+        /// Stops the webserver from listening on the port.
+        /// This will actually not stop the server completly and can be undone with the startWebserver method
+        /// To completely stop the server, use dispose()
+        /// </summary>
         public void StopWebserver()
         {
             _listener.Prefixes.Clear();

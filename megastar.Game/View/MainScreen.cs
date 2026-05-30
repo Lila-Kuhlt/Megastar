@@ -26,7 +26,7 @@ namespace megastar.Game.View
                 //Background
                 new ShaderBackground("sh_background.fs"),
 
-                //Always
+                //Always add Server to children, activate it via its start method
                 game.LocalQueueServer,
 
                 //Title
