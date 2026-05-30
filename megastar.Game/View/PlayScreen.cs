@@ -6,6 +6,7 @@ using megastar.Game.notes;
 using megastar.Game.Preset;
 using megastar.Game.Track;
 using megastar.Game.Translations;
+using NUnit.Framework;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
@@ -33,23 +34,37 @@ public partial class PlayScreen : Screen
 
     private List<IBeatPaced> curNotes = new List<IBeatPaced>();
 
+    //Phrasing on Lyrics
+    private List<List<INote>> allPhrases;
+    private int currentPhraseIndex = 0;
+    private LyricsContainer currentLyricsContainer;
+
+    private readonly Container lyricsLayer = new Container
+    {
+        RelativeSizeAxes = Axes.Both,
+        Padding = new MarginPadding { Bottom = 50 }
+    };
+
+    private readonly Container notesLayer = new Container
+    {
+        RelativeSizeAxes = Axes.Both,
+        Anchor = Anchor.Centre,
+        Origin = Anchor.Centre,
+        AlwaysPresent = true
+    };
+
+    private PhraseNotesContainer currentNotesContainer;
+
 
     //The offset from the start of the screen where notes beginn to spawn
-    private static float START_OFFSET = 1000f;
+    private static float START_OFFSET = 300f;
 
     private static AudioManager audioManager;
     private UsdxTrack curTrack;
     private Video backgroundVideo;
 
-    private Container notesContainer = new Container
-    {
-        AutoSizeAxes = Axes.Both,
+    private double currentBeat = 0f;
 
-        Anchor = Anchor.CentreLeft,
-        Origin = Anchor.CentreLeft,
-
-        AlwaysPresent = true
-    };
 
     // Dedicated layer to safely swap background sprites behind UI elements
     private readonly Container backgroundLayer = new Container
@@ -63,6 +78,8 @@ public partial class PlayScreen : Screen
     private StorageBackedResourceStore activeAudioResourceStore;
     private StorageBackedResourceStore activeVideoRessourceStore;
     private FluentTranslationStore t;
+
+    private uint lastReceivedNoteBeat = 0;
 
     [BackgroundDependencyLoader]
     private void load(AudioManager audio)
@@ -78,7 +95,8 @@ public partial class PlayScreen : Screen
             },
             backgroundLayer,
             new BackButton(this.Exit, Fluent.Translate("common-back")),
-            notesContainer
+            notesLayer,
+            lyricsLayer
         };
     }
 
@@ -89,7 +107,7 @@ public partial class PlayScreen : Screen
         //TODO hier sollte irgendwie auch die nächsten Lieder abgespielt werden
         try
         {
-            setUpTrack(game.QueuedSongs.First());
+            setUpTrack(game.NextSong());
         }
         catch (Exception exception)
         {
@@ -107,9 +125,8 @@ public partial class PlayScreen : Screen
     {
         cleanUpOldStores();
 
-        //Load notes
         curNotes = usdxTrack.Notes;
-        notesContainer.Children = curNotes.Select(note => note.Visual).ToArray();
+        allPhrases = usdxTrack.NotePhrases;
 
         track = loadSong(audioManager, usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.SongFile);
         track?.Start();
@@ -118,6 +135,32 @@ public partial class PlayScreen : Screen
         loadBackgroundVideo(usdxTrack);
         curTrack = usdxTrack;
         track.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
+
+        // first phrase
+        currentPhraseIndex = 0;
+        if (allPhrases != null && allPhrases.Count > 0)
+        {
+            showPhrase(currentPhraseIndex);
+        }
+    }
+
+
+    private void showPhrase(int index)
+    {
+        lyricsLayer.Clear();
+        notesLayer.Clear();
+
+        var currentPhrase = allPhrases[index];
+
+        currentLyricsContainer = new LyricsContainer(currentPhrase)
+        {
+            Anchor = Anchor.BottomCentre,
+            Origin = Anchor.BottomCentre
+        };
+        lyricsLayer.Add(currentLyricsContainer);
+
+        currentNotesContainer = new PhraseNotesContainer(currentPhrase);
+        notesLayer.Add(currentNotesContainer);
     }
 
     private void cleanUpOldStores()
@@ -167,7 +210,7 @@ public partial class PlayScreen : Screen
                     });
 
                     // Fade between backgrounds
-                    currentBackground.FadeIn(500, Easing.OutQuint);
+                    currentBackground.FadeIn(100, Easing.OutQuint);
                 }
             }
             catch (Exception ex)
@@ -183,14 +226,15 @@ public partial class PlayScreen : Screen
         {
             try
             {
-                string videoPath = Path.Combine(usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.BackgroundVideoFile);
+                string videoPath = Path.Combine(usdxTrack.TrackMetadata.DirPath,
+                    usdxTrack.TrackMetadata.BackgroundVideoFile);
 
                 if (File.Exists(videoPath))
                 {
                     // Let C# handle the file reading safely to bypass FFmpeg pathing issues
                     Stream videoStream = File.OpenRead(videoPath);
 
-                    backgroundVideo = new Video(videoStream) // Pass the stream, not the string!
+                    backgroundVideo = new Video(videoStream)
                     {
                         RelativeSizeAxes = Axes.Both,
                         Anchor = Anchor.Centre,
@@ -213,8 +257,7 @@ public partial class PlayScreen : Screen
 
                     backgroundVideo.OnLoadComplete += v =>
                     {
-                        Console.WriteLine("FERTIG GELADNE");
-                        v.FadeIn(500, Easing.OutQuint);
+                        v.FadeIn(0, Easing.OutQuint);
                     };
                 }
             }
@@ -229,15 +272,46 @@ public partial class PlayScreen : Screen
     {
         base.Update();
 
+
         if (curTrack != null && track != null)
         {
             double ultraStarBpm = curTrack.TrackMetadata.BPM;
+            currentBeat = ((track.CurrentTime - curTrack.TrackMetadata.Gap) / 60000.0) * ultraStarBpm * 4;
+            currentNotesContainer?.UpdateBeat(currentBeat);
 
-            //track.CurrentTime should be in milliseconds.
-            double currentBeat = ((track.CurrentTime - START_OFFSET - curTrack.TrackMetadata.Gap) / 60000.0) *
-                                 ultraStarBpm * 4;
-            notesContainer.X = (float)((-currentBeat * UsdxNote.SCALE_FACTOR));
+
+            if (currentLyricsContainer != null)
+            {
+                currentLyricsContainer.beatTime = currentBeat;
+            }
+
+            // Handle phrase switching
+            if (allPhrases != null && currentPhraseIndex + 1 < allPhrases.Count)
+            {
+                var currentPhrase = allPhrases[currentPhraseIndex];
+                var nextPhrase = allPhrases[currentPhraseIndex + 1];
+
+                if (currentPhrase.Count > 0 && nextPhrase.Count > 0)
+                {
+                    var lastNote = currentPhrase.Last();
+                    var nextNote = nextPhrase.First();
+
+                    double phraseEndBeat = lastNote.StartBeat + lastNote.Length;
+                    double nextPhraseStartBeat = nextNote.StartBeat;
+
+                    // Switch phrase 1/4 between the end of the current one and the start of the next one
+                    double switchBeat = phraseEndBeat + ((nextPhraseStartBeat - phraseEndBeat) / 4.0);
+
+                    if (currentBeat >= switchBeat)
+                    {
+                        currentPhraseIndex++;
+                        showPhrase(currentPhraseIndex);
+                    }
+                }
+            }
         }
+        //TODO hier nur zu testzwecken bis wirklicher input eingelesen wird
+        ReceiveSungNote(new UsdxNote((uint)currentBeat, Random.Shared.Next(1, 5), Random.Shared.Next(5, 20), "", UsdxNoteType.Sung));
     }
 
     public override bool OnExiting(ScreenExitEvent e)
@@ -266,5 +340,28 @@ public partial class PlayScreen : Screen
             Logger.Error(ex, "Failed to load karaoke track audio.");
             return null;
         }
+    }
+
+    /// <summary>
+    /// This method takes notes that get sung and displays them above the pitches
+    /// This automatically only receives the first note per beat and ignores all following ones
+    /// </summary>
+    /// <param name="sungNote"></param>
+    public void ReceiveSungNote(INote sungNote)
+    {
+        if ((uint) currentBeat > lastReceivedNoteBeat)
+        {
+            currentNotesContainer?.AddSungNote(sungNote);
+            lastReceivedNoteBeat = sungNote.StartBeat + (uint) sungNote.Length;
+        }
+    }
+
+    /// <summary>
+    /// Returns the Beat at which the song currently is. New Input Notes should be set to this beat
+    /// </summary>
+    /// <returns></returns>
+    public double GetCurrentBeat()
+    {
+        return currentBeat;
     }
 }

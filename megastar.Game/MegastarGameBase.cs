@@ -1,9 +1,13 @@
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using megastar.Game.Track;
 using megastar.Game.Translations;
 using megastar.Game.View;
@@ -31,8 +35,7 @@ namespace megastar.Game
         protected override Container<Drawable> Content { get; }
         private readonly List<Language> locales = new List<Language>();
 
-        [Resolved]
-        private FrameworkConfigManager config { get; set; }
+        [Resolved] private FrameworkConfigManager config { get; set; }
 
         private IResourceStore<byte[]> translations;
 
@@ -56,10 +59,50 @@ namespace megastar.Game
             return dependencies;
         }
 
-        public List<UsdxTrack> LoadedSongs { get; private set; } = [];
+
+        public List<UsdxTrack> LoadedSongs { get; private set; } = new List<UsdxTrack>();
 
         //QUEWE
         public List<UsdxTrack> QueuedSongs { get; private set; } = new List<UsdxTrack>();
+
+        public LocalQueueServer LocalQueueServer = new LocalQueueServer();
+
+
+        public void QueueSong(UsdxTrack track)
+        {
+            if (Settings.GetSettings().DuplicateItems.Value || !QueuedSongs.Contains(track))
+            {
+                QueuedSongs.Add(track);
+            }
+
+
+            if (LocalQueueServer != null)
+            {
+                LocalQueueServer.BroadcastStateAsync();
+            }
+        }
+
+        /// <summary>
+        /// This returns the next song of the queue and pop the current song
+        /// If there is no song in the queue, it will return null
+        /// If there is only one song in the queue, it returns it
+        /// </summary>
+        /// <returns>The next song in the queue</returns>
+        [CanBeNull]
+        public UsdxTrack? NextSong()
+        {
+            switch (QueuedSongs.Count)
+            {
+                case 0:
+                    return null;
+                case 1:
+                    return QueuedSongs[0];
+                default:
+                    QueuedSongs.RemoveAt(0);
+                    return QueuedSongs[0];
+            }
+        }
+
 
         [BackgroundDependencyLoader]
         private void load()
@@ -94,7 +137,8 @@ namespace megastar.Game
 
             // FrameworkSetting.Locale will be "" if the selected language is the system default language, since the framework does not persist the default language to file.
             // Why exactly it then does not load the system default language into the locale config on startup if it is empty is beyond me.
-            if (config.Get<string>(FrameworkSetting.Locale) == null || config.Get<string>(FrameworkSetting.Locale) == "")
+            if (config.Get<string>(FrameworkSetting.Locale) == null ||
+                config.Get<string>(FrameworkSetting.Locale) == "")
             {
                 string systemLocale = CultureInfo.CurrentUICulture.Name;
                 Language systemLanguage = locales.Find(l => l.Code == systemLocale);

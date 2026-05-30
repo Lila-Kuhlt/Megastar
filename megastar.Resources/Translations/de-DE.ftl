@@ -12,8 +12,8 @@ main-exit = Schließen
 ## File Selector Screen
 index-select-folder = Wähle den Song-Ordner aus:
 index-select-current-folder = Aktuellen Ordner auswählen
-index-folder-selected = {$folderName} ausgewählt
-index-selection-successful = Ein Ordner wurde erfolgreich ausgewählt.
+index-folder-selected = Aktuell ausgewählt: {$folderName}
+index-selection-successful = Ein Ordner wurde erfolgreich ausgewählt. Es wurden {$songCount} Lieder erkannt.
 
 ## Play Screen
 play-song-error = Error, Song konnte nicht geladen werden.
@@ -25,6 +25,11 @@ search-query = Suchanfrage eingeben...
 settings-language = Sprache:
 settings-difficulty = Schwierigkeit:
 settings-volume = Lautstärke
+settings-duplicates-queue = Duplikate in der Warteschlange erlauben
+settings-wepapp = Webapp auf Port 8080 starten
+
+## Directory Selector
+dir-select-toggle-hidden = Verdeckte Ordner zeigen
 
 ## Language Names
 de-DE = Deutsch (de-DE)

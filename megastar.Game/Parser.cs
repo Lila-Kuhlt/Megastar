@@ -75,7 +75,8 @@ public class Parser
                 break;
             }
 
-            metadata.Add(line.Split(":")[0].Replace("#", "").ToLower(), line.Split(":")[1]);
+            // TODO Was getting OutOfBounds (most likely with invalid files), maybe console warning or not parse these files.
+            if (line.Split(":").Length >= 2) metadata.Add(line.Split(":")[0].Replace("#", "").ToLower(), line.Split(":")[1]);
         }
 
         return new UsdxTrackMetadata(metadata);
