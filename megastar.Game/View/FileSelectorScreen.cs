@@ -146,5 +146,7 @@ public partial class FileSelectorScreen : Screen
                 }
             );
         }
+
+        game.LocalQueueServer.BroadcastStateAsync();
     }
 }

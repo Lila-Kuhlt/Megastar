@@ -107,7 +107,7 @@ public partial class PlayScreen : Screen
         //TODO hier sollte irgendwie auch die nächsten Lieder abgespielt werden
         try
         {
-            setUpTrack(game.NextSong());
+            setUpTrack(game.GetFirstSong());
         }
         catch (Exception exception)
         {
@@ -317,20 +317,26 @@ public partial class PlayScreen : Screen
 
 
         //TODO only for test purpose
-        if (audioTrack != null && Math.Abs(audioTrack.CurrentTime - audioTrack.Length) > 5)
-        {
-            audioTrack.Seek(audioTrack.Length - 4);
-            audioTrack.Looping = false;
-        }
+        //if (audioTrack != null && Math.Abs(audioTrack.CurrentTime - audioTrack.Length) > 10000)
+        //{
+        //    audioTrack.Seek(audioTrack.Length - 8000);
+        //    audioTrack.Looping = false;
+        //}
 
         //End screen on track end
-        if (audioTrack != null && audioTrack.HasCompleted && curTrack != null)
+        if (audioTrack != null && audioTrack.HasCompleted && curTrack != null && this.IsCurrentScreen())
         {
             var backgroundImage = activeTextureStore.Get(curTrack.TrackMetadata.BackgroundImageFile);
             //TODO Real score needs to be entered here
             this.Push(new EndScreen(backgroundImage, curTrack, 67911, 676767));
-            this.setUpTrack(game.NextSong());
+
         }
+    }
+
+    public override void OnResuming(ScreenTransitionEvent e)
+    {
+        base.OnResuming(e);
+        this.setUpTrack(game.NextSong());
     }
 
     public override bool OnExiting(ScreenExitEvent e)

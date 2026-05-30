@@ -67,10 +67,10 @@ namespace megastar.Game.View
                 new Container
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Padding = new MarginPadding(50), // Gives everything a nice 50px border from the screen edge
+                    Padding = new MarginPadding(50),
                     Children = new Drawable[]
                     {
-                        // === TOP LEFT: Song Metadata ===
+                        // Last Song Metadata
                         new FillFlowContainer
                         {
                             Anchor = Anchor.TopLeft,
@@ -132,6 +132,16 @@ namespace megastar.Game.View
                                             Width = performanceRatio,
                                             Colour = performanceColor
                                         }
+                                    }
+                                },
+                                new Container()
+                                {
+                                    //TODO Replace this with a nicer button once we have presets for them
+                                    new BasicButton()
+                                    {
+                                        Text = "Play Next Song",
+                                        Action = this.Exit,
+                                        Size = new Vector2(200, 50)
                                     }
                                 }
                             }

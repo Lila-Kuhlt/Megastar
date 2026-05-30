@@ -99,7 +99,43 @@ namespace megastar.Game
                     return QueuedSongs[0];
                 default:
                     QueuedSongs.RemoveAt(0);
+                    this.LocalQueueServer.BroadcastStateAsync();
                     return QueuedSongs[0];
+            }
+        }
+
+        /// <summary>
+        /// Returns the next song in the Queue (at the second position) if it exists. Returns 0 if there are less then 2 tracks in the queue
+        /// </summary>
+        /// <returns>the song that is next in the queue</returns>
+        public UsdxTrack? PeakNextSong()
+        {
+            switch (QueuedSongs.Count)
+            {
+                case 0:
+                    return null;
+                case 1:
+                    return QueuedSongs[0];
+                default:
+                    return QueuedSongs[1];
+            }
+        }
+
+        /// <summary>
+        /// Should only be used to get the first song of the queue on startup.
+        /// Returns the first song of the queue.
+        /// For continuing with the next song, probably NextSong() should be used.
+        /// Returns null if there is no song in the queue
+        /// </summary>
+        /// <returns></returns>
+        public UsdxTrack? GetFirstSong()
+        {
+            switch (QueuedSongs.Count)
+            {
+                case 0:
+                    return null;
+                default:
+                    return  QueuedSongs[0];
             }
         }
 
