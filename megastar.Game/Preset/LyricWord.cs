@@ -12,6 +12,9 @@ public enum LyricState
     Passed
 }
 
+/// <summary>
+/// The visual representation of single word of Lyrics. This has 3 states of beeing displayed based on if it was sung already or not.
+/// </summary>
 public partial class LyricWord : CompositeDrawable
 {
     private LyricState currentState = LyricState.Upcoming;
@@ -52,6 +55,10 @@ public partial class LyricWord : CompositeDrawable
         };
     }
 
+    /// <summary>
+    /// This method changes the effect state of the current word, beeing either upcoming, active or passed.
+    /// </summary>
+    /// <param name="newState">The state to show</param>
     public void UpdateState(LyricState newState)
     {
         if (currentState == newState) return;

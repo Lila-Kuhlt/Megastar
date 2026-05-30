@@ -27,7 +27,7 @@ namespace megastar.Game.View;
 
 public partial class PlayScreen : Screen
 {
-    private osu.Framework.Audio.Track.Track track;
+    private osu.Framework.Audio.Track.Track audioTrack;
 
     [Resolved] private MegastarGameBase game { get; set; } = null!;
     [Resolved] private GameHost host { get; set; } = null!; // Resolved to manage NativeStorage instances safely
@@ -128,13 +128,13 @@ public partial class PlayScreen : Screen
         curNotes = usdxTrack.Notes;
         allPhrases = usdxTrack.NotePhrases;
 
-        track = loadSong(audioManager, usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.SongFile);
-        track?.Start();
+        audioTrack = loadSong(audioManager, usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.SongFile);
+        audioTrack?.Start();
 
         loadBackgroundImage(usdxTrack);
         loadBackgroundVideo(usdxTrack);
         curTrack = usdxTrack;
-        track.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
+        audioTrack.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
 
         // first phrase
         currentPhraseIndex = 0;
@@ -166,9 +166,9 @@ public partial class PlayScreen : Screen
     private void cleanUpOldStores()
     {
         //CLEANUP PREVIOUS SONG TRACK & RESOURCES
-        track?.Stop();
-        track?.Dispose();
-        track = null;
+        audioTrack?.Stop();
+        audioTrack?.Dispose();
+        audioTrack = null;
         activeAudioResourceStore?.Dispose();
         activeAudioResourceStore = null;
         activeVideoRessourceStore?.Dispose();
@@ -248,7 +248,7 @@ public partial class PlayScreen : Screen
                         ? (double)usdxTrack.TrackMetadata.VideoGap
                         : 0;
 
-                    backgroundVideo.Clock = new osu.Framework.Timing.FramedOffsetClock(track)
+                    backgroundVideo.Clock = new osu.Framework.Timing.FramedOffsetClock(audioTrack)
                     {
                         Offset = gap
                     };
@@ -273,10 +273,10 @@ public partial class PlayScreen : Screen
         base.Update();
 
 
-        if (curTrack != null && track != null)
+        if (curTrack != null && audioTrack != null)
         {
             double ultraStarBpm = curTrack.TrackMetadata.BPM;
-            currentBeat = ((track.CurrentTime - curTrack.TrackMetadata.Gap) / 60000.0) * ultraStarBpm * 4;
+            currentBeat = ((audioTrack.CurrentTime - curTrack.TrackMetadata.Gap) / 60000.0) * ultraStarBpm * 4;
             currentNotesContainer?.UpdateBeat(currentBeat);
 
 
@@ -285,39 +285,43 @@ public partial class PlayScreen : Screen
                 currentLyricsContainer.beatTime = currentBeat;
             }
 
-            // Handle phrase switching
-            if (allPhrases != null && currentPhraseIndex + 1 < allPhrases.Count)
-            {
-                var currentPhrase = allPhrases[currentPhraseIndex];
-                var nextPhrase = allPhrases[currentPhraseIndex + 1];
-
-                if (currentPhrase.Count > 0 && nextPhrase.Count > 0)
-                {
-                    var lastNote = currentPhrase.Last();
-                    var nextNote = nextPhrase.First();
-
-                    double phraseEndBeat = lastNote.StartBeat + lastNote.Length;
-                    double nextPhraseStartBeat = nextNote.StartBeat;
-
-                    // Switch phrase 1/4 between the end of the current one and the start of the next one
-                    double switchBeat = phraseEndBeat + ((nextPhraseStartBeat - phraseEndBeat) / 4.0);
-
-                    if (currentBeat >= switchBeat)
-                    {
-                        currentPhraseIndex++;
-                        showPhrase(currentPhraseIndex);
-                    }
-                }
-            }
+            handlePhraseSwitching();
         }
         //TODO hier nur zu testzwecken bis wirklicher input eingelesen wird
         ReceiveSungNote(new UsdxNote((uint)currentBeat, Random.Shared.Next(1, 5), Random.Shared.Next(5, 20), "", UsdxNoteType.Sung));
     }
 
+    private void handlePhraseSwitching()
+    {
+        if (allPhrases != null && currentPhraseIndex + 1 < allPhrases.Count)
+        {
+            var currentPhrase = allPhrases[currentPhraseIndex];
+            var nextPhrase = allPhrases[currentPhraseIndex + 1];
+
+            if (currentPhrase.Count > 0 && nextPhrase.Count > 0)
+            {
+                var lastNote = currentPhrase.Last();
+                var nextNote = nextPhrase.First();
+
+                double phraseEndBeat = lastNote.StartBeat + lastNote.Length;
+                double nextPhraseStartBeat = nextNote.StartBeat;
+
+                // Switch phrase 1/4 between the end of the current one and the start of the next one
+                double switchBeat = phraseEndBeat + ((nextPhraseStartBeat - phraseEndBeat) / 4.0);
+
+                if (currentBeat >= switchBeat)
+                {
+                    currentPhraseIndex++;
+                    showPhrase(currentPhraseIndex);
+                }
+            }
+        }
+    }
+
     public override bool OnExiting(ScreenExitEvent e)
     {
-        track?.Stop();
-        track?.Dispose();
+        audioTrack?.Stop();
+        audioTrack?.Dispose();
         activeAudioResourceStore?.Dispose();
 
         activeTextureStore?.Dispose();

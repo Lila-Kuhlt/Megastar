@@ -8,7 +8,11 @@ using osuTK;
 namespace megastar.Game.Preset;
 
 
-
+/// <summary>
+/// A container for multiple <see cref="LyricWord"/>.
+/// This automatically creates the corresponding <see cref="LyricWord"/>s and also updates their <see cref="LyricState"/> corresponding to the value of <code>beatTime</code>.
+/// Therefore <code>beatTime</code> should always be kept up to date.
+/// </summary>
 public partial class LyricsContainer : FillFlowContainer
 {
     public double beatTime { get; set; }
