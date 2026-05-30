@@ -1,128 +1,35 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using megastar.Game.notes;
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
-using osu.Framework.Localisation;
-using osuTK.Graphics;
 
 namespace megastar.Game.Track;
 
 public class UsdxTrack : ITrack
 {
-    public ITrackMetadata TrackMetadata { get; set; }
-    private List<IBeatPaced> notes;
+    public string Artist { get; set; }
+    public string Title { get; set; }
+    public string Creator { get; set; }
+    public int Length { get; set; }
+    public double Bpm { get; set; }
+    public string Version { get; set; }
+    public string SongFile { get; set; }
+    public string Path { get; set; }
+    public string DirPath { get; set; }
+    public string BackgroundImageFile { get; set; }
+    public string BackgroundVideoFile { get; set; }
+    public double VideoGap { get; set; }
+    public double Gap { get; set; }
 
-    public List<IBeatPaced> Notes
+    public Lazy<List<IBeatPaced>> Notes { get; set; }
+
+    private UsdxTrack() => Notes = new Lazy<List<IBeatPaced>>(loadNotes);
+
+    public UsdxTrack(ITrackMetadata metadata) : this() => this.CollectMetadataFrom(metadata);
+
+    private List<IBeatPaced> loadNotes()
     {
-        get
-        {
-            // If notes haven't been loaded yet and we have a valid metadata path, parse them
-            if (notes == null && !string.IsNullOrEmpty(TrackMetadata?.Path))
-            {
-                if (File.Exists(TrackMetadata.Path))
-                {
-                    string rawString = File.ReadAllText(TrackMetadata.Path);
-                    notes = Parser.ParseUsdxNotes(rawString);
-                }
-                else
-                {
-                    // Fallback to an empty list if the file doesn't exist to prevent repeated crashes
-                    notes = new List<IBeatPaced>();
-                }
-            }
-
-            return notes;
-        }
-        set => notes = value;
-    }
-
-    private List<List<INote>> notePhrases;
-
-    public List<List<INote>> NotePhrases
-    {
-        get
-        {
-            if (notePhrases == null || notePhrases.Count == 0)
-            {
-                notePhrases = new List<List<INote>>();
-                bool nextPhrase = true;
-
-                foreach (var note in Notes)
-                {
-                    if (note is UsdxPauseNote)
-                    {
-                        nextPhrase = true;
-                    }
-                    else if (note is UsdxNote)
-                    {
-                        if (nextPhrase)
-                        {
-                            nextPhrase = false;
-                            notePhrases.Add(new List<INote>());
-                        }
-
-                        notePhrases[notePhrases.Count - 1].Add((UsdxNote) note);
-                    }
-                }
-            }
-
-            return notePhrases;
-        }
-    }
-
-    public UsdxTrack(UsdxTrackMetadata metadata)
-    {
-        TrackMetadata = metadata;
-    }
-
-
-    public UsdxTrack(ITrackMetadata trackMetadata, List<IBeatPaced> notes)
-    {
-        TrackMetadata = trackMetadata;
-        Notes = notes;
-    }
-
-    public void clearStorage()
-    {
-        this.notes = null;
-        this.notePhrases = null;
-    }
-}
-
-public sealed partial class UsdxTrackDrawable : CompositeDrawable, IFilterable
-{
-    private UsdxTrack data { get; }
-
-    public IEnumerable<LocalisableString> FilterTerms => new LocalisableString[]
-        { data.TrackMetadata.Artist, data.TrackMetadata.Title };
-
-    private bool matchingFilter = true;
-
-    public bool MatchingFilter
-    {
-        get => matchingFilter;
-        set
-        {
-            matchingFilter = value;
-            this.FadeTo(value ? 1 : 0, 200);
-        }
-    }
-
-    public bool FilteringActive { get; set; }
-
-    public UsdxTrackDrawable(UsdxTrack data)
-    {
-        this.data = data;
-        AutoSizeAxes = Axes.Y;
-        RelativeSizeAxes = Axes.X;
-
-        InternalChild = new SpriteText
-        {
-            Text = $"{this.data.TrackMetadata.Title} - {this.data.TrackMetadata.Artist}",
-            Font = FontUsage.Default.With(size: 20),
-            Colour = Color4.White
-        };
+        if (string.IsNullOrEmpty(Path) || string.IsNullOrEmpty(Path) || !File.Exists(Path)) return [];
+        return Parser.ParseUsdxNotes(File.ReadAllText(Path));
     }
 }

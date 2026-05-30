@@ -117,7 +117,7 @@ public partial class FileSelectorScreen : Screen
                     metadata.DirPath = file.DirectoryName;
                     tracks.Add(metadata);
                     game.LoadedSongs.Add(new UsdxTrack(metadata));
-                    game.LocalQueueServer.BroadcastStateAsync();
+                    game.LocalQueueServer?.BroadcastStateAsync();
                 }
                 catch (InvalidDataException)
                 {

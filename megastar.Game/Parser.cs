@@ -31,28 +31,20 @@ public class Parser
         }
 
         UsdxTrackMetadata trackMetadata = new UsdxTrackMetadata(metadata);
-        return new UsdxTrack(trackMetadata, notes);
+        return new UsdxTrack(trackMetadata);
     }
 
     public static List<IBeatPaced> ParseUsdxNotes(string rawUsdx)
     {
-        List<IBeatPaced> notes = new List<IBeatPaced>();
+        List<IBeatPaced> notes = [];
 
         using var reader = new StringReader(rawUsdx);
         while (reader.ReadLine() is { } line)
         {
-            if (line.StartsWith('#'))
-            {
-                continue;
-            }
-            else if (line.StartsWith('E') || line.StartsWith('P'))
-            {
-                break;
-            }
-            else
-            {
-                notes.Add(ParseUsdxNote(line));
-            }
+            if (line.StartsWith('#')) continue;
+            if (line.StartsWith('E') || line.StartsWith('P')) break;
+
+            notes.Add(ParseUsdxNote(line));
         }
 
         return notes;
@@ -76,7 +68,8 @@ public class Parser
             }
 
             // TODO Was getting OutOfBounds (most likely with invalid files), maybe console warning or not parse these files.
-            if (line.Split(":").Length >= 2) metadata.Add(line.Split(":")[0].Replace("#", "").ToLower(), line.Split(":")[1]);
+            if (line.Split(":").Length >= 2)
+                metadata.Add(line.Split(":")[0].Replace("#", "").ToLower(), line.Split(":")[1]);
         }
 
         return new UsdxTrackMetadata(metadata);
@@ -101,7 +94,7 @@ public class Parser
             _ => UsdxNoteType.Normal
         };
 
-        uint startBeat = Convert.ToUInt32(splitNote[1]);
+        int startBeat = Convert.ToInt32(splitNote[1]);
         int lenght = Convert.ToInt32(splitNote[2]);
         int pitch = Convert.ToInt32(splitNote[3]);
         string text = splitNote[4];

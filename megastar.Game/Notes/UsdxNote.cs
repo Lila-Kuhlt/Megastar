@@ -10,8 +10,11 @@ public class UsdxNote : INote
 {
     public static int SCALE_FACTOR = 10;
     public static int HEIGHT_FACTOR = 15;
+    private int startBeat;
+    private uint startBeat1;
 
-    public uint StartBeat { get; set; }
+    public int StartBeat { get; set; }
+
     public int Length { get; set; }
     public int Pitch { get; set; }
     public string Text { get; set; }
@@ -19,7 +22,7 @@ public class UsdxNote : INote
 
     public Drawable Visual => CreateVisual();
 
-    public UsdxNote(uint startBeat, int length, int pitch, string text, UsdxNoteType noteType)
+    public UsdxNote(int startBeat, int length, int pitch, string text, UsdxNoteType noteType)
     {
         StartBeat = startBeat;
         Length = length;
@@ -77,8 +80,8 @@ public class UsdxNote : INote
                 Hollow = true
             },
 
-            Children = new Drawable[]
-            {
+            Children =
+            [
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
@@ -90,12 +93,9 @@ public class UsdxNote : INote
                     Height = 0.5f,
                     Colour = Colour4.White.Opacity(0.3f),
                 }
-            }
+            ]
         };
     }
 
-    public override string ToString()
-    {
-        return this.Text;
-    }
+    public override string ToString() => Text;
 }

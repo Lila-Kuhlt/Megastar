@@ -4,7 +4,7 @@ namespace megastar.Game.notes;
 
 public interface INote : IBeatPaced
 {
-    uint StartBeat { get; set; }
+    int StartBeat { get; set; }
     int Length { get; set; }
     int Pitch { get; set; }
     string Text { get; set; }

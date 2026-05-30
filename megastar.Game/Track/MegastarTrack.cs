@@ -26,7 +26,7 @@ public partial class MegastarTrack : IRealmObject, ITrackMetadata
     public string Title { get; set; }
     public string Creator { get; set; }
     public int Length { get; set; }
-    public double BPM { get; set; }
+    public double Bpm { get; set; }
     public string Version { get; set; }
     public string SongFile { get; set; }
     public string Path { get; set; }

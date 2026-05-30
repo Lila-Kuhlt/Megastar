@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 
 namespace megastar.Game.Track;
 
@@ -27,7 +28,7 @@ public interface ITrackMetadata
     /// <summary>
     /// Song BPM
     /// </summary>
-    double BPM { get; set; }
+    double Bpm { get; set; }
 
     /// <summary>
     /// USDX File version
@@ -60,14 +61,40 @@ public interface ITrackMetadata
     /// </summary>
     [CanBeNull]
     string BackgroundVideoFile { get; set; }
+
     /// <summary>
     /// Background video path, relative to the song directory
     /// </summary>
-    [CanBeNull]
     double VideoGap { get; set; }
 
     /// <summary>
     /// Gap between the start of the song and the first note. Should be 0 if none exists
     /// </summary>
     double Gap { get; set; }
+}
+
+public static class TrackMetadataExtensions
+{
+    /// <summary>
+    /// Helper function to apply ITrackMetadata to the current metadata.
+    /// This can be helpful when transferring file types. e.g. from USDX to Megastar
+    /// </summary>
+    public static void CollectMetadataFrom(this ITrackMetadata curr, [CanBeNull] ITrackMetadata other)
+    {
+        if (other == null) return;
+
+        curr.Artist = other.Artist;
+        curr.Title = other.Title;
+        curr.Creator = other.Creator;
+        curr.Length = other.Length;
+        curr.Bpm = other.Bpm;
+        curr.Version = other.Version;
+        curr.SongFile = other.SongFile;
+        curr.Path = other.Path;
+        curr.DirPath = other.DirPath;
+        curr.BackgroundImageFile = other.BackgroundImageFile;
+        curr.BackgroundVideoFile = other.BackgroundVideoFile;
+        curr.VideoGap = other.VideoGap;
+        curr.Gap = other.Gap;
+    }
 }

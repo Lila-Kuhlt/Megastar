@@ -11,7 +11,7 @@ public class UsdxTrackMetadata()
     public string Title { get; set; }
     public string Creator { get; set; }
     public int Length { get; set; }
-    public double BPM { get; set; }
+    public double Bpm { get; set; }
     public string Version { get; set; }
     public string SongFile { get; set; }
     public string BackgroundImageFile { get; set; }
@@ -34,7 +34,7 @@ public class UsdxTrackMetadata()
         if (trackMetadata.TryGetValue("length", out var length))
             Length = Convert.ToInt32(length);
         if (trackMetadata.TryGetValue("bpm", out var bpm))
-            BPM = Convert.ToDouble(bpm, CultureInfo.InvariantCulture);
+            Bpm = Convert.ToDouble(bpm, CultureInfo.InvariantCulture);
         if (trackMetadata.TryGetValue("version", out var version))
             Version = version;
         if (trackMetadata.TryGetValue("songFile", out var songFile))

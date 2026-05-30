@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using megastar.Game.notes;
 using megastar.Game.Preset;
 using megastar.Game.Track;
@@ -20,30 +18,40 @@ using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
+using osu.Framework.Timing;
+using AudioTrack = osu.Framework.Audio.Track.Track;
 
 namespace megastar.Game.View;
 
 public partial class PlayScreen : Screen
 {
-    private osu.Framework.Audio.Track.Track audioTrack;
+    private AudioTrack track;
 
     [Resolved] private MegastarGameBase game { get; set; } = null!;
-    [Resolved] private GameHost host { get; set; } = null!; // Resolved to manage NativeStorage instances safely
+    [Resolved] private GameHost host { get; set; } = null!;
 
-    private List<IBeatPaced> curNotes = new List<IBeatPaced>();
+    private Lyrics lyrics = null!;
+    private LyricsContainer lyricsContainer = null!;
+    private NoteContainer notesContainer = null!;
 
-    //Phrasing on Lyrics
-    private List<List<INote>> allPhrases;
-    private int currentPhraseIndex = 0;
-    private LyricsContainer currentLyricsContainer;
 
-    private readonly Container lyricsLayer = new Container
+    private static AudioManager audioManager = null!;
+    private UsdxTrack currentTrack = null!;
+    private Video backgroundVideo = null!;
+
+    public double Beat { get; private set; }
+
+
+    // Dedicated layer to safely swap background sprites behind UI elements
+    private readonly Container backgroundLayer = new() { RelativeSizeAxes = Axes.Both };
+
+    private readonly Container lyricsLayer = new()
     {
         RelativeSizeAxes = Axes.Both,
         Padding = new MarginPadding { Bottom = 50 }
     };
 
-    private readonly Container notesLayer = new Container
+    private readonly Container notesLayer = new()
     {
         RelativeSizeAxes = Axes.Both,
         Anchor = Anchor.Centre,
@@ -51,51 +59,29 @@ public partial class PlayScreen : Screen
         AlwaysPresent = true
     };
 
-    private PhraseNotesContainer currentNotesContainer;
-
-
-    //The offset from the start of the screen where notes beginn to spawn
-    private static float START_OFFSET = 300f;
-
-    private static AudioManager audioManager;
-    private UsdxTrack curTrack;
-    private Video backgroundVideo;
-
-    private double currentBeat = 0f;
-
-
-    // Dedicated layer to safely swap background sprites behind UI elements
-    private readonly Container backgroundLayer = new Container
-    {
-        RelativeSizeAxes = Axes.Both
-    };
 
     private Sprite currentBackground;
     private TextureStore activeTextureStore;
     private StorageBackedResourceStore activeTextureResourceStore;
     private StorageBackedResourceStore activeAudioResourceStore;
     private StorageBackedResourceStore activeVideoRessourceStore;
-    private FluentTranslationStore t;
+    private FluentTranslationStore t = null!;
 
-    private uint lastReceivedNoteBeat = 0;
+    private int lastReceivedNoteBeat;
 
     [BackgroundDependencyLoader]
     private void load(AudioManager audio)
     {
         audioManager = audio;
 
-        InternalChildren = new Drawable[]
-        {
-            new Box
-            {
-                Colour = StandardColours.BACKGROUND,
-                RelativeSizeAxes = Axes.Both,
-            },
+        InternalChildren =
+        [
+            new Box { Colour = StandardColours.BACKGROUND, RelativeSizeAxes = Axes.Both },
             backgroundLayer,
             new BackButton(this.Exit, Fluent.Translate("common-back")),
             notesLayer,
             lyricsLayer
-        };
+        ];
     }
 
     public override void OnEntering(ScreenTransitionEvent e)
@@ -105,12 +91,13 @@ public partial class PlayScreen : Screen
         //TODO hier sollte irgendwie auch die nächsten Lieder abgespielt werden
         try
         {
-            setUpTrack(game.GetFirstSong());
+            if (game.NextSong() is { } song)
+                loadTrack(song);
         }
         catch (Exception exception)
         {
-            Console.WriteLine(exception);
-            AddInternal(new SpriteText()
+            Logger.Error(exception, exception.Message);
+            AddInternal(new SpriteText
             {
                 Text = Fluent.Translate("play-song-error"),
                 Anchor = Anchor.Centre,
@@ -119,242 +106,150 @@ public partial class PlayScreen : Screen
         }
     }
 
-    private void setUpTrack(UsdxTrack usdxTrack)
+    private void loadTrack(UsdxTrack usdxTrack)
     {
-        cleanUpOldStores();
+        lyrics = new Lyrics(usdxTrack);
 
-        curNotes = usdxTrack.Notes;
-        allPhrases = usdxTrack.NotePhrases;
-        currentBeat = 0;
+        var loadedTrack = loadSong(usdxTrack.DirPath, usdxTrack.SongFile);
+        if (loadedTrack == null)
+            return;
 
-        audioTrack = loadSong(audioManager, usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.SongFile);
-        audioTrack?.Start();
+        track = loadedTrack;
+        loadedTrack?.Start();
 
         loadBackgroundImage(usdxTrack);
         loadBackgroundVideo(usdxTrack);
-        curTrack = usdxTrack;
-        audioTrack.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
+        currentTrack = usdxTrack;
+        if (loadedTrack != null) loadedTrack.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
 
-        // first phrase
-        currentPhraseIndex = 0;
-        if (allPhrases != null && allPhrases.Count > 0)
+        var currentLyric = lyrics.LyricForBeat((int)Beat);
+        if (currentLyric == null)
         {
-            showPhrase(currentPhraseIndex);
+            Logger.Log("Tried to play track without lyrics", LoggingTarget.Input, LogLevel.Error);
+            return;
         }
+
+        showLyric(currentLyric);
     }
 
 
-    private void showPhrase(int index)
+    private void showLyric(Lyric lyric)
     {
         lyricsLayer.Clear();
         notesLayer.Clear();
 
-        var currentPhrase = allPhrases[index];
-
-        currentLyricsContainer = new LyricsContainer(currentPhrase)
+        lyricsContainer = new LyricsContainer(lyric)
         {
             Anchor = Anchor.BottomCentre,
             Origin = Anchor.BottomCentre
         };
-        lyricsLayer.Add(currentLyricsContainer);
 
-        currentNotesContainer = new PhraseNotesContainer(currentPhrase);
-        notesLayer.Add(currentNotesContainer);
-    }
+        lyricsLayer.Add(lyricsContainer);
 
-    private void cleanUpOldStores()
-    {
-        //CLEANUP PREVIOUS SONG TRACK & RESOURCES
-        audioTrack?.Stop();
-        audioTrack?.Dispose();
-        audioTrack = null;
-        activeAudioResourceStore?.Dispose();
-        activeAudioResourceStore = null;
-        activeVideoRessourceStore?.Dispose();
-        activeVideoRessourceStore = null;
-
-        // CLEANUP PREVIOUS BACKGROUND IMAGES & TEXTURE CACHES
-        currentBackground?.Expire();
-        backgroundLayer.Clear();
-        activeTextureStore?.Dispose();
-        activeTextureStore = null;
-        activeTextureResourceStore?.Dispose();
-        activeTextureResourceStore = null;
+        notesContainer = new NoteContainer(lyric.Notes);
+        notesLayer.Add(notesContainer);
     }
 
     private void loadBackgroundImage(UsdxTrack usdxTrack)
     {
-        if (usdxTrack.TrackMetadata.BackgroundImageFile.IsNotNull())
+        if (!usdxTrack.BackgroundImageFile.IsNotNull()) return;
+
+        try
         {
-            try
+            // Create clean virtual storage handles targetting the song's directory
+            var textureStorage = new NativeStorage(usdxTrack.DirPath, host);
+            activeTextureResourceStore = new StorageBackedResourceStore(textureStorage);
+            activeTextureStore = new TextureStore(host.Renderer,
+                host.CreateTextureLoaderStore(activeTextureResourceStore));
+
+            var texture = activeTextureStore.Get(usdxTrack.BackgroundImageFile);
+
+            if (texture == null) return;
+
+            backgroundLayer.Add(currentBackground = new Sprite
             {
-                // Create clean virtual storage handles targetting the song's directory
-                var textureStorage = new NativeStorage(usdxTrack.TrackMetadata.DirPath, host);
-                activeTextureResourceStore = new StorageBackedResourceStore(textureStorage);
-                activeTextureStore = new TextureStore(host.Renderer,
-                    host.CreateTextureLoaderStore(activeTextureResourceStore));
+                RelativeSizeAxes = Axes.Both,
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                FillMode = FillMode.Fill,
+                Texture = texture,
+                Alpha = 0
+            });
 
-                var texture = activeTextureStore.Get(usdxTrack.TrackMetadata.BackgroundImageFile);
-
-                if (texture != null)
-                {
-                    backgroundLayer.Add(currentBackground = new Sprite
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        FillMode = FillMode.Fill,
-                        Texture = texture,
-                        Alpha = 0
-                    });
-
-                    // Fade between backgrounds
-                    currentBackground.FadeIn(100, Easing.OutQuint);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Failed to load karaoke track background image.");
-            }
+            // Fade between backgrounds
+            currentBackground.FadeIn(100, Easing.OutQuint);
+        }
+        catch (Exception ex) // TODO: Don't catch all Exceptions -- this is bad practice!
+        {
+            Logger.Error(ex, "Failed to load karaoke track background image.");
         }
     }
 
     private void loadBackgroundVideo(UsdxTrack usdxTrack)
     {
-        if (usdxTrack.TrackMetadata.BackgroundVideoFile.IsNotNull())
+        if (!usdxTrack.BackgroundVideoFile.IsNotNull()) return;
+
+        try
         {
-            try
+            string videoPath = Path.Combine(usdxTrack.DirPath,
+                usdxTrack.BackgroundVideoFile);
+
+            if (!File.Exists(videoPath)) return;
+
+            // Let C# handle the file reading safely to bypass FFmpeg pathing issues
+            Stream videoStream = File.OpenRead(videoPath);
+
+            backgroundVideo = new Video(videoStream)
             {
-                string videoPath = Path.Combine(usdxTrack.TrackMetadata.DirPath,
-                    usdxTrack.TrackMetadata.BackgroundVideoFile);
+                RelativeSizeAxes = Axes.Both,
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                FillMode = FillMode.Fill,
+                Alpha = 0,
+                Loop = false
+            };
 
-                if (File.Exists(videoPath))
-                {
-                    // Let C# handle the file reading safely to bypass FFmpeg pathing issues
-                    Stream videoStream = File.OpenRead(videoPath);
-
-                    backgroundVideo = new Video(videoStream)
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        FillMode = FillMode.Fill,
-                        Alpha = 0,
-                        Loop = false,
-                    };
-
-                    double gap = usdxTrack.TrackMetadata.VideoGap.IsNotNull()
-                        ? (double)usdxTrack.TrackMetadata.VideoGap
-                        : 0;
-
-                    backgroundVideo.Clock = new osu.Framework.Timing.FramedOffsetClock(audioTrack)
-                    {
-                        Offset = gap
-                    };
-
-                    backgroundLayer.Add(backgroundVideo);
-
-                    backgroundVideo.OnLoadComplete += v =>
-                    {
-                        v.FadeIn(0, Easing.OutQuint);
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Failed to load karaoke track background video.");
-            }
+            backgroundVideo.Clock = new FramedOffsetClock(track) { Offset = usdxTrack.VideoGap };
+            backgroundLayer.Add(backgroundVideo);
+            backgroundVideo.OnLoadComplete += v => { v.FadeIn(0, Easing.OutQuint); };
+        }
+        catch (Exception ex) // TODO: Don't catch all Exceptions -- this is bad practice!
+        {
+            Logger.Error(ex, $"Failed to load karaoke track background video: {ex.Message}");
         }
     }
 
     protected override void Update()
     {
         base.Update();
+        int iBeat = (int)Beat;
 
+        ReceiveSungNote(new UsdxNote(iBeat, Random.Shared.Next(1, 5), Random.Shared.Next(5, 20), "",
+            UsdxNoteType.Sung));
 
-        if (curTrack != null && audioTrack != null)
-        {
-            double ultraStarBpm = curTrack.TrackMetadata.BPM;
-            currentBeat = ((audioTrack.CurrentTime - curTrack.TrackMetadata.Gap) / 60000.0) * ultraStarBpm * 4;
-            currentNotesContainer?.UpdateBeat(currentBeat);
+        double ultraStarBpm = currentTrack.Bpm;
+        Beat = ultraStarBpm * 4 * (track.CurrentTime - currentTrack.Gap) / 60000.0;
 
+        notesContainer.UpdateBeat(Beat);
+        lyricsContainer.UpdateBeat(Beat);
 
-            if (currentLyricsContainer != null)
-            {
-                currentLyricsContainer.beatTime = currentBeat;
-            }
+        var currentLyric = lyrics.LyricForBeat(iBeat);
+        var nextLyric = lyrics.LyricAfterBeat(iBeat);
 
-            handlePhraseSwitching();
-        }
-        //TODO hier nur zu testzwecken bis wirklicher input eingelesen wird
-        ReceiveSungNote(new UsdxNote((uint)currentBeat, Random.Shared.Next(1, 5), Random.Shared.Next(5, 20), "", UsdxNoteType.Sung));
+        if (currentLyric == null || nextLyric == null) return;
 
+        var endBeat = currentLyric.EndBeat;
+        var startBeat = nextLyric.StartBeat;
 
+        // Switch phrase 1/4 between the end of the current one and the start of the next one
+        double switchBeat = endBeat + (endBeat - startBeat) / 4.0;
 
+        if (!(Beat >= switchBeat)) return;
 
-        //TODO only for test purpose
-        //if (audioTrack != null && Math.Abs(audioTrack.CurrentTime - audioTrack.Length) > 10000)
-        //{
-        //    audioTrack.Seek(audioTrack.Length - 8000);
-        //    audioTrack.Looping = false;
-        //}
-
-        //End screen on track end
-        if (audioTrack != null && audioTrack.HasCompleted && curTrack != null && this.IsCurrentScreen())
-        {
-            var backgroundImage = curTrack.TrackMetadata.BackgroundImageFile.IsNotNull() ? activeTextureStore.Get(curTrack.TrackMetadata.BackgroundImageFile) : null;
-            //TODO Real score needs to be entered here
-            this.Push(new EndScreen(backgroundImage, curTrack, 67911, 676767));
-
-        }
+        showLyric(nextLyric);
     }
 
-    public override void OnResuming(ScreenTransitionEvent e)
-    {
-        base.OnResuming(e);
-        this.setUpTrack(game.NextSong());
-    }
-
-    private void handlePhraseSwitching()
-    {
-        if (allPhrases != null && currentPhraseIndex + 1 < allPhrases.Count)
-        {
-            var currentPhrase = allPhrases[currentPhraseIndex];
-            var nextPhrase = allPhrases[currentPhraseIndex + 1];
-
-            if (currentPhrase.Count > 0 && nextPhrase.Count > 0)
-            {
-                var lastNote = currentPhrase.Last();
-                var nextNote = nextPhrase.First();
-
-                double phraseEndBeat = lastNote.StartBeat + lastNote.Length;
-                double nextPhraseStartBeat = nextNote.StartBeat;
-
-                // Switch phrase 1/4 between the end of the current one and the start of the next one
-                double switchBeat = phraseEndBeat + ((nextPhraseStartBeat - phraseEndBeat) / 4.0);
-
-                if (currentBeat >= switchBeat)
-                {
-                    currentPhraseIndex++;
-                    showPhrase(currentPhraseIndex);
-                }
-            }
-        }
-    }
-
-    public override bool OnExiting(ScreenExitEvent e)
-    {
-        audioTrack?.Stop();
-        audioTrack?.Dispose();
-        activeAudioResourceStore?.Dispose();
-
-        activeTextureStore?.Dispose();
-        activeTextureResourceStore?.Dispose();
-
-        return base.OnExiting(e);
-    }
-
-    private osu.Framework.Audio.Track.Track loadSong(AudioManager audioManager, string directoryPath, string fileName)
+    private AudioTrack? loadSong(string directoryPath, string fileName)
     {
         try
         {
@@ -363,7 +258,7 @@ public partial class PlayScreen : Screen
             ITrackStore customTrackStore = audioManager.GetTrackStore(activeAudioResourceStore);
             return customTrackStore.Get(fileName);
         }
-        catch (Exception ex)
+        catch (Exception ex) // TODO: Don't catch all Exceptions -- this is bad practice!
         {
             Logger.Error(ex, "Failed to load karaoke track audio.");
             return null;
@@ -377,19 +272,27 @@ public partial class PlayScreen : Screen
     /// <param name="sungNote"></param>
     public void ReceiveSungNote(INote sungNote)
     {
-        if ((uint) currentBeat > lastReceivedNoteBeat)
-        {
-            currentNotesContainer?.AddSungNote(sungNote);
-            lastReceivedNoteBeat = sungNote.StartBeat + (uint) sungNote.Length;
-        }
+        if (Beat <= lastReceivedNoteBeat) return;
+
+        notesContainer.AddSungNote(sungNote);
+        lastReceivedNoteBeat = sungNote.StartBeat + sungNote.Length;
     }
 
-    /// <summary>
-    /// Returns the Beat at which the song currently is. New Input Notes should be set to this beat
-    /// </summary>
-    /// <returns></returns>
-    public double GetCurrentBeat()
+    protected override void Dispose(bool isDisposing)
     {
-        return currentBeat;
+        base.Dispose(isDisposing);
+
+        //CLEANUP PREVIOUS SONG TRACK & RESOURCES
+        track?.Stop();
+        track?.Dispose();
+
+        activeAudioResourceStore?.Dispose();
+        activeVideoRessourceStore?.Dispose();
+
+        // CLEANUP PREVIOUS BACKGROUND IMAGES & TEXTURE CACHES
+        activeTextureResourceStore?.Dispose();
+        activeTextureStore?.Dispose();
+        currentBackground?.Dispose();
+        backgroundLayer?.Dispose();
     }
 }

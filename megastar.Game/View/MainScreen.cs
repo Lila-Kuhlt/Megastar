@@ -108,11 +108,11 @@ namespace megastar.Game.View
                     Truncate = true,
                 }
             ];
-            if (Settings.GetSettings().WebAppActive.Value)
+
+            if (Settings.GetSettings().WebAppActive.Value && game.LocalQueueServer != null)
             {
                 game.LocalQueueServer.StartWebserver();
             }
         }
-
     }
 }

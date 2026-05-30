@@ -8,6 +8,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using megastar.Game.Track;
 using megastar.Game.Translations;
+using megastar.Game.View;
+using megastar.Game.WebConnectionQueue;
 using megastar.Game.WebConnectionQueue;
 using megastar.Resources;
 using osu.Framework.Allocation;
@@ -75,10 +77,7 @@ namespace megastar.Game
             }
 
 
-            if (LocalQueueServer != null)
-            {
-                LocalQueueServer.BroadcastStateAsync();
-            }
+            LocalQueueServer?.BroadcastStateAsync();
         }
 
         /// <summary>
@@ -178,21 +177,13 @@ namespace megastar.Game
 
             // FrameworkSetting.Locale will be "" if the selected language is the system default language, since the framework does not persist the default language to file.
             // Why exactly it then does not load the system default language into the locale config on startup if it is empty is beyond me.
-            if (config.Get<string>(FrameworkSetting.Locale) == null ||
-                config.Get<string>(FrameworkSetting.Locale) == "")
-            {
-                string systemLocale = CultureInfo.CurrentUICulture.Name;
-                Language systemLanguage = locales.Find(l => l.Code == systemLocale);
+            if (config.Get<string>(FrameworkSetting.Locale) != null &&
+                config.Get<string>(FrameworkSetting.Locale) != "") return;
 
-                if (systemLanguage == null)
-                {
-                    config.SetValue(FrameworkSetting.Locale, "en-US");
-                }
-                else
-                {
-                    config.SetValue(FrameworkSetting.Locale, systemLocale);
-                }
-            }
+            string systemLocale = CultureInfo.CurrentUICulture.Name;
+            Language? systemLanguage = locales.Find(l => l.Code == systemLocale);
+
+            config.SetValue(FrameworkSetting.Locale, systemLanguage == null ? "en-US" : systemLocale);
         }
     }
 }
