@@ -7,6 +7,10 @@ using osu.Framework.Graphics.Shapes;
 
 namespace megastar.Game.Preset;
 
+/// <summary>
+/// This is a container for notes.
+/// It displays visually based on their pitch and length
+/// </summary>
 public partial class PhraseNotesContainer : Container
 {
     private readonly Container targetNotesLayer;
@@ -16,6 +20,10 @@ public partial class PhraseNotesContainer : Container
     private readonly float offsetX;
     private readonly float offsetY;
 
+    /// <summary>
+    /// This will instantiate a new container with the given Notes. It will only use the pitch and length to visualize
+    /// </summary>
+    /// <param name="phraseNotes">The Notes to display</param>
     public PhraseNotesContainer(List<INote> phraseNotes)
     {
         RelativeSizeAxes = Axes.Both;
@@ -33,6 +41,7 @@ public partial class PhraseNotesContainer : Container
             AutoSizeAxes = Axes.Both
         };
 
+        //This box indicates the current note to be sung by moving along with the beat
         playhead = new Box
         {
             Width = 4,
@@ -46,11 +55,13 @@ public partial class PhraseNotesContainer : Container
         AddInternal(sungNotesLayer);
         AddInternal(playhead);
 
+
+        //calculate visual representation
         if (phraseNotes.Count > 0)
         {
-            // Pins the first note 230px from the left edge
             uint phraseStartBeat = phraseNotes[0].StartBeat;
-            offsetX = -phraseStartBeat * UsdxNote.SCALE_FACTOR + 230f;
+            // Pins the first note 210px from the left edge
+            offsetX = -phraseStartBeat * UsdxNote.SCALE_FACTOR + 210f;
 
             float totalPitch = 0;
             int noteCount = 0;
@@ -87,6 +98,11 @@ public partial class PhraseNotesContainer : Container
         playhead.X = (float)(currentBeat * UsdxNote.SCALE_FACTOR) + offsetX;
     }
 
+    /// <summary>
+    /// Adds a new note to display. Even tough this code in theory be any note, for logical reasons it should only be a note, whoms UsdxNoteType == Sung.
+    /// Other types of notes can also be added but will be represented based on their type.
+    /// </summary>
+    /// <param name="sungNote"></param>
     public void AddSungNote(INote sungNote)
     {
         sungNotesLayer.Add(sungNote.Visual);

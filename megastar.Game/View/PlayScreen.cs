@@ -286,30 +286,7 @@ public partial class PlayScreen : Screen
                 currentLyricsContainer.beatTime = currentBeat;
             }
 
-            // Handle phrase switching
-            if (allPhrases != null && currentPhraseIndex + 1 < allPhrases.Count)
-            {
-                var currentPhrase = allPhrases[currentPhraseIndex];
-                var nextPhrase = allPhrases[currentPhraseIndex + 1];
-
-                if (currentPhrase.Count > 0 && nextPhrase.Count > 0)
-                {
-                    var lastNote = currentPhrase.Last();
-                    var nextNote = nextPhrase.First();
-
-                    double phraseEndBeat = lastNote.StartBeat + lastNote.Length;
-                    double nextPhraseStartBeat = nextNote.StartBeat;
-
-                    // Switch phrase 1/4 between the end of the current one and the start of the next one
-                    double switchBeat = phraseEndBeat + ((nextPhraseStartBeat - phraseEndBeat) / 4.0);
-
-                    if (currentBeat >= switchBeat)
-                    {
-                        currentPhraseIndex++;
-                        showPhrase(currentPhraseIndex);
-                    }
-                }
-            }
+            handlePhraseSwitching();
         }
         //TODO hier nur zu testzwecken bis wirklicher input eingelesen wird
         ReceiveSungNote(new UsdxNote((uint)currentBeat, Random.Shared.Next(1, 5), Random.Shared.Next(5, 20), "", UsdxNoteType.Sung));
@@ -338,6 +315,33 @@ public partial class PlayScreen : Screen
     {
         base.OnResuming(e);
         this.setUpTrack(game.NextSong());
+    }
+
+    private void handlePhraseSwitching()
+    {
+        if (allPhrases != null && currentPhraseIndex + 1 < allPhrases.Count)
+        {
+            var currentPhrase = allPhrases[currentPhraseIndex];
+            var nextPhrase = allPhrases[currentPhraseIndex + 1];
+
+            if (currentPhrase.Count > 0 && nextPhrase.Count > 0)
+            {
+                var lastNote = currentPhrase.Last();
+                var nextNote = nextPhrase.First();
+
+                double phraseEndBeat = lastNote.StartBeat + lastNote.Length;
+                double nextPhraseStartBeat = nextNote.StartBeat;
+
+                // Switch phrase 1/4 between the end of the current one and the start of the next one
+                double switchBeat = phraseEndBeat + ((nextPhraseStartBeat - phraseEndBeat) / 4.0);
+
+                if (currentBeat >= switchBeat)
+                {
+                    currentPhraseIndex++;
+                    showPhrase(currentPhraseIndex);
+                }
+            }
+        }
     }
 
     public override bool OnExiting(ScreenExitEvent e)

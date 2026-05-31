@@ -3,6 +3,7 @@ using megastar.Game.Preset;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Configuration;
+using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -44,6 +45,29 @@ public partial class SettingsScreen : Screen
             Logger.Log("[UPDATED LANGUAGE] " + e.NewValue.Code);
             languageDropdown.Items = locales;
         };
+
+        Settings settings = Settings.GetSettings();
+
+        BasicCheckbox startWebapp = new BasicCheckbox
+        {
+            Anchor = Anchor.CentreLeft,
+            Origin = Anchor.CentreLeft,
+        };
+
+        startWebapp.Current = settings.WebAppActive;
+
+
+        startWebapp.Current.BindValueChanged(e =>
+        {
+            if (startWebapp.Current.Value)
+            {
+                game.LocalQueueServer.StartWebserver();
+            }
+            else
+            {
+                game.LocalQueueServer.StopWebserver();
+            }
+        });
 
 
         InternalChildren =
@@ -87,7 +111,7 @@ public partial class SettingsScreen : Screen
                         {
                             RelativeSizeAxes = Axes.X,
                             Height = 40,
-                            Current = { BindTarget = Settings.GetSettings().SoundVolume },
+                            Current = { BindTarget = settings.SoundVolume },
                         },
 
                         new FillFlowContainer
@@ -129,7 +153,7 @@ public partial class SettingsScreen : Screen
                                         {
                                             Width = 200,
                                             Items = System.Enum.GetValues<GameDifficulty>(),
-                                            Current = { BindTarget = Settings.GetSettings().Difficulty }
+                                            Current = { BindTarget = settings.Difficulty }
                                         }
                                     }
                                 }
@@ -150,12 +174,7 @@ public partial class SettingsScreen : Screen
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
                                 },
-                                new BasicCheckbox
-                                {
-                                    Current = Settings.GetSettings().WebAppStart,
-                                    Anchor = Anchor.CentreLeft,
-                                    Origin = Anchor.CentreLeft,
-                                }
+                                startWebapp,
                             }
                         },
                         //Duplicates in the Queue start
@@ -175,7 +194,7 @@ public partial class SettingsScreen : Screen
                                 },
                                 new BasicCheckbox
                                 {
-                                    Current = Settings.GetSettings().DuplicateItems,
+                                    Current = settings.DuplicateItems,
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
                                 }
