@@ -35,6 +35,7 @@ dir-select-toggle-hidden = Toggle hidden items
 ## End Screen
 end-screen-add-queue = Add to queue
 end-screen-next = Up next : 
+end-screen-play-next = Play Next Song : 
 
 ## Language Names
 de-DE = German (de-DE)

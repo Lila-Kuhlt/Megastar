@@ -52,15 +52,20 @@ public class UsdxTrackMetadata()
             Gap = Convert.ToDouble(trackMetadata["gap"], CultureInfo.InvariantCulture);
     }
 
-    public new void ToString()
+    public override string ToString()
     {
-        Console.WriteLine("Artist: " + Artist);
-        Console.WriteLine("Title: " + Title);
-        Console.WriteLine("Creator: " + Creator);
-        Console.WriteLine("Length: " + Length);
-        Console.WriteLine("BPM: " + BPM);
-        Console.WriteLine("Version: " + Version);
-        Console.WriteLine("Song File: " + SongFile);
-        Console.WriteLine("Background Image: " + BackgroundImageFile);
+        return $"{Title} - {Artist}";
     }
+
+    //public new void ToString()
+    //{
+    //    Console.WriteLine("Artist: " + Artist);
+    //    Console.WriteLine("Title: " + Title);
+    //    Console.WriteLine("Creator: " + Creator);
+    //    Console.WriteLine("Length: " + Length);
+    //    Console.WriteLine("BPM: " + BPM);
+    //    Console.WriteLine("Version: " + Version);
+    //    Console.WriteLine("Song File: " + SongFile);
+    //    Console.WriteLine("Background Image: " + BackgroundImageFile);
+    //}
 }

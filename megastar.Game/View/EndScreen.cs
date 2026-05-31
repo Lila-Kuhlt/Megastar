@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Localisation;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
@@ -139,8 +140,9 @@ namespace megastar.Game.View
                                     //TODO Replace this with a nicer button once we have presets for them
                                     new BasicButton()
                                     {
-                                        Text = $"Play Next Song : {game.PeekNextSong().TrackMetadata.Title} - {game.PeekNextSong().TrackMetadata.Artist}",
-                                        Action = this.Exit,
+                                        Text = LocalisableString.Format("{0} {1}",
+                                            Fluent.Translate("end-screen-play-next"),
+                                            game.PeekNextSong().TrackMetadata.ToString()),Action = this.Exit,
                                         Size = new Vector2(500, 50)
                                     }
                                 }
@@ -209,7 +211,7 @@ namespace megastar.Game.View
                                             .Skip(1) // Ignores the first song in the list
                                             .Select((track, index) => new SpriteText
                                             {
-                                                Text = $"{index + 1}. {track.TrackMetadata.Artist} - {track.TrackMetadata.Title}",
+                                                Text = $"{index + 1}. " + track.TrackMetadata.ToString(),
                                                 Font = new FontUsage(size: 20),
                                                 Colour = Color4.LightGray
                                             }).ToArray()

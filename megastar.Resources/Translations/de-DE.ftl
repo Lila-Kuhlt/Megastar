@@ -34,6 +34,7 @@ dir-select-toggle-hidden = Verdeckte Ordner zeigen
 ## End Screen
 end-screen-add-queue = Zur Warteschlange hinzufügen
 end-screen-next = Nächstes Lied : 
+end-screen-play-next = Nächstes Lied abspielen : 
 
 ## Language Names
 de-DE = Deutsch (de-DE)
