@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Linguini.Shared.Types.Bundle;
 using megastar.Game.Preset;
 using megastar.Game.Track;
 using megastar.Game.Translations;
@@ -82,13 +83,13 @@ namespace megastar.Game.View
                             {
                                 new SpriteText
                                 {
-                                    Text = lastTrack?.TrackMetadata?.Title ?? "Unknown Title",
+                                    Text = lastTrack?.TrackMetadata?.Title ?? Fluent.Translate("end-screen-unknown-title"),
                                     Font = new FontUsage(size: 48, weight: "Bold"),
                                     Colour = Color4.White
                                 },
                                 new SpriteText
                                 {
-                                    Text = lastTrack?.TrackMetadata?.Artist ?? "Unknown Artist",
+                                    Text = lastTrack?.TrackMetadata?.Artist ?? Fluent.Translate("end-screen-unknown-title"),
                                     Font = new FontUsage(size: 32),
                                     Colour = Color4.LightGray
                                 }
@@ -140,9 +141,8 @@ namespace megastar.Game.View
                                     //TODO Replace this with a nicer button once we have presets for them
                                     new BasicButton()
                                     {
-                                        Text = LocalisableString.Format("{0} {1}",
-                                            Fluent.Translate("end-screen-play-next"),
-                                            game.PeekNextSong().TrackMetadata.ToString()),Action = this.Exit,
+                                        Text = Fluent.Translate("end-screen-play-next", ("songTitle", (FluentString) game.PeekNextSong()!.TrackMetadata.ToString())),
+                                        Action = this.Exit,
                                         Size = new Vector2(500, 50)
                                     }
                                 }
@@ -182,7 +182,7 @@ namespace megastar.Game.View
                                         {
                                             RelativeSizeAxes = Axes.X,
                                             Height = 40,
-                                            PlaceholderText = "Search for an artist or song..."
+                                            PlaceholderText = Fluent.Translate("end-screen-search")
                                         },
                                         new SpriteText
                                         {
