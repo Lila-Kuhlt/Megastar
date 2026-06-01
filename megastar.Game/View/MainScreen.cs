@@ -1,8 +1,7 @@
+using megastar.Game.Preset;
 using System.Linq;
 using System.Net.Mime;
-using megastar.Game.Preset;
 using megastar.Game.Translations;
-using megastar.Game.WebConnectionQueue;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;

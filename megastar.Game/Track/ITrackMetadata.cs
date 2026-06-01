@@ -1,5 +1,4 @@
-﻿using System;
-using JetBrains.Annotations;
+﻿using System.IO;
 
 namespace megastar.Game.Track;
 
@@ -36,31 +35,29 @@ public interface ITrackMetadata
     string Version { get; set; }
 
     /// <summary>
-    /// Song path, relative to the song directory
-    /// </summary>
-    string SongFile { get; set; }
-
-    /// <summary>
-    /// The Path of the text file
-    /// </summary>
-    string Path { get; set; }
-
-    /// <summary>
     /// The Path of the directory
     /// </summary>
     string DirPath { get; set; }
 
     /// <summary>
+    /// Song path, relative to the song directory
+    /// </summary>
+    string AudioFile { get; set; }
+
+    /// <summary>
+    /// The Path of the text file containing all metadata
+    /// </summary>
+    string MetadataFile { get; set; }
+
+    /// <summary>
     /// Background image path, relative to the song directory
     /// </summary>
-    [CanBeNull]
-    string BackgroundImageFile { get; set; }
+    string? BackgroundImageFile { get; set; }
 
     /// <summary>
     /// Background video path, relative to the song directory
     /// </summary>
-    [CanBeNull]
-    string BackgroundVideoFile { get; set; }
+    string? BackgroundVideoFile { get; set; }
 
     /// <summary>
     /// Background video path, relative to the song directory
@@ -79,7 +76,7 @@ public static class TrackMetadataExtensions
     /// Helper function to apply ITrackMetadata to the current metadata.
     /// This can be helpful when transferring file types. e.g. from USDX to Megastar
     /// </summary>
-    public static void CollectMetadataFrom(this ITrackMetadata curr, [CanBeNull] ITrackMetadata other)
+    public static void CollectMetadataFrom(this ITrackMetadata curr, ITrackMetadata? other)
     {
         if (other == null) return;
 
@@ -89,12 +86,25 @@ public static class TrackMetadataExtensions
         curr.Length = other.Length;
         curr.Bpm = other.Bpm;
         curr.Version = other.Version;
-        curr.SongFile = other.SongFile;
-        curr.Path = other.Path;
+        curr.AudioFile = other.AudioFile;
+        curr.MetadataFile = other.MetadataFile;
         curr.DirPath = other.DirPath;
         curr.BackgroundImageFile = other.BackgroundImageFile;
         curr.BackgroundVideoFile = other.BackgroundVideoFile;
         curr.VideoGap = other.VideoGap;
         curr.Gap = other.Gap;
     }
+
+    public static string AudioFilePath(this ITrackMetadata metadata) =>
+        Path.Combine(metadata.DirPath, metadata.AudioFile);
+
+    public static string MetadataFilePath(this ITrackMetadata metadata) =>
+        Path.Combine(metadata.DirPath, metadata.MetadataFile);
+
+
+    public static string? BackgroundImageFilePath(this ITrackMetadata metadata) =>
+        metadata.BackgroundImageFile != null ? Path.Combine(metadata.DirPath, metadata.BackgroundImageFile) : null;
+
+    public static string? BackgroundVideoFilePath(this ITrackMetadata metadata) =>
+        metadata.BackgroundVideoFile != null ? Path.Combine(metadata.DirPath, metadata.BackgroundVideoFile) : null;
 }

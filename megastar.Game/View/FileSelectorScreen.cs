@@ -113,7 +113,7 @@ public partial class FileSelectorScreen : Screen
                 {
                     var metadata = Parser.ParseUsdxTrackMetadata(content);
 
-                    metadata.Path = file.FullName;
+                    metadata.MetadataFile = file.FullName;
                     metadata.DirPath = file.DirectoryName;
                     tracks.Add(metadata);
                     game.LoadedSongs.Add(new UsdxTrack(metadata));

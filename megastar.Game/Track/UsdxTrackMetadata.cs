@@ -13,11 +13,11 @@ public class UsdxTrackMetadata()
     public int Length { get; set; }
     public double Bpm { get; set; }
     public string Version { get; set; }
-    public string SongFile { get; set; }
+    public string AudioFile { get; set; }
     public string BackgroundImageFile { get; set; }
     public string BackgroundVideoFile { get; set; }
 
-    public string Path { get; set; }
+    public string MetadataFile { get; set; }
     public double Gap { get; set; }
     public double VideoGap { get; set; }
     public string DirPath { get; set; }
@@ -38,11 +38,11 @@ public class UsdxTrackMetadata()
         if (trackMetadata.TryGetValue("version", out var version))
             Version = version;
         if (trackMetadata.TryGetValue("songFile", out var songFile))
-            SongFile = songFile;
+            AudioFile = songFile;
         if (trackMetadata.TryGetValue("mp3", out var mp3))
-            SongFile = mp3;
+            AudioFile = mp3;
         if (trackMetadata.TryGetValue("audio", out var audio))
-            SongFile = audio;
+            AudioFile = audio;
         if (trackMetadata.TryGetValue("video", out var video))
             BackgroundVideoFile = video;
         if (trackMetadata.TryGetValue("background", out var bg))

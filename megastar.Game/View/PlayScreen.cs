@@ -110,7 +110,7 @@ public partial class PlayScreen : Screen
     {
         lyrics = new Lyrics(usdxTrack);
 
-        var loadedTrack = loadSong(usdxTrack.DirPath, usdxTrack.SongFile);
+        var loadedTrack = loadSong(usdxTrack.DirPath, usdxTrack.AudioFile);
         if (loadedTrack == null)
             return;
 
