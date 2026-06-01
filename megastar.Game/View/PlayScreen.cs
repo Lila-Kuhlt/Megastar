@@ -6,7 +6,6 @@ using megastar.Game.notes;
 using megastar.Game.Preset;
 using megastar.Game.Track;
 using megastar.Game.Translations;
-using NUnit.Framework;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
@@ -21,7 +20,6 @@ using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
-using osuTK.Graphics;
 
 namespace megastar.Game.View;
 
@@ -304,7 +302,7 @@ public partial class PlayScreen : Screen
         //End screen on track end
         if (audioTrack != null && audioTrack.HasCompleted && curTrack != null && this.IsCurrentScreen())
         {
-            var backgroundImage = activeTextureStore.Get(curTrack.TrackMetadata.BackgroundImageFile);
+            var backgroundImage = curTrack.TrackMetadata.BackgroundImageFile.IsNotNull() ? activeTextureStore.Get(curTrack.TrackMetadata.BackgroundImageFile) : null;
             //TODO Real score needs to be entered here
             this.Push(new EndScreen(backgroundImage, curTrack, 67911, 676767));
 
