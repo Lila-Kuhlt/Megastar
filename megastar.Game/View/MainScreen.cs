@@ -78,6 +78,13 @@ namespace megastar.Game.View
                             BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new SettingsScreen()),
                         },
+                        new BasicButton
+                        {
+                            Text = "Youtube search",
+                            Size = new Vector2(200, 40),
+                            BackgroundColour = Color4.Teal,
+                            Action = () => this.Push(new SearchYoutubeScreen()),
+                        },
                         new BackButton(Game.Exit, Fluent.Translate("main-exit"))
                     }
                 }
