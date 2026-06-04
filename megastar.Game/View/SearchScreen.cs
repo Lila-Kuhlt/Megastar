@@ -27,33 +27,7 @@ public partial class SearchScreen : Screen
             Size = new Vector2(400, 40),
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
-            Y = 50,
-        };
-
-        var searchContainer = new SearchContainer<UsdxTrackDrawable>
-        {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
-            AutoSizeAxes = Axes.Both,
-            Direction = FillDirection.Vertical,
-            Spacing = new Vector2(0, 10),
-            X = -100,
-
-            // Generates completely new UI objects every time the screen is entered
-            Children = game.LoadedSongs.Select(trackData => new UsdxTrackDrawable(trackData)).ToArray(),
-        };
-
-
-
-        //Bind the text changes to the search
-        searchBox.Current.BindValueChanged(change =>
-        {
-            searchContainer.SearchTerm = change.NewValue;
-        }, true);
-
-        searchBox.OnCommit += (sender, isNew) =>
-        {
-            Console.WriteLine($"Search committed for: {sender.Text}");
+            Y = 50
         };
 
         InternalChildren =
@@ -66,16 +40,7 @@ public partial class SearchScreen : Screen
             searchBox,
             new BackButton(this.Exit, Fluent.Translate("common-back")),
 
-            new BasicScrollContainer
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                Size = new Vector2(500, 600),
-                X = -100,
-                Y = 30,
-
-                Child = searchContainer
-            }
+            new TrackCardScrollContainer(game.LoadedSongs.Select(trackData => new TrackCard(trackData.TrackMetadata)))
         ];
     }
 }
