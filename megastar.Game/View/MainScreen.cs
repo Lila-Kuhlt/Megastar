@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Net.Mime;
 using megastar.Game.Preset;
 using megastar.Game.Translations;
 using megastar.Game.WebConnectionQueue;
@@ -7,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
+using osu.Framework.IO.Stores;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
@@ -96,6 +98,15 @@ namespace megastar.Game.View
                         },
                     }
                 },
+                new SpriteText()
+                {
+                    Text = FunFact.GetCowFunfact(),
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.BottomCentre,
+                    Font = new FontUsage("kuuhleFont", 40f),
+                    Y = -35,
+                    Truncate = true,
+                }
             ];
             if (Settings.GetSettings().WebAppActive.Value)
             {

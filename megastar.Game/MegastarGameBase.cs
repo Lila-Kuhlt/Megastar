@@ -149,6 +149,12 @@ namespace megastar.Game
             Resources.AddStore(resourceAssembly);
 
             translations = new NamespacedResourceStore<byte[]>(resourceAssembly, "Translations");
+
+
+            Resources.AddStore(new DllResourceStore(GetType().Assembly));
+
+            AddFont(Resources, @"Fonts/standardFont");
+            AddFont(Resources, @"Fonts/kuuhleFont");
         }
 
         protected override void LoadComplete()
