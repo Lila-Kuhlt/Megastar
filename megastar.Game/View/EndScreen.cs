@@ -139,7 +139,7 @@ namespace megastar.Game.View
                                 new Container()
                                 {
                                     //TODO Replace this with a nicer button once we have presets for them
-                                    new BasicButton()
+                                    new RoundButton()
                                     {
                                         Text = Fluent.Translate("end-screen-play-next", ("songTitle", (FluentString) game.PeekNextSong()!.TrackMetadata.ToString())),
                                         Action = this.Exit,

@@ -18,14 +18,11 @@ public partial class AdvancedDirectorySelector(string initialPath = null) : Dire
 
     protected override DirectorySelectorBreadcrumbDisplay CreateBreadcrumb() => new BasicDirectorySelectorBreadcrumbDisplay();
 
-    protected override Drawable CreateHiddenToggleButton() => new BasicButton
+    protected override Drawable CreateHiddenToggleButton() => new RoundButton()
     {
         Size = new Vector2(200, 25),
         Text = Fluent.Translate("dir-select-toggle-hidden"),
         Action = ShowHiddenItems.Toggle,
-        Masking = true,
-        CornerRadius = 20,
-        BackgroundColour = StandardColours.MAIN,
     };
 
     protected override DirectorySelectorDirectory CreateDirectoryItem(DirectoryInfo directory, LocalisableString? displayName = null) => new BasicDirectorySelectorDirectory(directory, displayName);
