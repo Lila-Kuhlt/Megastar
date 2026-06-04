@@ -46,15 +46,6 @@ public partial class FileSelectorScreen : Screen
                 Y = 20,
                 Font = FontUsage.Default.With(size: 40),
             },
-            new BasicButton
-            {
-                Text = Fluent.Translate("common-back"),
-                Anchor = Anchor.TopLeft,
-                Origin = Anchor.TopLeft,
-                Size = new Vector2(100, 40),
-                Position = new Vector2(10, 10),
-                Action = this.Exit
-            },
 
             // The Directory Selector
             directorySelector = new AdvancedDirectorySelector(initialPath)
@@ -63,11 +54,11 @@ public partial class FileSelectorScreen : Screen
                 Origin = Anchor.Centre,
                 Size = new Vector2(800, 500),
             },
-            new BackButton(this.Exit, Fluent.Translate("common-back")),
             // Visual feedback to show what is currently selected
             selectedPathText = new SpriteText
             {
-                Text = Fluent.Translate("index-folder-selected", ("folderName", (FluentString) settings.LastIndexPath.Value)),
+                Text = Fluent.Translate("index-folder-selected",
+                    ("folderName", (FluentString)settings.LastIndexPath.Value)),
                 Anchor = Anchor.BottomCentre,
                 Origin = Anchor.BottomCentre,
                 Y = -80,
@@ -82,8 +73,12 @@ public partial class FileSelectorScreen : Screen
                 Origin = Anchor.BottomCentre,
                 Height = 50,
                 Y = -20,
+                Masking = true,
+                CornerRadius = 20,
+                BackgroundColour = StandardColours.MAIN,
                 Action = () => confirmSelection(settings)
-            }
+            },
+            new BackButton(this.Exit, Fluent.Translate("common-back")),
         };
     }
 
@@ -96,7 +91,7 @@ public partial class FileSelectorScreen : Screen
             string songsPath = currentDir.FullName;
             // Update last selected directory
             settings.LastIndexPath.Value = songsPath;
-            selectedPathText.Text = Fluent.Translate("index-folder-selected", ("folderName", (FluentString) songsPath));
+            selectedPathText.Text = Fluent.Translate("index-folder-selected", ("folderName", (FluentString)songsPath));
             Console.WriteLine(currentDir.FullName);
             var directories = new List<DirectoryInfo>();
             directories.Add(currentDir);
@@ -138,7 +133,8 @@ public partial class FileSelectorScreen : Screen
             AddInternal(
                 new SpriteText()
                 {
-                    Text = Fluent.Translate("index-selection-successful", ("songCount", (FluentNumber) game.LoadedSongs.Count)),
+                    Text = Fluent.Translate("index-selection-successful",
+                        ("songCount", (FluentNumber)game.LoadedSongs.Count)),
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
                     Y = -110,

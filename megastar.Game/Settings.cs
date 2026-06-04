@@ -15,8 +15,11 @@ public enum GameDifficulty
 
 public static class StandardColours
 {
+    //Pink
     public static readonly Colour4 MAIN = Colour4.FromHex("#C95792");
+    //Purple
     public static readonly Colour4 SECOND = Colour4.FromHex("#7C4585");
+    //Yellow
     public static readonly Colour4 THIRD = Colour4.FromHex("#F8B55F");
     public static readonly Colour4 TEXT = Colour4.White;
     public static readonly Colour4 BACKGROUND_TEXT = Colour4.DarkGray;

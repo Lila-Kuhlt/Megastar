@@ -23,6 +23,9 @@ public partial class AdvancedDirectorySelector(string initialPath = null) : Dire
         Size = new Vector2(200, 25),
         Text = Fluent.Translate("dir-select-toggle-hidden"),
         Action = ShowHiddenItems.Toggle,
+        Masking = true,
+        CornerRadius = 20,
+        BackgroundColour = StandardColours.MAIN,
     };
 
     protected override DirectorySelectorDirectory CreateDirectoryItem(DirectoryInfo directory, LocalisableString? displayName = null) => new BasicDirectorySelectorDirectory(directory, displayName);
