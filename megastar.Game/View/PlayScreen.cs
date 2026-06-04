@@ -6,7 +6,6 @@ using megastar.Game.notes;
 using megastar.Game.Preset;
 using megastar.Game.Track;
 using megastar.Game.Translations;
-using NUnit.Framework;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
@@ -21,7 +20,6 @@ using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
-using osuTK.Graphics;
 
 namespace megastar.Game.View;
 
@@ -107,7 +105,7 @@ public partial class PlayScreen : Screen
         //TODO hier sollte irgendwie auch die nächsten Lieder abgespielt werden
         try
         {
-            setUpTrack(game.NextSong());
+            setUpTrack(game.GetFirstSong());
         }
         catch (Exception exception)
         {
@@ -127,6 +125,7 @@ public partial class PlayScreen : Screen
 
         curNotes = usdxTrack.Notes;
         allPhrases = usdxTrack.NotePhrases;
+        currentBeat = 0;
 
         audioTrack = loadSong(audioManager, usdxTrack.TrackMetadata.DirPath, usdxTrack.TrackMetadata.SongFile);
         audioTrack?.Start();
@@ -241,7 +240,7 @@ public partial class PlayScreen : Screen
                         Origin = Anchor.Centre,
                         FillMode = FillMode.Fill,
                         Alpha = 0,
-                        Loop = true,
+                        Loop = false,
                     };
 
                     double gap = usdxTrack.TrackMetadata.VideoGap.IsNotNull()
@@ -289,6 +288,31 @@ public partial class PlayScreen : Screen
         }
         //TODO hier nur zu testzwecken bis wirklicher input eingelesen wird
         ReceiveSungNote(new UsdxNote((uint)currentBeat, Random.Shared.Next(1, 5), Random.Shared.Next(5, 20), "", UsdxNoteType.Sung));
+
+
+
+
+        //TODO only for test purpose
+        //if (audioTrack != null && Math.Abs(audioTrack.CurrentTime - audioTrack.Length) > 10000)
+        //{
+        //    audioTrack.Seek(audioTrack.Length - 8000);
+        //    audioTrack.Looping = false;
+        //}
+
+        //End screen on track end
+        if (audioTrack != null && audioTrack.HasCompleted && curTrack != null && this.IsCurrentScreen())
+        {
+            var backgroundImage = curTrack.TrackMetadata.BackgroundImageFile.IsNotNull() ? activeTextureStore.Get(curTrack.TrackMetadata.BackgroundImageFile) : null;
+            //TODO Real score needs to be entered here
+            this.Push(new EndScreen(backgroundImage, curTrack, 67911, 676767));
+
+        }
+    }
+
+    public override void OnResuming(ScreenTransitionEvent e)
+    {
+        base.OnResuming(e);
+        this.setUpTrack(game.NextSong());
     }
 
     private void handlePhraseSwitching()

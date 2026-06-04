@@ -32,6 +32,14 @@ settings-wepapp = Start the webapp on port 8080
 ## Directory Selector
 dir-select-toggle-hidden = Toggle hidden items
 
+## End Screen
+end-screen-add-queue = Add to queue
+end-screen-next = Up next : 
+end-screen-play-next = Play next song : {$songTitle}
+end-screen-unknown-title = Unknown title
+end-screen-unknown-artist = Unknown artist
+end-screen-search = Search for an artist or song...
+
 ## Language Names
 de-DE = German (de-DE)
 en-US = English (en-US)

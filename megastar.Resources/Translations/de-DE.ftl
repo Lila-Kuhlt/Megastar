@@ -31,6 +31,14 @@ settings-wepapp = Webapp auf Port 8080 starten
 ## Directory Selector
 dir-select-toggle-hidden = Verdeckte Ordner zeigen
 
+## End Screen
+end-screen-add-queue = Zur Warteschlange hinzufügen
+end-screen-next = Nächstes Lied : 
+end-screen-play-next = Nächstes Lied abspielen : {$songTitle}
+end-screen-unknown-title = Unbekannter Titel
+end-screen-unknown-artist = Unbekannter Künstler
+end-screen-search = Suche nach Künstler oder Titel...
+
 ## Language Names
 de-DE = Deutsch (de-DE)
 en-US = Englisch (en-US)
