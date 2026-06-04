@@ -131,13 +131,17 @@ public partial class SearchYoutubeScreen : Screen
     private async void downloadSong(VideoSearchResult video)
     {
         var streamManifest = await youtube.Videos.Streams.GetManifestAsync(video.Url);
+        var videoStream = streamManifest.GetVideoStreams().GetWithHighestVideoQuality();
         var audioStream = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
 
         Settings settings = Settings.GetSettings();
-        //TODO Fix this to set a custom path
-        string songPath = settings.LastIndexPath.Value;
 
+        //TODO Fix this to set a custom path
+        string songPath = Path.Combine(settings.LastIndexPath.Value, $"{video.Title} - {video.Author}");
+
+        Directory.CreateDirectory(songPath);
 
         await youtube.Videos.Streams.DownloadAsync(audioStream, Path.Combine(songPath, $"{video.Title}.mp3"));
+        await youtube.Videos.Streams.DownloadAsync(videoStream, Path.Combine(songPath, $"{video.Title}.mp4"));
     }
 }
