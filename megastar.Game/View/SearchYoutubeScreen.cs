@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using System.IO;
 using megastar.Game.Preset;
-using megastar.Game.Track;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -18,14 +15,14 @@ using osuTK.Graphics;
 using YoutubeExplode;
 using YoutubeExplode.Common;
 using YoutubeExplode.Search;
-using YoutubeExplode.Videos;
+using YoutubeExplode.Videos.Streams;
 
 namespace megastar.Game.View;
 
 public partial class SearchYoutubeScreen : Screen
 {
+    private static int VIDEOS_TO_SEARCH = 10;
     private YoutubeClient youtube = new YoutubeClient();
-    [Resolved] private MegastarGameBase game { get; set; } = null!;
     private FillFlowContainer songContainer;
 
     [BackgroundDependencyLoader]
@@ -82,39 +79,65 @@ public partial class SearchYoutubeScreen : Screen
 
     private async void searchForSong(string searchTerm)
     {
-        //var vid = await youtube.Videos.GetAsync(searchTerm);
-        //Console.WriteLine(vid.Title);
-        //Console.WriteLine(vid.Author);
-        var topVideos = await youtube.Search.GetVideosAsync(searchTerm).CollectAsync(10);
+        var topVideos = await youtube.Search.GetVideosAsync(searchTerm).CollectAsync(VIDEOS_TO_SEARCH);
         List<VideoSearchResult> results = new List<VideoSearchResult>();
         foreach (var video in topVideos)
         {
             results.Add(video);
-            var id = video.Id;
-            var title = video.Title;
-            var duration = video.Duration;
+            Console.WriteLine(video.Title);
         }
 
-        var newChildDrawables = new SpriteText[results.Count];
+        var newChildDrawables = new Drawable[results.Count];
         Console.WriteLine(results);
 
-        foreach (var result in results)
-        {
-            Console.WriteLine(result.Title);
-        }
 
-
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < results.Count; i++)
         {
-            newChildDrawables[i] = new SpriteText()
+            // FIX THE SILENT BUG: Capture the current video in a local variable
+            var video = results[i];
+
+            newChildDrawables[i] = new FillFlowContainer()
             {
-                Text = results[i].Title,
-                Size = new Vector2(800, 40),
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
+                Direction = FillDirection.Horizontal,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Spacing = new Vector2(15, 0),
+
+                Children = new Drawable[]
+                {
+                    new SpriteText()
+                    {
+                        Text = video.Title,
+                        Width = 450,
+                        Truncate = true,
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                    },
+                    new BasicButton()
+                    {
+                        Text = "Download",
+                        Size = new Vector2(120, 40),
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        Action = () => downloadSong(video)
+                    }
+                }
             };
         }
 
-        songContainer.Children =  newChildDrawables;
+        songContainer.Children = newChildDrawables;
+    }
+
+    private async void downloadSong(VideoSearchResult video)
+    {
+        var streamManifest = await youtube.Videos.Streams.GetManifestAsync(video.Url);
+        var audioStream = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
+
+        Settings settings = Settings.GetSettings();
+        //TODO Fix this to set a custom path
+        string songPath = settings.LastIndexPath.Value;
+
+
+        await youtube.Videos.Streams.DownloadAsync(audioStream, Path.Combine(songPath, $"{video.Title}.mp3"));
     }
 }
