@@ -128,6 +128,9 @@ public partial class SearchYoutubeScreen : Screen
         songContainer.Children = newChildDrawables;
     }
 
+    //TODO This methods downloads the selected song from Youtube
+    //Sometimes this fails for no reason (Have fun debugging)
+    //TODO Furthermore it may be more efficient to base the search on usdx data instead of youtube data so one is sure that a song really exists
     private async void downloadSong(VideoSearchResult video)
     {
         var streamManifest = await youtube.Videos.Streams.GetManifestAsync(video.Url);
@@ -137,11 +140,27 @@ public partial class SearchYoutubeScreen : Screen
         Settings settings = Settings.GetSettings();
 
         //TODO Fix this to set a custom path
-        string songPath = Path.Combine(settings.LastIndexPath.Value, $"{video.Title} - {video.Author}");
+        string songPath = Path.Combine(settings.LastIndexPath.Value, $"{video.Author} - {video.Title}");
+        string textPath = Path.Combine(songPath, $"{video.Author} - {video.Title}.txt");
 
         Directory.CreateDirectory(songPath);
+        string videoName = $"{video.Title}.mp4";
+        string audioName = $"{video.Title}.mp4";
 
-        await youtube.Videos.Streams.DownloadAsync(audioStream, Path.Combine(songPath, $"{video.Title}.mp3"));
-        await youtube.Videos.Streams.DownloadAsync(videoStream, Path.Combine(songPath, $"{video.Title}.mp4"));
+        await youtube.Videos.Streams.DownloadAsync(audioStream, Path.Combine(songPath, audioName));
+        Console.WriteLine($"Successfully downloaded: {video.Title} audio file");
+        await youtube.Videos.Streams.DownloadAsync(videoStream, Path.Combine(songPath, videoName));
+        Console.WriteLine($"Successfully downloaded: {video.Title} video file");
+
+        StreamWriter usdxFile = File.CreateText(textPath);
+        usdxFile.Write($"#TITLE:{video.Title}" + System.Environment.NewLine
+                                               + $"#ARTIST:{video.Author}" + System.Environment.NewLine
+                                               + $"#AUDIO:{audioName}" + System.Environment.NewLine
+                                               + $"#VIDEO:{videoName}" + System.Environment.NewLine
+                                               + "#LANGUAGE:English" + System.Environment.NewLine
+                                               + "#CREATOR:Automated" + System.Environment.NewLine
+                                               + "#COVER:ABBA - Does Your Mother Know [CO].jpg" + System.Environment.NewLine
+                                               + "#BACKGROUND:ABBA - Does Your Mother Know [BG].jpg" + System.Environment.NewLine
+                                               + "#BPM:400" + System.Environment.NewLine);
     }
 }
