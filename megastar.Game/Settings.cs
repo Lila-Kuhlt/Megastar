@@ -1,6 +1,7 @@
 using System;
 using osu.Framework.Bindables;
 using osu.Framework.Configuration;
+using osu.Framework.Graphics;
 using osu.Framework.Platform;
 
 namespace megastar.Game;
@@ -10,6 +11,16 @@ public enum GameDifficulty
     Kuhlant,
     Muuuuuhtig,
     Kuhtastrophal,
+}
+
+public static class StandardColours
+{
+    public static readonly Colour4 MAIN = Colour4.FromHex("#C95792");
+    public static readonly Colour4 SECOND = Colour4.FromHex("#7C4585");
+    public static readonly Colour4 THIRD = Colour4.FromHex("#F8B55F");
+    public static readonly Colour4 TEXT = Colour4.White;
+    public static readonly Colour4 BACKGROUND_TEXT = Colour4.DarkGray;
+    public static readonly Colour4 BACKGROUND = Colour4.DeepPink;
 }
 
 
@@ -33,7 +44,7 @@ public class Settings : IniConfigManager<GameSetting>
 
     public static Settings GetSettings()
     {
-        return instance ?? throw new System.InvalidOperationException("Settings must be initialized with a Storage host first.");
+        return instance ?? throw new InvalidOperationException("Settings must be initialized with a Storage host first.");
     }
 
 

@@ -60,7 +60,7 @@ public partial class SearchScreen : Screen
         [
             new Box
             {
-                Colour = Color4.Violet,
+                Colour = StandardColours.BACKGROUND,
                 RelativeSizeAxes = Axes.Both,
             },
             searchBox,

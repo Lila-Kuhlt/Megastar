@@ -74,7 +74,7 @@ public partial class SettingsScreen : Screen
         [
             new Box
             {
-                Colour = Color4.Violet,
+                Colour = StandardColours.BACKGROUND,
                 RelativeSizeAxes = Axes.Both,
             },
             new BackButton(this.Exit, Fluent.Translate("common-back")),

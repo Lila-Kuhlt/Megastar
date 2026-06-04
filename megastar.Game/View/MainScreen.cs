@@ -41,46 +41,61 @@ namespace megastar.Game.View
                     ShadowColour = Color4.Pink,
                 },
 
-                new FillFlowContainer
+                new FillFlowContainer()
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    AutoSizeAxes = Axes.Both, // Shrink-wraps to fit the buttons
-                    Direction = FillDirection.Vertical,
-                    Spacing = new Vector2(0, 10), // Gap between buttons
+                    AutoSizeAxes = Axes.Both,
+                    Direction = FillDirection.Horizontal,
                     Children = new Drawable[]
                     {
-                        new BasicButton
+                        new StarButton()
+                        {
+                            Size = new Vector2(300),
+                            Text = Fluent.Translate("main-title"),
+                        },
+                        new SquircleButton()
                         {
                             Text = Fluent.Translate("main-start-game"),
-                            Size = new Vector2(200, 40),
-                            BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new PlayScreen()),
+                            Size = new Vector2(150),
+                            Depth = 1,
+                            BackgroundColour = StandardColours.MAIN
                         },
-                        new BasicButton
+                        new SquircleButton
                         {
                             Text = Fluent.Translate("main-search"),
-                            Size = new Vector2(200, 40),
-                            BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new SearchScreen()),
+                            Size = new Vector2(150),
+                            Depth = 2,
+                            BackgroundColour = StandardColours.SECOND
                         },
-                        new BasicButton
+                        new SquircleButton
                         {
                             Text = Fluent.Translate("main-index"),
-                            Size = new Vector2(200, 40),
-                            BackgroundColour = Color4.Teal,
                             Action = () => this.Push(new FileSelectorScreen()),
+                            Size = new Vector2(150),
+                            Depth = 3,
+                            BackgroundColour = StandardColours.THIRD
                         },
-                        new BasicButton
+                        new SquircleButton
                         {
                             Text = Fluent.Translate("main-settings"),
-                            Size = new Vector2(200, 40),
-                            BackgroundColour = Color4.Teal,
+                            BackgroundColour = StandardColours.MAIN,
                             Action = () => this.Push(new SettingsScreen()),
+                            Size = new Vector2(150),
+                            Depth = 4
                         },
-                        new BackButton(Game.Exit, Fluent.Translate("main-exit"))
+                        new SquircleButton
+                        {
+                            Text = Fluent.Translate("main-exit"),
+                            BackgroundColour = StandardColours.SECOND,
+                            Action = () => Game.Exit(),
+                            Size = new Vector2(150),
+                            Depth = 5
+                        },
                     }
-                }
+                },
             ];
             if (Settings.GetSettings().WebAppActive.Value)
             {
