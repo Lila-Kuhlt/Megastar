@@ -1,19 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Linguini.Shared.Types.Bundle;
 using megastar.Game.Preset;
 using megastar.Game.Track;
+using megastar.Game.Track.Megastar;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osuTK;
@@ -25,7 +21,6 @@ namespace megastar.Game.View;
 public partial class FileSelectorScreen : Screen
 {
     private AdvancedDirectorySelector directorySelector = null!;
-    private SpriteText selectedPathText = null!;
 
     [Resolved] private MegastarGameBase game { get; set; } = null!;
     [Resolved] private TrackLoader trackLoader { get; set; } = null!;
@@ -51,6 +46,8 @@ public partial class FileSelectorScreen : Screen
                 RelativeSizeAxes = Axes.Both,
             },
 
+            new BackButton(this.Exit, Fluent.Translate("common-back")),
+
             new SpriteText
             {
                 Text = Fluent.Translate("index-select-folder"),
@@ -67,8 +64,9 @@ public partial class FileSelectorScreen : Screen
                 Origin = Anchor.Centre,
                 Size = new Vector2(800, 500),
             },
+
             // Visual feedback to show what is currently selected
-            selectedPathText = new SpriteText
+            new SpriteText
             {
                 Text = Fluent.Translate("index-folder-selected",
                     ("folderName", (FluentString)settings.LastIndexPath.Value)),

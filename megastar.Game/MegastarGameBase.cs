@@ -94,7 +94,7 @@ public partial class MegastarGameBase : osu.Framework.Game
                 return QueuedSongs[0];
             default:
                 QueuedSongs.RemoveAt(0);
-                this.LocalQueueServer.BroadcastStateAsync();
+                _ = LocalQueueServer.BroadcastStateAsync();
                 return QueuedSongs[0];
         }
     }
@@ -103,17 +103,14 @@ public partial class MegastarGameBase : osu.Framework.Game
     /// Returns the next song in the Queue (at the second position) if it exists. Returns the current one, if there is only one and null if there is none
     /// </summary>
     /// <returns>the song that is next in the queue</returns>
-    public UsdxTrack? PeekNextSong()
+    public MegastarTrackMetadata? PeekNextSong()
     {
-        switch (QueuedSongs.Count)
+        return QueuedSongs.Count switch
         {
-            case 0:
-                return null;
-            case 1:
-                return QueuedSongs[0];
-            default:
-                return QueuedSongs[1];
-        }
+            0 => null,
+            1 => QueuedSongs[0],
+            _ => QueuedSongs[1]
+        };
     }
 
     /// <summary>
@@ -123,16 +120,7 @@ public partial class MegastarGameBase : osu.Framework.Game
     /// Returns null if there is no song in the queue
     /// </summary>
     /// <returns></returns>
-    public UsdxTrack? GetFirstSong()
-    {
-        switch (QueuedSongs.Count)
-        {
-            case 0:
-                return null;
-            default:
-                return QueuedSongs[0];
-        }
-    }
+    public MegastarTrackMetadata? GetFirstSong() => QueuedSongs.Count > 0 ? QueuedSongs.First() : null;
 
 
     [BackgroundDependencyLoader]

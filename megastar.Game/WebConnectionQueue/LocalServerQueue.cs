@@ -9,13 +9,8 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using megastar.Game.Track;
-using megastar.Game.Track.Usdx;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.Allocation;
-using osu.Framework.Graphics;
-using osu.Framework.Logging;
-using osu.Framework.Logging;
 using osu.Framework.Logging;
 using MegastarTrackMetadata = megastar.Game.Track.Megastar.MegastarTrackMetadata;
 
@@ -28,7 +23,7 @@ namespace megastar.Game.WebConnectionQueue;
 public partial class LocalQueueServer : Component
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
-    [Resolved] private TrackRepository repository { get; set; }
+    [Resolved] private TrackRepository repository { get; set; } = null!;
 
     public List<MegastarTrackMetadata> LoadedSongs => repository.AllTracks().ToList();
     public List<MegastarTrackMetadata> QueuedSongs => repository.AllTracks().ToList(); // TODO
@@ -83,11 +78,11 @@ public partial class LocalQueueServer : Component
 
                 if (context.Request.IsWebSocketRequest)
                 {
-                    _ = ProcessWebSocketRequestAsync(context);
+                    _ = processWebSocketRequestAsync(context);
                 }
                 else
                 {
-                    ServeHtml(context);
+                    serveHtml(context);
                 }
             }
         }
@@ -98,7 +93,7 @@ public partial class LocalQueueServer : Component
     }
 
 
-    private void ServeHtml(HttpListenerContext context)
+    private static void serveHtml(HttpListenerContext context)
     {
         try
         {
@@ -120,7 +115,7 @@ public partial class LocalQueueServer : Component
         }
     }
 
-    private async Task ProcessWebSocketRequestAsync(HttpListenerContext context)
+    private async Task processWebSocketRequestAsync(HttpListenerContext context)
     {
         var wsContext = await context.AcceptWebSocketAsync(null);
         WebSocket socket = wsContext.WebSocket;
@@ -146,7 +141,7 @@ public partial class LocalQueueServer : Component
                 }
 
                 string message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                HandleClientMessage(message);
+                handleClientMessage(message);
             }
         }
         catch (Exception)
@@ -164,12 +159,12 @@ public partial class LocalQueueServer : Component
         }
     }
 
-    private void HandleClientMessage(string jsonMessage)
+    private void handleClientMessage(string jsonMessage)
     {
         try
         {
             using JsonDocument doc = JsonDocument.Parse(jsonMessage);
-            string action = doc.RootElement.GetProperty("action").GetString();
+            string action = doc.RootElement.GetProperty("action").GetString()!;
 
             // Extract data before pushing
             int? songIndex = action == "ADD" ? doc.RootElement.GetProperty("songIndex").GetInt32() : null;
