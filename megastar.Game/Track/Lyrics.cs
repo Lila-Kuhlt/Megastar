@@ -44,7 +44,7 @@ public class Lyrics(List<Lyric> lyrics)
     // using lines as name because Lyrics is forbidden :/ also no red black trees in c# :(
     public readonly List<Lyric> Lines = lyrics;
 
-    public Lyrics(UsdxTrack usdxTrack) : this(usdxTrack.LyricEnumerator().ToList())
+    public Lyrics(ITrackData usdxTrack) : this(usdxTrack.LyricEnumerator().ToList())
     {
     }
 

@@ -20,12 +20,13 @@ using osu.Framework.Platform;
 using osu.Framework.Screens;
 using osu.Framework.Timing;
 using AudioTrack = osu.Framework.Audio.Track.Track;
+using ITrack = megastar.Game.Track.ITrack;
 
 namespace megastar.Game.View;
 
 public partial class PlayScreen : Screen
 {
-    private AudioTrack track;
+    private AudioTrack audioTrack;
 
     [Resolved] private MegastarGameBase game { get; set; } = null!;
     [Resolved] private GameHost host { get; set; } = null!;
@@ -36,10 +37,10 @@ public partial class PlayScreen : Screen
 
 
     private static AudioManager audioManager = null!;
-    private UsdxTrack currentTrack = null!;
+    private ITrack? currentTrack;
     private Video backgroundVideo = null!;
 
-    public double Beat { get; private set; }
+    private double beat { get; set; }
 
 
     // Dedicated layer to safely swap background sprites behind UI elements
@@ -89,40 +90,36 @@ public partial class PlayScreen : Screen
         base.OnEntering(e);
 
         //TODO hier sollte irgendwie auch die nächsten Lieder abgespielt werden
-        try
-        {
-            if (game.NextSong() is { } song)
-                loadTrack(song);
-        }
-        catch (Exception exception)
-        {
-            Logger.Error(exception, exception.Message);
+        if (game.NextSong() is { } song)
+            loadTrack(song.ToMegastarTrack());
+        else
             AddInternal(new SpriteText
             {
                 Text = Fluent.Translate("play-song-error"),
                 Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
+                Origin = Anchor.Centre
             });
-        }
     }
 
-    private void loadTrack(UsdxTrack usdxTrack)
+    private void loadTrack(ITrack iTrack)
     {
-        lyrics = new Lyrics(usdxTrack);
+        lyrics = new Lyrics(iTrack);
 
-        var loadedTrack = loadSong(usdxTrack.DirPath, usdxTrack.AudioFile);
-        if (loadedTrack == null)
+        var audio = loadAudio(iTrack.DirPath, iTrack.AudioFile);
+        if (audio == null)
             return;
 
-        track = loadedTrack;
-        loadedTrack?.Start();
+        audio.Start();
 
-        loadBackgroundImage(usdxTrack);
-        loadBackgroundVideo(usdxTrack);
-        currentTrack = usdxTrack;
-        loadedTrack.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
+        audioTrack = audio;
+        currentTrack = iTrack;
 
-        var currentLyric = lyrics.LyricForBeat((int)Beat);
+        loadBackgroundImage(iTrack);
+        loadBackgroundVideo(iTrack);
+
+        audio.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
+
+        var currentLyric = lyrics.LyricForBeat((int)beat);
         if (currentLyric == null)
         {
             Logger.Log("Tried to play track without lyrics", LoggingTarget.Input, LogLevel.Error);
@@ -150,7 +147,7 @@ public partial class PlayScreen : Screen
         notesLayer.Add(notesContainer);
     }
 
-    private void loadBackgroundImage(UsdxTrack usdxTrack)
+    private void loadBackgroundImage(ITrackMetadata usdxTrack)
     {
         if (!usdxTrack.BackgroundImageFile.IsNotNull()) return;
 
@@ -185,7 +182,7 @@ public partial class PlayScreen : Screen
         }
     }
 
-    private void loadBackgroundVideo(UsdxTrack usdxTrack)
+    private void loadBackgroundVideo(ITrackMetadata usdxTrack)
     {
         if (!usdxTrack.BackgroundVideoFile.IsNotNull()) return;
 
@@ -209,7 +206,7 @@ public partial class PlayScreen : Screen
                 Loop = false
             };
 
-            backgroundVideo.Clock = new FramedOffsetClock(track) { Offset = usdxTrack.VideoGap };
+            backgroundVideo.Clock = new FramedOffsetClock(audioTrack) { Offset = usdxTrack.VideoGap };
             backgroundLayer.Add(backgroundVideo);
             backgroundVideo.OnLoadComplete += v => { v.FadeIn(0, Easing.OutQuint); };
         }
@@ -222,16 +219,18 @@ public partial class PlayScreen : Screen
     protected override void Update()
     {
         base.Update();
-        int iBeat = (int)Beat;
+        if (currentTrack == null) return;
+
+        int iBeat = (int)beat;
 
         ReceiveSungNote(new UsdxNote(iBeat, Random.Shared.Next(1, 5), Random.Shared.Next(5, 20), "",
             UsdxNoteType.Sung));
 
         double ultraStarBpm = currentTrack.Bpm;
-        Beat = ultraStarBpm * 4 * (track.CurrentTime - currentTrack.Gap) / 60000.0;
+        beat = ultraStarBpm * 4 * (audioTrack.CurrentTime - currentTrack.Gap) / 60000.0;
 
-        notesContainer.UpdateBeat(Beat);
-        lyricsContainer.UpdateBeat(Beat);
+        notesContainer.UpdateBeat(beat);
+        lyricsContainer.UpdateBeat(beat);
 
         var currentLyric = lyrics.LyricForBeat(iBeat);
         var nextLyric = lyrics.LyricAfterBeat(iBeat);
@@ -244,12 +243,12 @@ public partial class PlayScreen : Screen
         // Switch phrase 1/4 between the end of the current one and the start of the next one
         double switchBeat = endBeat + (endBeat - startBeat) / 4.0;
 
-        if (!(Beat >= switchBeat)) return;
+        if (!(beat >= switchBeat)) return;
 
         showLyric(nextLyric);
     }
 
-    private AudioTrack? loadSong(string directoryPath, string fileName)
+    private AudioTrack? loadAudio(string directoryPath, string fileName)
     {
         try
         {
@@ -272,7 +271,7 @@ public partial class PlayScreen : Screen
     /// <param name="sungNote"></param>
     public void ReceiveSungNote(INote sungNote)
     {
-        if (Beat <= lastReceivedNoteBeat) return;
+        if (beat <= lastReceivedNoteBeat) return;
 
         notesContainer.AddSungNote(sungNote);
         lastReceivedNoteBeat = sungNote.StartBeat + sungNote.Length;
@@ -283,8 +282,8 @@ public partial class PlayScreen : Screen
         base.Dispose(isDisposing);
 
         //CLEANUP PREVIOUS SONG TRACK & RESOURCES
-        track?.Stop();
-        track?.Dispose();
+        audioTrack?.Stop();
+        audioTrack?.Dispose();
 
         activeAudioResourceStore?.Dispose();
         activeVideoRessourceStore?.Dispose();

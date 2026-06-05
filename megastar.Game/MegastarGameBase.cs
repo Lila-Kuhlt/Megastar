@@ -14,7 +14,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
 using osu.Framework.Localisation;
 using osuTK;
-using Realms;
+using MegastarTrackMetadata = megastar.Game.Track.Megastar.MegastarTrackMetadata;
 
 namespace megastar.Game;
 
@@ -28,14 +28,13 @@ public partial class MegastarGameBase : osu.Framework.Game
     protected override Container<Drawable> Content { get; }
     private readonly List<Language> locales = [];
 
-    public List<UsdxTrack> LoadedSongs { get; private set; } = [];
-
     //QUEWE
-    public List<UsdxTrack> QueuedSongs { get; } = [];
+    public List<MegastarTrackMetadata> QueuedSongs => trackRepository.AllTracks().ToList();
 
     public readonly LocalQueueServer LocalQueueServer = new();
 
-    public Realm Realm { get; private set; } = Realm.GetInstance(new InMemoryConfiguration("megastar.game.realm"));
+    private readonly TrackLoader trackLoader;
+    private readonly TrackRepository trackRepository;
 
     [Resolved] private FrameworkConfigManager config { get; set; } = null!;
 
@@ -49,6 +48,9 @@ public partial class MegastarGameBase : osu.Framework.Game
             // You may want to change TargetDrawSize to your "default" resolution, which will decide how things scale and position when using absolute coordinates.
             TargetDrawSize = new Vector2(1920, 1080)
         });
+
+        trackRepository = new TrackRepository();
+        trackLoader = new TrackLoader(trackRepository);
     }
 
     protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
@@ -58,15 +60,18 @@ public partial class MegastarGameBase : osu.Framework.Game
         var dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
 
         dependencies.CacheAs(locales);
+        dependencies.Cache(trackLoader);
+        dependencies.Cache(trackRepository);
+
         return dependencies;
     }
 
 
-    public void QueueSong(UsdxTrack track)
+    public void QueueSong(MegastarTrackMetadata metadata)
     {
-        if (Settings.GetSettings().DuplicateItems.Value || !QueuedSongs.Contains(track))
+        if (Settings.GetSettings().DuplicateItems.Value || !QueuedSongs.Contains(metadata))
         {
-            QueuedSongs.Add(track);
+            QueuedSongs.Add(metadata);
         }
 
 
@@ -79,7 +84,7 @@ public partial class MegastarGameBase : osu.Framework.Game
     /// If there is only one song in the queue, it returns it
     /// </summary>
     /// <returns>The next song in the queue</returns>
-    public UsdxTrack? NextSong()
+    public MegastarTrackMetadata? NextSong()
     {
         switch (QueuedSongs.Count)
         {
@@ -168,8 +173,7 @@ public partial class MegastarGameBase : osu.Framework.Game
 
         // FrameworkSetting.Locale will be "" if the selected language is the system default language, since the framework does not persist the default language to file.
         // Why exactly it then does not load the system default language into the locale config on startup if it is empty is beyond me.
-        if (config.Get<string>(FrameworkSetting.Locale) != null &&
-            config.Get<string>(FrameworkSetting.Locale) != "") return;
+        if (string.IsNullOrEmpty(config.Get<string>(FrameworkSetting.Locale))) return;
 
         string systemLocale = CultureInfo.CurrentUICulture.Name;
         Language? systemLanguage = locales.Find(l => l.Code == systemLocale);

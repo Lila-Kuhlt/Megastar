@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using megastar.Game.Track;
+using megastar.Game.Track.Usdx;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Allocation;
@@ -16,8 +17,10 @@ using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osu.Framework.Logging;
 using osu.Framework.Logging;
+using MegastarTrackMetadata = megastar.Game.Track.Megastar.MegastarTrackMetadata;
 
-namespace megastar.Game.WebConnectionQueue; // Adjust to your preferred namespace
+namespace megastar.Game.WebConnectionQueue;
+// Adjust to your preferred namespace
 
 /// <summary>
 /// A Webserver, that manages the Queue that is initiated in <see cref="MegastarGameBase"/>.
@@ -25,9 +28,10 @@ namespace megastar.Game.WebConnectionQueue; // Adjust to your preferred namespac
 public partial class LocalQueueServer : Component
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
+    [Resolved] private TrackRepository repository { get; set; }
 
-    public List<UsdxTrack> LoadedSongs => game.LoadedSongs;
-    public List<UsdxTrack> QueuedSongs => game.QueuedSongs;
+    public List<MegastarTrackMetadata> LoadedSongs => repository.AllTracks().ToList();
+    public List<MegastarTrackMetadata> QueuedSongs => repository.AllTracks().ToList(); // TODO
 
     private readonly HttpListener _listener = new();
     private readonly List<WebSocket> _activeSockets = [];
@@ -245,19 +249,16 @@ public partial class LocalQueueServer : Component
             socketsToBroadcast = _activeSockets.ToList();
         }
 
-        foreach (var socket in socketsToBroadcast)
+        foreach (var socket in socketsToBroadcast.Where(socket => socket.State == WebSocketState.Open))
         {
-            if (socket.State == WebSocketState.Open)
+            try
             {
-                try
-                {
-                    await socket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
-                }
-                catch (Exception ex)
-                {
-                    Logger.GetLogger().Add($"Websocket send failed with message : {ex.Message}", LogLevel.Debug);
-                    /* Ignore failed sockets */
-                }
+                await socket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                Logger.GetLogger().Add($"Websocket send failed with message : {ex.Message}", LogLevel.Debug);
+                /* Ignore failed sockets */
             }
         }
     }
@@ -274,9 +275,9 @@ public partial class LocalQueueServer : Component
 
         lock (_activeSockets)
         {
-            foreach (var socket in _activeSockets)
+            foreach (var socket in _activeSockets.Where(socket => socket.State == WebSocketState.Open))
             {
-                if (socket.State == WebSocketState.Open) socket.Abort();
+                socket.Abort();
             }
 
             _activeSockets.Clear();

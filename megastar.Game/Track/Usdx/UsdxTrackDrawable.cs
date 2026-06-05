@@ -5,11 +5,11 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osuTK.Graphics;
 
-namespace megastar.Game.Track;
+namespace megastar.Game.Track.Usdx;
 
 public sealed partial class UsdxTrackDrawable : CompositeDrawable, IFilterable
 {
-    private UsdxTrack data { get; }
+    private ITrackMetadata data { get; }
 
     public IEnumerable<LocalisableString> FilterTerms => new LocalisableString[]
         { data.Artist, data.Title };
@@ -28,7 +28,7 @@ public sealed partial class UsdxTrackDrawable : CompositeDrawable, IFilterable
 
     public bool FilteringActive { get; set; }
 
-    public UsdxTrackDrawable(UsdxTrack data)
+    public UsdxTrackDrawable(ITrackMetadata data)
     {
         this.data = data;
         AutoSizeAxes = Axes.Y;

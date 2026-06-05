@@ -6,5 +6,4 @@ namespace megastar.Game.Track;
 
 public interface ITrack : ITrackMetadata, ITrackData
 {
-    ITrackMetadata TrackMetadata => this;
 }

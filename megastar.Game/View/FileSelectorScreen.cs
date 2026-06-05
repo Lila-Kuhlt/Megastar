@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Linguini.Shared.Types.Bundle;
 using megastar.Game.Preset;
 using megastar.Game.Track;
@@ -10,9 +14,11 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
+using Realms;
 
 namespace megastar.Game.View;
 
@@ -22,6 +28,13 @@ public partial class FileSelectorScreen : Screen
     private SpriteText selectedPathText = null!;
 
     [Resolved] private MegastarGameBase game { get; set; } = null!;
+    [Resolved] private TrackLoader trackLoader { get; set; } = null!;
+
+    [Resolved] private TrackRepository trackRepository { get; set; } = null!;
+
+    private IDisposable? notificationToken;
+
+    private SpriteText loadedTrackCounter = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -29,8 +42,8 @@ public partial class FileSelectorScreen : Screen
         Settings settings = Settings.GetSettings();
         string initialPath = settings.LastIndexPath.Value;
 
-        InternalChildren = new Drawable[]
-        {
+        InternalChildren =
+        [
             // Background
             new Box
             {
@@ -44,7 +57,7 @@ public partial class FileSelectorScreen : Screen
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 Y = 20,
-                Font = FontUsage.Default.With(size: 40),
+                Font = FontUsage.Default.With(size: 40)
             },
 
             // The Directory Selector
@@ -73,76 +86,51 @@ public partial class FileSelectorScreen : Screen
                 Origin = Anchor.BottomCentre,
                 Height = 50,
                 Y = -20,
-                Masking = true,
-                CornerRadius = 20,
-                BackgroundColour = StandardColours.MAIN,
-                Action = () => confirmSelection(settings)
+                Action = () => Task.Run(confirmSelection)
             },
-            new BackButton(this.Exit, Fluent.Translate("common-back")),
-        };
+
+            loadedTrackCounter = new SpriteText
+            {
+                Text = Fluent.Translate("index-selection-successful",
+                    ("songCount", (FluentNumber)0)),
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre,
+                Y = -110,
+                Font = FontUsage.Default.With(size: 40),
+            }
+        ];
     }
 
-    private void confirmSelection(Settings settings)
+    protected override void LoadComplete()
     {
-        DirectoryInfo? currentDir = directorySelector.CurrentPath.Value;
-
-        if (currentDir != null && currentDir.Exists)
-        {
-            string songsPath = currentDir.FullName;
-            // Update last selected directory
-            settings.LastIndexPath.Value = songsPath;
-            selectedPathText.Text = Fluent.Translate("index-folder-selected", ("folderName", (FluentString)songsPath));
-            Console.WriteLine(currentDir.FullName);
-            var directories = new List<DirectoryInfo>();
-            directories.Add(currentDir);
-            var songFiles = new List<FileInfo>();
-            foreach (var folder in directories)
+        base.LoadComplete();
+        notificationToken = trackRepository.Run(realm => realm.All<MegastarTrackMetadata>()
+            .SubscribeForNotifications((sender, _) =>
             {
-                FileInfo[] files = folder.GetFiles("*.txt", SearchOption.AllDirectories);
-                songFiles.AddRange(files);
-            }
-
-            var tracks = new List<UsdxTrackMetadata>();
-
-            game.LoadedSongs.Clear();
-
-            foreach (FileInfo file in songFiles)
-            {
-                string content = File.ReadAllText(file.FullName);
-                try
+                var count = sender.Count;
+                Schedule(() =>
                 {
-                    var metadata = Parser.ParseUsdxTrackMetadata(content);
+                    Logger.Log($"Updated: {count} songs");
+                    loadedTrackCounter.Text = Fluent.Translate("index-selection-successful",
+                        ("songCount", (FluentNumber)count));
+                });
+            }));
+    }
 
-                    metadata.MetadataFile = file.FullName;
-                    metadata.DirPath = file.DirectoryName;
-                    tracks.Add(metadata);
-                    game.LoadedSongs.Add(new UsdxTrack(metadata));
-                    game.LocalQueueServer?.BroadcastStateAsync();
-                }
-                catch (InvalidDataException)
-                {
-                }
-            }
+    private void confirmSelection()
+    {
+        var sw = Stopwatch.StartNew();
 
-            // TODO HIER IRGENDWIE Adden, dass man songs queuen kann
-            if (game.LoadedSongs.Count != 0)
-            {
-                game.QueueSong(game.LoadedSongs[0]);
-            }
 
-            AddInternal(
-                new SpriteText()
-                {
-                    Text = Fluent.Translate("index-selection-successful",
-                        ("songCount", (FluentNumber)game.LoadedSongs.Count)),
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.BottomCentre,
-                    Y = -110,
-                    Font = FontUsage.Default.With(size: 40),
-                }
-            );
-        }
+        // Start async task for indexing folder
+        trackLoader.IndexFolder(directorySelector.CurrentPath.Value.FullName);
 
-        game.LocalQueueServer.BroadcastStateAsync();
+        Logger.Log($"Indexed songs in {sw.Elapsed}");
+    }
+
+    protected override void Dispose(bool isDisposing)
+    {
+        base.Dispose(isDisposing);
+        notificationToken?.Dispose();
     }
 }

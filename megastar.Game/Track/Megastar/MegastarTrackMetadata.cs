@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
-using JetBrains.Annotations;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using Realms;
 
-namespace megastar.Game.Track;
+namespace megastar.Game.Track.Megastar;
 
 public interface IVerifiableMetadata : ITrackMetadata
 {
@@ -18,7 +19,7 @@ public interface IVerifiableMetadata : ITrackMetadata
     DateTimeOffset LastVerified { get; set; }
 }
 
-public partial class MegastarTrackMetadata : IRealmObject, IVerifiableMetadata
+public partial class MegastarTrackMetadata : IVerifiableMetadata, IRealmObject
 {
     [MapTo("_id")]
     [PrimaryKey]
@@ -35,6 +36,8 @@ public partial class MegastarTrackMetadata : IRealmObject, IVerifiableMetadata
 
     public TrackAudioSample TrackAudioSample => new(sampleStart, sampleLength);
 
+    public MegastarTrack ToMegastarTrack() => new(this);
+
     // Track Metadata
 
     public string Artist { get; set; }
@@ -50,6 +53,8 @@ public partial class MegastarTrackMetadata : IRealmObject, IVerifiableMetadata
     public string? BackgroundVideoFile { get; set; }
     public double VideoGap { get; set; }
     public double Gap { get; set; }
+
+    public override string ToString() => $"{Artist} - {Title}";
 }
 
 public struct TrackAudioSample(int length, int start)
@@ -58,6 +63,7 @@ public struct TrackAudioSample(int length, int start)
     public int Length = length;
 }
 
+// Might want to extract this to a class
 public static class VerifiableMetadataExtension
 {
     /// <summary>
@@ -84,7 +90,7 @@ public static class VerifiableMetadataExtension
         return true;
     }
 
-    public static void CalculateHashes(this IVerifiableMetadata metadata)
+    public static void SetHashes(this IVerifiableMetadata metadata)
     {
         metadata.MetadataFileHash = fileHash(metadata.MetadataFilePath());
         metadata.AudioFileHash = fileHash(metadata.AudioFilePath());
@@ -94,11 +100,39 @@ public static class VerifiableMetadataExtension
         metadata.LastVerified = DateTimeOffset.Now;
     }
 
+    public static async Task SetHashesAsync(this IVerifiableMetadata metadata)
+    {
+        // spawn hash tasks
+        IEnumerable<Task> tasks =
+        [
+            fileHashAsync(metadata.MetadataFilePath())
+                .ContinueWith(async hash => metadata.MetadataFileHash = await hash),
+            fileHashAsync(metadata.AudioFilePath())
+                .ContinueWith(async hash => metadata.AudioFileHash = await hash),
+            fileHashAsync(metadata.BackgroundImageFilePath())
+                .ContinueWith(async hash => metadata.BackgroundImageHash = await hash),
+            fileHashAsync(metadata.BackgroundVideoFilePath())
+                .ContinueWith(async hash => metadata.BackgroundVideoHash = await hash)
+        ];
+
+        await Task.WhenAll(tasks);
+        metadata.LastVerified = DateTimeOffset.Now;
+    }
+
     private static byte[]? fileHash(string? path)
     {
         if (path == null || !File.Exists(path))
             return null;
 
         return MD5.HashData(File.ReadAllBytes(path));
+    }
+
+    private static async Task<byte[]?> fileHashAsync(string? path)
+    {
+        if (path == null || !File.Exists(path))
+            return null;
+
+        await using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return await MD5.HashDataAsync(stream);
     }
 }
