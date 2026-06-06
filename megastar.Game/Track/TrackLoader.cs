@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,17 +29,22 @@ public class TrackLoader(TrackRepository repository)
 
     public static MegastarTrackMetadata? LoadFile(string path)
     {
+        var sw = new Stopwatch();
+        sw.Start();
+
         var dir = Path.GetDirectoryName(path);
         if (dir == null || !Directory.Exists(dir)) return null;
 
         var metadata = UsdxParser.ParseUsdxFile(path);
 
+        if (metadata == null) return null;
+
         // convert to megastar format
-        var megaMeta = new MegastarTrackMetadata();
-        megaMeta.CollectMetadataFrom(metadata);
+        var megaMeta = new MegastarTrackMetadata(metadata);
         megaMeta.SetHashes();
 
-        Logger.Log($"Loaded {megaMeta}");
+        var now = sw.Elapsed;
+        Logger.Log($"Loaded {megaMeta} in {now.Milliseconds}ms");
 
         return megaMeta;
     }

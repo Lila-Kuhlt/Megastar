@@ -4,94 +4,35 @@ using megastar.Game.notes;
 
 namespace megastar.Game.Track.Megastar;
 
-public class MegastarTrack : ITrack, IVerifiableMetadata
+public class MegastarTrack(IVerifiableMetadata trackMetadata) : ITrack, IVerifiableMetadata
 {
-    private readonly IVerifiableMetadata trackMetadata;
-    public Lazy<List<IBeatPaced>> Notes { get; set; }
+    public Lazy<List<IBeatPaced>> Notes { get; } = new(trackMetadata.LoadNotes);
 
-    public MegastarTrack(IVerifiableMetadata trackMetadata)
-    {
-        this.trackMetadata = trackMetadata;
-        Notes = new LazyLoadedTrackData(this).Notes;
-    }
+    public string Artist => trackMetadata.Artist;
 
-    public string Artist
-    {
-        get => trackMetadata.Artist;
-        set => trackMetadata.Artist = value;
-    }
+    public string Title => trackMetadata.Title;
 
-    public string Title
-    {
-        get => trackMetadata.Title;
-        set => trackMetadata.Title = value;
-    }
+    public string Creator => trackMetadata.Creator;
 
-    public string Creator
-    {
-        get => trackMetadata.Creator;
-        set => trackMetadata.Creator = value;
-    }
+    public int Length => trackMetadata.Length;
 
-    public int Length
-    {
-        get => trackMetadata.Length;
-        set => trackMetadata.Length = value;
-    }
+    public double Bpm => trackMetadata.Bpm;
 
-    public double Bpm
-    {
-        get => trackMetadata.Bpm;
-        set => trackMetadata.Bpm = value;
-    }
+    public string Version => trackMetadata.Version;
 
-    public string Version
-    {
-        get => trackMetadata.Version;
-        set => trackMetadata.Version = value;
-    }
+    public string DirPath => trackMetadata.DirPath;
 
-    public string DirPath
-    {
-        get => trackMetadata.DirPath;
-        set => trackMetadata.DirPath = value;
-    }
+    public string AudioFile => trackMetadata.AudioFile;
 
-    public string AudioFile
-    {
-        get => trackMetadata.AudioFile;
-        set => trackMetadata.AudioFile = value;
-    }
+    public string MetadataFile => trackMetadata.MetadataFile;
 
-    public string MetadataFile
-    {
-        get => trackMetadata.MetadataFile;
-        set => trackMetadata.MetadataFile = value;
-    }
+    public string? BackgroundImageFile => trackMetadata.BackgroundImageFile;
 
-    public string? BackgroundImageFile
-    {
-        get => trackMetadata.BackgroundImageFile;
-        set => trackMetadata.BackgroundImageFile = value;
-    }
+    public string? BackgroundVideoFile => trackMetadata.BackgroundVideoFile;
 
-    public string? BackgroundVideoFile
-    {
-        get => trackMetadata.BackgroundVideoFile;
-        set => trackMetadata.BackgroundVideoFile = value;
-    }
+    public double VideoGap => trackMetadata.VideoGap;
 
-    public double VideoGap
-    {
-        get => trackMetadata.VideoGap;
-        set => trackMetadata.VideoGap = value;
-    }
-
-    public double Gap
-    {
-        get => trackMetadata.Gap;
-        set => trackMetadata.Gap = value;
-    }
+    public double Gap => trackMetadata.Gap;
 
     public byte[]? AudioFileHash
     {

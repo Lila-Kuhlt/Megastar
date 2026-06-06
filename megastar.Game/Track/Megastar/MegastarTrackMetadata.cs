@@ -21,6 +21,23 @@ public interface IVerifiableMetadata : ITrackMetadata
 
 public partial class MegastarTrackMetadata : IVerifiableMetadata, IRealmObject
 {
+    public MegastarTrackMetadata(ITrackMetadata metadata)
+    {
+        Artist = metadata.Artist;
+        Title = metadata.Title;
+        Creator = metadata.Creator;
+        Length = metadata.Length;
+        Bpm = metadata.Bpm;
+        Version = metadata.Version;
+        AudioFile = metadata.AudioFile;
+        MetadataFile = metadata.MetadataFile;
+        DirPath = metadata.DirPath;
+        BackgroundImageFile = metadata.BackgroundImageFile;
+        BackgroundVideoFile = metadata.BackgroundVideoFile;
+        VideoGap = metadata.VideoGap;
+        Gap = metadata.Gap;
+    }
+
     [MapTo("_id")]
     [PrimaryKey]
     public ObjectId Id { get; private set; } = ObjectId.GenerateNewId(); // TODO: Get Id from USDX, OR generate new
@@ -40,19 +57,19 @@ public partial class MegastarTrackMetadata : IVerifiableMetadata, IRealmObject
 
     // Track Metadata
 
-    public string Artist { get; set; }
-    public string Title { get; set; }
-    public string Creator { get; set; }
-    public int Length { get; set; }
-    public double Bpm { get; set; }
-    public string Version { get; set; }
-    public string AudioFile { get; set; }
-    public string MetadataFile { get; set; }
-    public string DirPath { get; set; }
-    public string? BackgroundImageFile { get; set; }
-    public string? BackgroundVideoFile { get; set; }
-    public double VideoGap { get; set; }
-    public double Gap { get; set; }
+    public string Artist { get; }
+    public string Title { get; }
+    public string Creator { get; }
+    public int Length { get; }
+    public double Bpm { get; }
+    public string Version { get; }
+    public string AudioFile { get; }
+    public string MetadataFile { get; }
+    public string DirPath { get; }
+    public string? BackgroundImageFile { get; }
+    public string? BackgroundVideoFile { get; }
+    public double VideoGap { get; }
+    public double Gap { get; }
 
     public override string ToString() => $"{Artist} - {Title}";
 }

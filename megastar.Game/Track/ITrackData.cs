@@ -6,5 +6,5 @@ namespace megastar.Game.Track;
 
 public interface ITrackData
 {
-    Lazy<List<IBeatPaced>> Notes { get; set; }
+    Lazy<List<IBeatPaced>> Notes { get; }
 }

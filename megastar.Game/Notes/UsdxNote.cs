@@ -10,8 +10,6 @@ public class UsdxNote : INote
 {
     public static int SCALE_FACTOR = 10;
     public static int HEIGHT_FACTOR = 15;
-    private int startBeat;
-    private uint startBeat1;
 
     public int StartBeat { get; set; }
 

@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using megastar.Game.notes;
 
 namespace megastar.Game.Track;
 
@@ -7,94 +9,71 @@ public interface ITrackMetadata
     /// <summary>
     /// Song artist(s)
     /// </summary>
-    string Artist { get; set; }
+    string Artist { get; }
 
     /// <summary>
     /// Song title
     /// </summary>
-    string Title { get; set; }
+    string Title { get; }
 
     /// <summary>
     ///  Creator of the track file (usdb txt file)
     /// </summary>
-    string Creator { get; set; }
+    string Creator { get; }
 
     /// <summary>
     ///  Length of the songs
     /// </summary>
-    int Length { get; set; }
+    int Length { get; }
 
     /// <summary>
     /// Song BPM
     /// </summary>
-    double Bpm { get; set; }
+    double Bpm { get; }
 
     /// <summary>
     /// USDX File version
     /// </summary>
-    string Version { get; set; }
+    string Version { get; }
 
     /// <summary>
     /// The Path of the directory
     /// </summary>
-    string DirPath { get; set; }
+    string DirPath { get; }
 
     /// <summary>
     /// Song path, relative to the song directory
     /// </summary>
-    string AudioFile { get; set; }
+    string AudioFile { get; }
 
     /// <summary>
     /// The Path of the text file containing all metadata
     /// </summary>
-    string MetadataFile { get; set; }
+    string MetadataFile { get; }
 
     /// <summary>
     /// Background image path, relative to the song directory
     /// </summary>
-    string? BackgroundImageFile { get; set; }
+    string? BackgroundImageFile { get; }
 
     /// <summary>
     /// Background video path, relative to the song directory
     /// </summary>
-    string? BackgroundVideoFile { get; set; }
+    string? BackgroundVideoFile { get; }
 
     /// <summary>
     /// Background video path, relative to the song directory
     /// </summary>
-    double VideoGap { get; set; }
+    double VideoGap { get; }
 
     /// <summary>
     /// Gap between the start of the song and the first note. Should be 0 if none exists
     /// </summary>
-    double Gap { get; set; }
+    double Gap { get; }
 }
 
 public static class TrackMetadataExtensions
 {
-    /// <summary>
-    /// Helper function to apply ITrackMetadata to the current metadata.
-    /// This can be helpful when transferring file types. e.g. from USDX to Megastar
-    /// </summary>
-    public static void CollectMetadataFrom(this ITrackMetadata curr, ITrackMetadata? other)
-    {
-        if (other == null) return;
-
-        curr.Artist = other.Artist;
-        curr.Title = other.Title;
-        curr.Creator = other.Creator;
-        curr.Length = other.Length;
-        curr.Bpm = other.Bpm;
-        curr.Version = other.Version;
-        curr.AudioFile = other.AudioFile;
-        curr.MetadataFile = other.MetadataFile;
-        curr.DirPath = other.DirPath;
-        curr.BackgroundImageFile = other.BackgroundImageFile;
-        curr.BackgroundVideoFile = other.BackgroundVideoFile;
-        curr.VideoGap = other.VideoGap;
-        curr.Gap = other.Gap;
-    }
-
     public static string AudioFilePath(this ITrackMetadata metadata) =>
         Path.Combine(metadata.DirPath, metadata.AudioFile);
 
@@ -107,4 +86,11 @@ public static class TrackMetadataExtensions
 
     public static string? BackgroundVideoFilePath(this ITrackMetadata metadata) =>
         metadata.BackgroundVideoFile != null ? Path.Combine(metadata.DirPath, metadata.BackgroundVideoFile) : null;
+
+
+    public static List<IBeatPaced> LoadNotes(this ITrackMetadata metadata) =>
+        string.IsNullOrEmpty(metadata.MetadataFile) || string.IsNullOrEmpty(metadata.MetadataFile) ||
+        !File.Exists(metadata.MetadataFile)
+            ? []
+            : UsdxParser.ParseUsdxNotes(File.ReadAllText(metadata.MetadataFile));
 }
