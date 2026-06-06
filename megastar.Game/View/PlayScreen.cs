@@ -323,7 +323,14 @@ public partial class PlayScreen : Screen
         if (paused)
         {
             paused = false;
-            audioTrack?.Start();
+            if (game.GetFirstSong() != curTrack)
+            {
+                setUpTrack(game.GetFirstSong());
+            }
+            else
+            {
+                audioTrack?.Start();
+            }
         }
         else
         {
