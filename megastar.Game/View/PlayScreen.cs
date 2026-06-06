@@ -6,6 +6,7 @@ using megastar.Game.notes;
 using megastar.Game.Preset;
 using megastar.Game.Track;
 using megastar.Game.Translations;
+using OpenTabletDriver.Native.Windows.Input;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
@@ -16,10 +17,12 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Video;
+using osu.Framework.Input.Events;
 using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
+using osuTK.Input;
 
 namespace megastar.Game.View;
 
@@ -31,6 +34,8 @@ public partial class PlayScreen : Screen
     [Resolved] private GameHost host { get; set; } = null!; // Resolved to manage NativeStorage instances safely
 
     private List<IBeatPaced> curNotes = new List<IBeatPaced>();
+
+    private bool paused = false;
 
     //Phrasing on Lyrics
     private List<List<INote>> allPhrases;
@@ -286,10 +291,10 @@ public partial class PlayScreen : Screen
 
             handlePhraseSwitching();
         }
+
         //TODO hier nur zu testzwecken bis wirklicher input eingelesen wird
-        ReceiveSungNote(new UsdxNote((uint)currentBeat, Random.Shared.Next(1, 5), Random.Shared.Next(5, 20), "", UsdxNoteType.Sung));
-
-
+        ReceiveSungNote(new UsdxNote((uint)currentBeat, Random.Shared.Next(1, 5), Random.Shared.Next(5, 20), "",
+            UsdxNoteType.Sung));
 
 
         //TODO only for test purpose
@@ -302,17 +307,28 @@ public partial class PlayScreen : Screen
         //End screen on track end
         if (audioTrack != null && audioTrack.HasCompleted && curTrack != null && this.IsCurrentScreen())
         {
-            var backgroundImage = curTrack.TrackMetadata.BackgroundImageFile.IsNotNull() ? activeTextureStore.Get(curTrack.TrackMetadata.BackgroundImageFile) : null;
+            var backgroundImage = curTrack.TrackMetadata.BackgroundImageFile.IsNotNull()
+                ? activeTextureStore.Get(curTrack.TrackMetadata.BackgroundImageFile)
+                : null;
             //TODO Real score needs to be entered here
             this.Push(new EndScreen(backgroundImage, curTrack, 67911, 676767));
-
         }
     }
 
     public override void OnResuming(ScreenTransitionEvent e)
     {
         base.OnResuming(e);
-        this.setUpTrack(game.NextSong());
+
+        //checks if the resume is from a pause screen or endscreen
+        if (paused)
+        {
+            paused = false;
+            audioTrack?.Start();
+        }
+        else
+        {
+            this.setUpTrack(game.NextSong());
+        }
     }
 
     private void handlePhraseSwitching()
@@ -377,10 +393,10 @@ public partial class PlayScreen : Screen
     /// <param name="sungNote"></param>
     public void ReceiveSungNote(INote sungNote)
     {
-        if ((uint) currentBeat > lastReceivedNoteBeat)
+        if ((uint)currentBeat > lastReceivedNoteBeat)
         {
             currentNotesContainer?.AddSungNote(sungNote);
-            lastReceivedNoteBeat = sungNote.StartBeat + (uint) sungNote.Length;
+            lastReceivedNoteBeat = sungNote.StartBeat + (uint)sungNote.Length;
         }
     }
 
@@ -391,5 +407,17 @@ public partial class PlayScreen : Screen
     public double GetCurrentBeat()
     {
         return currentBeat;
+    }
+
+    protected override bool OnKeyDown(KeyDownEvent e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            this.Push(new PauseScreen());
+            audioTrack?.Stop();
+            paused = true;
+        }
+
+        return base.OnKeyDown(e);
     }
 }
