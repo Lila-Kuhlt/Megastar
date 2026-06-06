@@ -17,12 +17,13 @@ public class TrackLoader(TrackRepository repository)
         if (!Directory.Exists(path))
             return;
 
-        var paths = Directory.EnumerateFiles(path, "*.txt", SearchOption.AllDirectories);
+        var paths = Directory.GetDirectories(path)
+            .SelectMany(dir => Directory.GetFiles(dir, "*.txt"));
 
         paths
             .Select(LoadFile)
             .Where(metadata => metadata != null)
-            .ForEach((metadata => repository.Add(metadata))!);
+            .ForEach(repository.Add!);
     }
 
     public static Task<MegastarTrackMetadata?> LoadFileAsync(string path) => Task.FromResult(LoadFile(path));

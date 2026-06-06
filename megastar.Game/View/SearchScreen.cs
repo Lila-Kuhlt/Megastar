@@ -42,7 +42,7 @@ public partial class SearchScreen : Screen
             X = -100,
 
             // Generates completely new UI objects every time the screen is entered
-            ChildrenEnumerable = trackRepository.AllTracks().Select(meta => new UsdxTrackDrawable(meta)),
+            ChildrenEnumerable = [],
         };
 
 

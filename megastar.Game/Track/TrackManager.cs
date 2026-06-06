@@ -2,6 +2,7 @@ using Realms;
 
 namespace megastar.Game.Track;
 
-public class TrackManager(Realm realm)
+// Should hold current playing track and maybe manage queue
+public class TrackManager(TrackRepository repository)
 {
 }

@@ -9,10 +9,10 @@ namespace megastar.Game.Track.Usdx;
 
 public sealed partial class UsdxTrackDrawable : CompositeDrawable, IFilterable
 {
-    private ITrackMetadata data { get; }
+    private ITrackMetadata metadata { get; }
 
     public IEnumerable<LocalisableString> FilterTerms => new LocalisableString[]
-        { data.Artist, data.Title };
+        { metadata.Artist, metadata.Title };
 
     private bool matchingFilter = true;
 
@@ -28,15 +28,15 @@ public sealed partial class UsdxTrackDrawable : CompositeDrawable, IFilterable
 
     public bool FilteringActive { get; set; }
 
-    public UsdxTrackDrawable(ITrackMetadata data)
+    public UsdxTrackDrawable(ITrackMetadata metadata)
     {
-        this.data = data;
+        this.metadata = metadata;
         AutoSizeAxes = Axes.Y;
         RelativeSizeAxes = Axes.X;
 
         InternalChild = new SpriteText
         {
-            Text = $"{this.data.Title} - {this.data.Artist}",
+            Text = $"{this.metadata.Title} - {this.metadata.Artist}",
             Font = FontUsage.Default.With(size: 20),
             Colour = Color4.White
         };
