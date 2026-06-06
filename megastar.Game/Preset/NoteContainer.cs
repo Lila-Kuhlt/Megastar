@@ -11,7 +11,7 @@ namespace megastar.Game.Preset;
 /// This is a container for notes.
 /// It displays visually based on their pitch and length
 /// </summary>
-public partial class PhraseNotesContainer : Container
+public sealed partial class NoteContainer : Container
 {
     private readonly Container targetNotesLayer;
     private readonly Container sungNotesLayer;
@@ -23,8 +23,8 @@ public partial class PhraseNotesContainer : Container
     /// <summary>
     /// This will instantiate a new container with the given Notes. It will only use the pitch and length to visualize
     /// </summary>
-    /// <param name="phraseNotes">The Notes to display</param>
-    public PhraseNotesContainer(List<INote> phraseNotes)
+    /// <param name="notes">The Notes to display</param>
+    public NoteContainer(List<INote> notes)
     {
         RelativeSizeAxes = Axes.Both;
         targetNotesLayer = new Container
@@ -55,56 +55,46 @@ public partial class PhraseNotesContainer : Container
         AddInternal(sungNotesLayer);
         AddInternal(playhead);
 
+        if (notes.Count <= 0) return;
 
-        //calculate visual representation
-        if (phraseNotes.Count > 0)
+        int phraseStartBeat = notes[0].StartBeat;
+        // Pins the first note 210px from the left edge
+        offsetX = -phraseStartBeat * UsdxNote.SCALE_FACTOR + 210f;
+
+        float totalPitch = 0;
+        int noteCount = 0;
+
+        foreach (var beat in notes)
         {
-            uint phraseStartBeat = phraseNotes[0].StartBeat;
-            // Pins the first note 210px from the left edge
-            offsetX = -phraseStartBeat * UsdxNote.SCALE_FACTOR + 210f;
+            if (beat is not UsdxNote usdxNote) continue;
 
-            float totalPitch = 0;
-            int noteCount = 0;
+            totalPitch += usdxNote.Pitch;
+            noteCount++;
+        }
 
-            foreach (var beat in phraseNotes)
-            {
-                if (beat is UsdxNote usdxNote)
-                {
-                    totalPitch += usdxNote.Pitch;
-                    noteCount++;
-                }
-            }
-
-            float averagePitch = noteCount > 0 ? totalPitch / noteCount : 0;
+        float averagePitch = noteCount > 0 ? totalPitch / noteCount : 0;
 
 
-            offsetY = averagePitch * UsdxNote.HEIGHT_FACTOR;
+        offsetY = averagePitch * UsdxNote.HEIGHT_FACTOR;
 
-            targetNotesLayer.X = offsetX;
-            targetNotesLayer.Y = offsetY;
+        targetNotesLayer.X = offsetX;
+        targetNotesLayer.Y = offsetY;
 
-            sungNotesLayer.X = offsetX;
-            sungNotesLayer.Y = offsetY;
+        sungNotesLayer.X = offsetX;
+        sungNotesLayer.Y = offsetY;
 
-            foreach (var note in phraseNotes)
-            {
-                targetNotesLayer.Add(note.Visual);
-            }
+        foreach (var note in notes)
+        {
+            targetNotesLayer.Add(note.Visual);
         }
     }
 
-    public void UpdateBeat(double currentBeat)
-    {
-        playhead.X = (float)(currentBeat * UsdxNote.SCALE_FACTOR) + offsetX;
-    }
+    public void UpdateBeat(double currentBeat) => playhead.X = (float)(currentBeat * UsdxNote.SCALE_FACTOR) + offsetX;
 
     /// <summary>
     /// Adds a new note to display. Even tough this code in theory be any note, for logical reasons it should only be a note, whoms UsdxNoteType == Sung.
     /// Other types of notes can also be added but will be represented based on their type.
     /// </summary>
     /// <param name="sungNote"></param>
-    public void AddSungNote(INote sungNote)
-    {
-        sungNotesLayer.Add(sungNote.Visual);
-    }
+    public void AddSungNote(INote sungNote) => sungNotesLayer.Add(sungNote.Visual);
 }

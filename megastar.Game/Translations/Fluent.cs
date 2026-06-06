@@ -40,21 +40,23 @@ public class Fluent : IEquatable<Fluent>, ILocalisableStringData
             return key;
         }
 
-        Logger.Log("[WARNING] Using Fluent with LocalisationStores other than FluentTranslationStores is only partially supported.");
+        Logger.Log(
+            "[WARNING] Using Fluent with LocalisationStores other than FluentTranslationStores is only partially supported.");
         return parameters.Store.Get(key);
     }
 
-    public bool Equals(Fluent other)
+    public bool Equals(Fluent? other)
     {
         return other != null && key == other.key && values == other.values;
     }
 
-    public bool Equals(ILocalisableStringData other)
+    public bool Equals(ILocalisableStringData? other)
     {
         if (other is Fluent fluent)
         {
             return Equals(fluent);
         }
+
         return false;
     }
 }

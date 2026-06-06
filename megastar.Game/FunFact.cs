@@ -15,7 +15,7 @@ public class FunFact
     {
         string json = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "funfacts.json"));
 
-        List<FunFact> facts = JsonSerializer.Deserialize<List<FunFact>>(json);
+        List<FunFact> facts = JsonSerializer.Deserialize<List<FunFact>>(json) ?? [];
         Random random = new Random();
         FunFact randomFact = facts[random.Next(facts.Count)];
 

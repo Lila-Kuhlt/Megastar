@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -14,12 +15,12 @@
 
   <ItemGroup>
     <PackageReference Include="Linguini.Bundle" Version="0.11.0" />
-    <PackageReference Include="ppy.osu.Framework" Version="2026.513.0"/>
-    <PackageReference Include="ppy.osu.Framework.NativeLibs" Version="2025.806.0-nativelibs"/>
+    <PackageReference Include="ppy.osu.Framework" Version="2026.513.0" />
+    <PackageReference Include="ppy.osu.Framework.NativeLibs" Version="2025.806.0-nativelibs" />
+    <PackageReference Include="Realm" Version="20.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="files\" />
-    <Folder Include="Track\" />
   </ItemGroup>
 </Project>

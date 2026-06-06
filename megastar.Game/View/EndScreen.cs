@@ -3,6 +3,7 @@ using System.Linq;
 using Linguini.Shared.Types.Bundle;
 using megastar.Game.Preset;
 using megastar.Game.Track;
+using megastar.Game.Track.Usdx;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -25,7 +26,7 @@ namespace megastar.Game.View
         private readonly Texture backgroundTexture;
         private int score;
         private int totalScore;
-        private UsdxTrack lastTrack;
+        private ITrackMetadata lastTrack;
 
         public EndScreen(Texture backgroundTexture, UsdxTrack lastTrack, int score, int totalScore)
         {
@@ -41,8 +42,9 @@ namespace megastar.Game.View
             float performanceRatio = totalScore > 0 ? Math.Clamp((float)score / totalScore, 0f, 1f) : 0f;
 
             // Determine bar color based on performance
-            Color4 performanceColor = performanceRatio > 0.8f ? Color4.LimeGreen :
-                                      (performanceRatio > 0.5f ? Color4.Yellow : Color4.OrangeRed);
+            Color4 performanceColor = performanceRatio > 0.8f
+                ? Color4.LimeGreen
+                : (performanceRatio > 0.5f ? Color4.Yellow : Color4.OrangeRed);
 
             InternalChildren = new Drawable[]
             {
@@ -70,8 +72,8 @@ namespace megastar.Game.View
                 {
                     RelativeSizeAxes = Axes.Both,
                     Padding = new MarginPadding(50),
-                    Children = new Drawable[]
-                    {
+                    Children =
+                    [
                         // Last Song Metadata
                         new FillFlowContainer
                         {
@@ -79,21 +81,21 @@ namespace megastar.Game.View
                             Origin = Anchor.TopLeft,
                             AutoSizeAxes = Axes.Both,
                             Direction = FillDirection.Vertical,
-                            Children = new Drawable[]
-                            {
+                            Children =
+                            [
                                 new SpriteText
                                 {
-                                    Text = lastTrack?.TrackMetadata?.Title ?? Fluent.Translate("end-screen-unknown-title"),
+                                    Text = lastTrack?.Title ?? Fluent.Translate("end-screen-unknown-title"),
                                     Font = new FontUsage(size: 48, weight: "Bold"),
                                     Colour = Color4.White
                                 },
                                 new SpriteText
                                 {
-                                    Text = lastTrack?.TrackMetadata?.Artist ?? Fluent.Translate("end-screen-unknown-title"),
+                                    Text = lastTrack?.Artist ?? Fluent.Translate("end-screen-unknown-title"),
                                     Font = new FontUsage(size: 32),
                                     Colour = Color4.LightGray
                                 }
-                            }
+                            ]
                         },
 
                         //Left container
@@ -106,8 +108,8 @@ namespace megastar.Game.View
                             Width = 0.45f,
                             Direction = FillDirection.Vertical,
                             Spacing = new Vector2(0, 15),
-                            Children = new Drawable[]
-                            {
+                            Children =
+                            [
                                 new SpriteText
                                 {
                                     Text = $"Score: {score} / {totalScore} ({(performanceRatio * 100):0.0}%)",
@@ -120,8 +122,8 @@ namespace megastar.Game.View
                                     Height = 30,
                                     Masking = true,
                                     CornerRadius = 15,
-                                    Children = new Drawable[]
-                                    {
+                                    Children =
+                                    [
                                         new Box
                                         {
                                             RelativeSizeAxes = Axes.Both,
@@ -134,19 +136,20 @@ namespace megastar.Game.View
                                             Width = performanceRatio,
                                             Colour = performanceColor
                                         }
-                                    }
+                                    ]
                                 },
                                 new Container()
                                 {
                                     //TODO Replace this with a nicer button once we have presets for them
                                     new RoundButton()
                                     {
-                                        Text = Fluent.Translate("end-screen-play-next", ("songTitle", (FluentString) game.PeekNextSong()!.TrackMetadata.ToString())),
+                                        Text = Fluent.Translate("end-screen-play-next",
+                                            ("songTitle", (FluentString)game.PeekNextSong()!.ToString())),
                                         Action = this.Exit,
                                         Size = new Vector2(500, 50)
                                     }
                                 }
-                            }
+                            ]
                         },
 
                         //TODO Right Side implement queue and search here
@@ -174,9 +177,13 @@ namespace megastar.Game.View
                                     Padding = new MarginPadding(20),
                                     Direction = FillDirection.Vertical,
                                     Spacing = new Vector2(0, 10),
-                                    Children = new Drawable[]
-                                    {
-                                        new SpriteText { Text = Fluent.Translate("end-screen-add-queue"), Font = new FontUsage(size: 24, weight: "Bold") },
+                                    Children =
+                                    [
+                                        new SpriteText
+                                        {
+                                            Text = Fluent.Translate("end-screen-add-queue"),
+                                            Font = new FontUsage(size: 24, weight: "Bold")
+                                        },
                                         //TODO this is a placeholder and should be replaced with the same logic as the final search
                                         new BasicTextBox
                                         {
@@ -189,8 +196,8 @@ namespace megastar.Game.View
                                             Text = Fluent.Translate("end-screen-next"),
                                             Font = new FontUsage(size: 24, weight: "Bold"),
                                             Margin = new MarginPadding { Top = 20 }
-                                        },
-                                    }
+                                        }
+                                    ]
                                 },
 
                                 //TODO here Queue, the following is only placeholder
@@ -211,7 +218,7 @@ namespace megastar.Game.View
                                             .Skip(1) // Ignores the first song in the list
                                             .Select((track, index) => new SpriteText
                                             {
-                                                Text = $"{index + 1}. " + track.TrackMetadata.ToString(),
+                                                Text = $"{index + 1}. {track}",
                                                 Font = new FontUsage(size: 20),
                                                 Colour = Color4.LightGray
                                             }).ToArray()
@@ -219,7 +226,7 @@ namespace megastar.Game.View
                                 }
                             }
                         }
-                    }
+                    ]
                 }
             };
         }

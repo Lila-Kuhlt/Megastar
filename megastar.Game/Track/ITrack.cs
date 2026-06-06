@@ -1,13 +1,9 @@
+using System;
 using System.Collections.Generic;
 using megastar.Game.notes;
 
 namespace megastar.Game.Track;
 
-public interface ITrack
+public interface ITrack : ITrackMetadata, ITrackData
 {
-    ITrackMetadata TrackMetadata { get; set; }
-    List<IBeatPaced> Notes { get; set; }
-    List<List<INote>> NotePhrases { get; }
-
-    public void clearStorage();
 }

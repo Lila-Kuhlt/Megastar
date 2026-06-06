@@ -1,3 +1,4 @@
+using System;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 
@@ -5,22 +6,16 @@ namespace megastar.Game.notes;
 
 public class UsdxPauseNote(uint startBeat) : IBeatPaced
 {
-    public uint StartBeat { get; set; }
+    public int StartBeat { get; }
     public int Length { get; set; }
     public int Pitch { get; set; }
-    public string Text { get; set; }
-    public UsdxNoteType NoteType { get; set; }
+    public string Text { get; set; } = string.Empty;
+    public UsdxNoteType NoteType { get; set; } = UsdxNoteType.Freestyle;
 
-    public Drawable Visual
+    public Drawable Visual => new SpriteText
     {
-        get
-        {
-            return new SpriteText
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                Text = " ",
-            };
-        }
-    }
+        Anchor = Anchor.Centre,
+        Origin = Anchor.Centre,
+        Text = " ",
+    };
 }
