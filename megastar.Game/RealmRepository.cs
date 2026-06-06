@@ -52,6 +52,6 @@ public class RealmRepository(RealmConfigurationBase realmConfiguration) : IDispo
 
     public void Dispose()
     {
-        // realmContext?.Dispose();
+        updateRealm?.Dispose();
     }
 }

@@ -3,6 +3,7 @@ using System.IO;
 using megastar.Game.notes;
 using megastar.Game.Preset;
 using megastar.Game.Track;
+using megastar.Game.Track.Megastar;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
@@ -91,7 +92,10 @@ public partial class PlayScreen : Screen
 
         //TODO hier sollte irgendwie auch die nächsten Lieder abgespielt werden
         if (game.NextSong() is { } song)
-            loadTrack(song.ToMegastarTrack());
+        {
+            var track = new MegastarTrack(song);
+            loadTrack(track);
+        }
         else
             AddInternal(new SpriteText
             {
@@ -101,21 +105,21 @@ public partial class PlayScreen : Screen
             });
     }
 
-    private void loadTrack(ITrack iTrack)
+    private void loadTrack(ITrack track)
     {
-        lyrics = new Lyrics(iTrack);
+        lyrics = new Lyrics(track);
 
-        var audio = loadAudio(iTrack.DirPath, iTrack.AudioFile);
+        var audio = loadAudio(track.DirPath, track.AudioFile);
         if (audio == null)
             return;
 
         audio.Start();
 
         audioTrack = audio;
-        currentTrack = iTrack;
+        currentTrack = track;
 
-        loadBackgroundImage(iTrack);
-        loadBackgroundVideo(iTrack);
+        loadBackgroundImage(track);
+        loadBackgroundVideo(track);
 
         audio.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
 
@@ -184,7 +188,7 @@ public partial class PlayScreen : Screen
 
     private void loadBackgroundVideo(ITrackMetadata usdxTrack)
     {
-        if (!usdxTrack.BackgroundVideoFile.IsNotNull()) return;
+        if (usdxTrack.BackgroundVideoFile.IsNull()) return;
 
         try
         {

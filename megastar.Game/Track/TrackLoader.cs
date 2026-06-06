@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using megastar.Game.Track.Megastar;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 
 namespace megastar.Game.Track;
@@ -18,11 +19,10 @@ public class TrackLoader(TrackRepository repository)
 
         var paths = Directory.EnumerateFiles(path, "*.txt", SearchOption.AllDirectories);
 
-        var tasks = paths
+        paths
             .Select(LoadFile)
-            .Where(trackPath => trackPath != null);
-
-        repository.AddMultiple(tasks!);
+            .Where(metadata => metadata != null)
+            .ForEach((metadata => repository.Add(metadata))!);
     }
 
     public static Task<MegastarTrackMetadata?> LoadFileAsync(string path) => Task.FromResult(LoadFile(path));

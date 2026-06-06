@@ -175,30 +175,27 @@ public partial class LocalQueueServer : Component
             // Perform the update immediately using a lock
             lock (_listLock)
             {
-                lock (_listLock)
+                switch (action)
                 {
-                    switch (action)
-                    {
-                        case "ADD" when songIndex is >= 0 && songIndex < LoadedSongs.Count:
-                            game.QueueSong(LoadedSongs[songIndex.Value]);
-                            break;
+                    case "ADD" when songIndex is >= 0 && songIndex < LoadedSongs.Count:
+                        game.QueueSong(LoadedSongs[songIndex.Value]);
+                        break;
 
-                        case "REMOVE" when queueIndex is >= 0 && queueIndex < QueuedSongs.Count:
-                            QueuedSongs.RemoveAt(queueIndex.Value);
-                            break;
+                    case "REMOVE" when queueIndex is >= 0 && queueIndex < QueuedSongs.Count:
+                        QueuedSongs.RemoveAt(queueIndex.Value);
+                        break;
 
-                        case "MOVEUP" when queueIndex is > 0 && queueIndex < QueuedSongs.Count:
-                            var trackUp = QueuedSongs[queueIndex.Value];
-                            QueuedSongs.RemoveAt(queueIndex.Value);
-                            QueuedSongs.Insert(queueIndex.Value - 1, trackUp);
-                            break;
+                    case "MOVEUP" when queueIndex is > 0 && queueIndex < QueuedSongs.Count:
+                        var trackUp = QueuedSongs[queueIndex.Value];
+                        QueuedSongs.RemoveAt(queueIndex.Value);
+                        QueuedSongs.Insert(queueIndex.Value - 1, trackUp);
+                        break;
 
-                        case "MOVEDOWN" when queueIndex is > 0 && queueIndex < QueuedSongs.Count - 1:
-                            var trackDown = QueuedSongs[queueIndex.Value];
-                            QueuedSongs.RemoveAt(queueIndex.Value);
-                            QueuedSongs.Insert(queueIndex.Value + 1, trackDown);
-                            break;
-                    }
+                    case "MOVEDOWN" when queueIndex is > 0 && queueIndex < QueuedSongs.Count - 1:
+                        var trackDown = QueuedSongs[queueIndex.Value];
+                        QueuedSongs.RemoveAt(queueIndex.Value);
+                        QueuedSongs.Insert(queueIndex.Value + 1, trackDown);
+                        break;
                 }
             }
 
@@ -207,7 +204,7 @@ public partial class LocalQueueServer : Component
         }
         catch (Exception ex)
         {
-            Logger.GetLogger().Add(("[LocalQueueServer] Error: " + ex.Message), LogLevel.Verbose);
+            Logger.Error(ex, $"[LocalQueueServer]: {ex.Message}");
         }
     }
 
@@ -222,15 +219,15 @@ public partial class LocalQueueServer : Component
             Loaded = LoadedSongs.Select((song, index) => new
             {
                 Index = index,
-                Title = song.Title ?? "Unknown Title",
-                Artist = song.Artist ?? "Unknown Artist"
+                song.Title,
+                song.Artist
             }).ToList(),
 
             Queued = QueuedSongs.Select((song, index) => new
             {
                 Index = index,
-                Title = song.Title ?? "Unknown Title",
-                Artist = song.Artist ?? "Unknown Artist"
+                song.Title,
+                song.Artist
             }).ToList()
         };
 
@@ -252,8 +249,7 @@ public partial class LocalQueueServer : Component
             }
             catch (Exception ex)
             {
-                Logger.GetLogger().Add($"Websocket send failed with message : {ex.Message}", LogLevel.Debug);
-                /* Ignore failed sockets */
+                Logger.Error(ex, $"Websocket send failed with: {ex.Message}");
             }
         }
     }

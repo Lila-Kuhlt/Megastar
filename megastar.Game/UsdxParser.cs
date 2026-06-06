@@ -51,12 +51,13 @@ public static class UsdxParser
 
         var audioFile = audio ?? mp3;
         var dirPath = Path.GetDirectoryName(metadataFile)!;
+        var manifest = Path.GetFileName(metadataFile);
 
         if (audioFile == null) return null;
         if (title == null) return null;
         if (artist == null) return null;
 
-        return new UsdxTrackMetadata(metadataFile: metadataFile, dirPath: dirPath,
+        return new UsdxTrackMetadata(metadataFile: manifest, dirPath: dirPath,
             artist: artist, title: title, creator: creator ?? "?", audioFile: audioFile, length: length,
             backgroundImageFile: background, backgroundVideoFile: video, bpm: bpm, gap: gap, version: version ?? "?",
             videoGap: gap);

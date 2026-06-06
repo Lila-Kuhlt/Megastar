@@ -4,7 +4,7 @@ using megastar.Game.notes;
 
 namespace megastar.Game.Track.Megastar;
 
-public class MegastarTrack(IVerifiableMetadata trackMetadata) : ITrack, IVerifiableMetadata
+public partial class MegastarTrack(IVerifiableMetadata trackMetadata) : ITrack, IVerifiableMetadata
 {
     public Lazy<List<IBeatPaced>> Notes { get; } = new(trackMetadata.LoadNotes);
 

@@ -88,9 +88,12 @@ public static class TrackMetadataExtensions
         metadata.BackgroundVideoFile != null ? Path.Combine(metadata.DirPath, metadata.BackgroundVideoFile) : null;
 
 
-    public static List<IBeatPaced> LoadNotes(this ITrackMetadata metadata) =>
-        string.IsNullOrEmpty(metadata.MetadataFile) || string.IsNullOrEmpty(metadata.MetadataFile) ||
-        !File.Exists(metadata.MetadataFile)
-            ? []
-            : UsdxParser.ParseUsdxNotes(File.ReadAllText(metadata.MetadataFile));
+    public static List<IBeatPaced> LoadNotes(this ITrackMetadata metadata)
+    {
+        if (string.IsNullOrEmpty(metadata.DirPath) || string.IsNullOrEmpty(metadata.MetadataFile) ||
+            !File.Exists(metadata.MetadataFilePath()))
+            return [];
+
+        return UsdxParser.ParseUsdxNotes(File.ReadAllText(metadata.MetadataFilePath()));
+    }
 }

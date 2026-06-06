@@ -6,30 +6,22 @@ using osuTK;
 
 namespace megastar.Game.notes;
 
-public class UsdxNote : INote
+public class UsdxNote(int startBeat, int length, int pitch, string text, UsdxNoteType noteType)
+    : INote
 {
     public static int SCALE_FACTOR = 10;
     public static int HEIGHT_FACTOR = 15;
 
-    public int StartBeat { get; set; }
+    public int StartBeat { get; set; } = startBeat;
 
-    public int Length { get; set; }
-    public int Pitch { get; set; }
-    public string Text { get; set; }
-    public UsdxNoteType NoteType { get; set; }
+    public int Length { get; set; } = length;
+    public int Pitch { get; set; } = pitch;
+    public string Text { get; set; } = text;
+    public UsdxNoteType NoteType { get; set; } = noteType;
 
-    public Drawable Visual => CreateVisual();
+    public Drawable Visual => createVisual();
 
-    public UsdxNote(int startBeat, int length, int pitch, string text, UsdxNoteType noteType)
-    {
-        StartBeat = startBeat;
-        Length = length;
-        Pitch = pitch;
-        Text = text;
-        NoteType = noteType;
-    }
-
-    private Drawable CreateVisual()
+    private Drawable createVisual()
     {
         Colour4 baseColor;
         Colour4 glowColor;
@@ -60,9 +52,9 @@ public class UsdxNote : INote
 
         return new Container
         {
-            X = this.StartBeat * SCALE_FACTOR,
-            Y = -(this.Pitch * HEIGHT_FACTOR) + yOffset,
-            Size = new Vector2(this.Length * SCALE_FACTOR, finalHeight),
+            X = StartBeat * SCALE_FACTOR,
+            Y = -(Pitch * HEIGHT_FACTOR) + yOffset,
+            Size = new Vector2(Length * SCALE_FACTOR, finalHeight),
 
             Masking = true,
             CornerRadius = finalHeight / 2f,
