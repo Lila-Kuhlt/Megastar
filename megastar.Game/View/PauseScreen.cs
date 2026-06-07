@@ -1,10 +1,15 @@
+using System;
+using System.IO;
 using megastar.Game.Preset;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Animations;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
+using osu.Framework.Platform;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
@@ -16,18 +21,50 @@ public partial class PauseScreen : Screen
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
 
-    private SpriteText cur_play_text = new SpriteText()
+
+    private TextureAnimation nyanAnimation;
+    private double nyanPos = 0;
+
+    private SpriteText curPlayText = new SpriteText()
     {
         Anchor = Anchor.BottomCentre,
         Origin = Anchor.BottomCentre,
-        Y = - 13,
+        Y = -13,
         Colour = StandardColours.TEXT,
     };
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(GameHost host)
     {
-        cur_play_text.Text = $"Coming up next : {game.GetFirstSong()?.TrackMetadata.Title}";
+        nyanAnimation = new TextureAnimation
+        {
+            Origin = Anchor.Centre,
+            Anchor = Anchor.Centre,
+            Loop = true,
+            Size = new Vector2(81, 50)
+        };
+
+
+        for (int i = 1; i <= 6; i++)
+        {
+            string fileName = $"nyan_cat{i}.png";
+            string filePath = Path.Combine("Video", "nyan_cat", fileName);
+
+            if (File.Exists(filePath))
+            {
+                using (Stream stream = File.OpenRead(filePath))
+                {
+                    var texture = Texture.FromStream(host.Renderer, stream);
+
+                    if (texture != null)
+                        nyanAnimation.AddFrame(texture, 100);
+                    stream.Close();
+                }
+            }
+        }
+
+
+        curPlayText.Text = $"Coming up next : {game.GetFirstSong()?.TrackMetadata.Title}";
         InternalChildren = new Drawable[]
         {
             new ShaderBackground("sh_background.fs"),
@@ -61,7 +98,7 @@ public partial class PauseScreen : Screen
                         Action = () =>
                         {
                             game.NextSong();
-                            cur_play_text.Text = $"Coming up next : {game.GetFirstSong()?.TrackMetadata.Title}";
+                            curPlayText.Text = $"Coming up next : {game.GetFirstSong()?.TrackMetadata.Title}";
                         }
                     },
                 }
@@ -85,10 +122,24 @@ public partial class PauseScreen : Screen
                         Alpha = 0.55f
                     },
 
-                    cur_play_text
+                    curPlayText
                 }
-            }
+            },
+            nyanAnimation,
         };
+    }
+
+
+    protected override void Update()
+    {
+        base.Update();
+        nyanAnimation.Rotation = ((float)(nyanPos * 180 / Math.PI) - 90) % 360f;
+
+        nyanAnimation.Y = -(float)Math.Sin(nyanPos) * 400;
+        nyanAnimation.X = -(float)Math.Cos(nyanPos) * 400;
+
+
+        nyanPos = (nyanPos + (Time.Elapsed * 0.001)) % (2 * Math.PI);
     }
 
     protected override bool OnKeyDown(KeyDownEvent e)
