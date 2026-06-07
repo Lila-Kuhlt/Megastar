@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using megastar.Game.Track;
+using osu.Framework.Bindables;
 using osu.Framework.Logging;
 
 namespace megastar.Game.WebConnectionQueue
@@ -37,10 +38,19 @@ namespace megastar.Game.WebConnectionQueue
         /// </summary>
         public void StartWebserver()
         {
-            _listener.Start();
-            _listener.Prefixes.Add($"http://+:{_port}/");
+            try
+            {
+                _listener.Start();
+                _listener.Prefixes.Add($"http://+:{_port}/");
 
-            Task.Run(StartServerLoopAsync);
+                Task.Run(StartServerLoopAsync);
+            }
+            catch (Exception e)
+            {
+                Logger.GetLogger().Add("Could not start server due to not getting access to port", LogLevel.Error);
+                Settings.GetSettings().WebAppActive.BindTo(new Bindable<bool>(false));
+            }
+
         }
 
         /// <summary>
