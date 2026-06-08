@@ -8,9 +8,11 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Input.Events;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
+using osuTK.Input;
 
 namespace megastar.Game.View;
 
@@ -42,7 +44,6 @@ public partial class SearchScreen : Screen
             // Generates completely new UI objects every time the screen is entered
             Children = game.LoadedSongs.Select(trackData => new UsdxTrackDrawable(trackData)).ToArray(),
         };
-
 
 
         //Bind the text changes to the search
@@ -77,5 +78,15 @@ public partial class SearchScreen : Screen
                 Child = searchContainer
             }
         ];
+    }
+
+    protected override bool OnKeyDown(KeyDownEvent e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            this.Exit();
+        }
+
+        return base.OnKeyDown(e);
     }
 }

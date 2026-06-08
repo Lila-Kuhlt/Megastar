@@ -10,9 +10,11 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Input.Events;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
+using osuTK.Input;
 
 namespace megastar.Game.View;
 
@@ -144,5 +146,16 @@ public partial class FileSelectorScreen : Screen
         }
 
         game.LocalQueueServer.BroadcastStateAsync();
+    }
+
+
+    protected override bool OnKeyDown(KeyDownEvent e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            this.Exit();
+        }
+
+        return base.OnKeyDown(e);
     }
 }
