@@ -4,6 +4,8 @@ using megastar.Game.notes;
 
 namespace megastar.Game.Track;
 
-public interface ITrack : ITrackMetadata, ITrackData
+public interface ITrack
 {
+    ITrackMetadata Metadata { get; }
+    ITrackData TrackData { get; }
 }

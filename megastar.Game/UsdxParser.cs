@@ -57,10 +57,10 @@ public static class UsdxParser
         if (title == null) return null;
         if (artist == null) return null;
 
-        return new UsdxTrackMetadata(metadataFile: manifest, dirPath: dirPath,
-            artist: artist, title: title, creator: creator ?? "?", audioFile: audioFile, length: length,
-            backgroundImageFile: background, backgroundVideoFile: video, bpm: bpm, gap: gap, version: version ?? "?",
-            videoGap: gap);
+        return new UsdxTrackMetadata(MetadataFile: manifest, DirPath: dirPath,
+            Artist: artist, Title: title, Creator: creator ?? "?", AudioFile: audioFile, Length: length,
+            BackgroundImageFile: background, BackgroundVideoFile: video, Bpm: bpm, Gap: gap, Version: version ?? "?",
+            VideoGap: gap);
     }
 
     public static List<IBeatPaced> ParseUsdxNotes(string rawUsdx)

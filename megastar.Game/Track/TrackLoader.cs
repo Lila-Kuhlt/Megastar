@@ -36,12 +36,12 @@ public class TrackLoader(TrackRepository repository)
         var dir = Path.GetDirectoryName(path);
         if (dir == null || !Directory.Exists(dir)) return null;
 
-        var metadata = UsdxParser.ParseUsdxFile(path);
+        var usdxTrack = UsdxParser.ParseUsdxFile(path);
 
-        if (metadata == null) return null;
+        if (usdxTrack == null) return null;
 
         // convert to megastar format
-        var megaMeta = new MegastarTrackMetadata(metadata);
+        var megaMeta = new MegastarTrackMetadata(usdxTrack.Metadata);
         megaMeta.SetHashes();
 
         var now = sw.Elapsed;

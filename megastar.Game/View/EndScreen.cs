@@ -19,22 +19,10 @@ using osuTK.Graphics;
 
 namespace megastar.Game.View
 {
-    public partial class EndScreen : Screen
+    public partial class EndScreen(Texture backgroundTexture, ITrack lastTrack, int score, int totalScore)
+        : Screen
     {
         [Resolved] private MegastarGameBase game { get; set; } = null!;
-
-        private readonly Texture backgroundTexture;
-        private int score;
-        private int totalScore;
-        private ITrackMetadata lastTrack;
-
-        public EndScreen(Texture backgroundTexture, UsdxTrack lastTrack, int score, int totalScore)
-        {
-            this.backgroundTexture = backgroundTexture;
-            this.score = score;
-            this.totalScore = totalScore;
-            this.lastTrack = lastTrack;
-        }
 
         [BackgroundDependencyLoader]
         private void load()
@@ -85,13 +73,13 @@ namespace megastar.Game.View
                             [
                                 new SpriteText
                                 {
-                                    Text = lastTrack?.Title ?? Fluent.Translate("end-screen-unknown-title"),
+                                    Text = lastTrack.Metadata.Title ?? Fluent.Translate("end-screen-unknown-title"),
                                     Font = new FontUsage(size: 48, weight: "Bold"),
                                     Colour = Color4.White
                                 },
                                 new SpriteText
                                 {
-                                    Text = lastTrack?.Artist ?? Fluent.Translate("end-screen-unknown-title"),
+                                    Text = lastTrack.Metadata.Artist ?? Fluent.Translate("end-screen-unknown-title"),
                                     Font = new FontUsage(size: 32),
                                     Colour = Color4.LightGray
                                 }

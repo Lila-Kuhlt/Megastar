@@ -107,9 +107,9 @@ public partial class PlayScreen : Screen
 
     private void loadTrack(ITrack track)
     {
-        lyrics = new Lyrics(track);
+        lyrics = new Lyrics(track.TrackData);
 
-        var audio = loadAudio(track.DirPath, track.AudioFile);
+        var audio = loadAudio(track.Metadata.DirPath, track.Metadata.AudioFile);
         if (audio == null)
             return;
 
@@ -118,8 +118,8 @@ public partial class PlayScreen : Screen
         audioTrack = audio;
         currentTrack = track;
 
-        loadBackgroundImage(track);
-        loadBackgroundVideo(track);
+        loadBackgroundImage(track.Metadata);
+        loadBackgroundVideo(track.Metadata);
 
         audio.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
 
@@ -157,7 +157,7 @@ public partial class PlayScreen : Screen
 
         try
         {
-            // Create clean virtual storage handles targetting the song's directory
+            // Create clean virtual storage handles targeting the song's directory
             var textureStorage = new NativeStorage(usdxTrack.DirPath, host);
             activeTextureResourceStore = new StorageBackedResourceStore(textureStorage);
             activeTextureStore = new TextureStore(host.Renderer,
@@ -225,13 +225,13 @@ public partial class PlayScreen : Screen
         base.Update();
         if (currentTrack == null) return;
 
-        int iBeat = (int)beat;
+        var iBeat = (int)beat;
 
         ReceiveSungNote(new UsdxNote(iBeat, Random.Shared.Next(1, 5), Random.Shared.Next(5, 20), "",
             UsdxNoteType.Sung));
 
-        double ultraStarBpm = currentTrack.Bpm;
-        beat = ultraStarBpm * 4 * (audioTrack.CurrentTime - currentTrack.Gap) / 60000.0;
+        var ultraStarBpm = currentTrack.Metadata.Bpm;
+        beat = ultraStarBpm * 4 * (audioTrack.CurrentTime - currentTrack.Metadata.Gap) / 60000.0;
 
         notesContainer.UpdateBeat(beat);
         lyricsContainer.UpdateBeat(beat);
@@ -245,7 +245,7 @@ public partial class PlayScreen : Screen
         var startBeat = nextLyric.StartBeat;
 
         // Switch phrase 1/4 between the end of the current one and the start of the next one
-        double switchBeat = endBeat + (endBeat - startBeat) / 4.0;
+        var switchBeat = endBeat + (endBeat - startBeat) / 4.0;
 
         if (!(beat >= switchBeat)) return;
 
