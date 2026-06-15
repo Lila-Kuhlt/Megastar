@@ -7,9 +7,10 @@ namespace megastar.Game.Track;
 
 public class LazyLoadedTrackData(ITrackMetadata metadata) : ITrackData
 {
-    public Lazy<List<IBeatPaced>> Notes { get; } = new(() => LoadNotes(metadata));
+    private Lazy<List<IBeatPaced>> notes { get; } = new(() => loadNotes(metadata));
+    public List<IBeatPaced> Notes => notes.Value;
 
-    private static List<IBeatPaced> LoadNotes(ITrackMetadata metadata)
+    private static List<IBeatPaced> loadNotes(ITrackMetadata metadata)
     {
         var fileName = metadata.MetadataFile;
         var filePath = metadata.MetadataFilePath();

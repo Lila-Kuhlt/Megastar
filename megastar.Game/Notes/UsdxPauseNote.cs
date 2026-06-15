@@ -4,9 +4,9 @@ using osu.Framework.Graphics.Sprites;
 
 namespace megastar.Game.notes;
 
-public class UsdxPauseNote(uint startBeat) : IBeatPaced
+public class UsdxPauseNote(int startBeat) : IBeatPaced
 {
-    public int StartBeat { get; }
+    public int StartBeat { get; } = startBeat;
     public int Length { get; set; }
     public int Pitch { get; set; }
     public string Text { get; set; } = string.Empty;

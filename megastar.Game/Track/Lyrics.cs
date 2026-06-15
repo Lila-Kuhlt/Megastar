@@ -65,7 +65,7 @@ public record LyricEnumerator(ITrackData Data) : IEnumerable<Lyric>
     public IEnumerator<Lyric> GetEnumerator()
     {
         List<IBeatPaced> aggregator = [];
-        foreach (var note in Data.Notes.Value)
+        foreach (var note in Data.Notes)
         {
             switch (note)
             {
