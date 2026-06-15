@@ -111,7 +111,7 @@ public static class UsdxParser
 
         if (splitNote[0].Equals("-"))
         {
-            return new UsdxPauseNote(Convert.ToUInt32(splitNote[1]));
+            return new UsdxPauseNote(Convert.ToInt32(splitNote[1]));
         }
 
         UsdxNoteType noteType = splitNote[0] switch
