@@ -1,0 +1,10 @@
+using System;
+using System.Collections.Generic;
+using megastar.Game.notes;
+
+namespace megastar.Game.Track;
+
+public interface ITrackData
+{
+    List<IBeatPaced> Notes { get; }
+}

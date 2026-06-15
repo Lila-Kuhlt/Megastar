@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using megastar.Game.Preset;
 using megastar.Game.Track;
+using megastar.Game.Track.Usdx;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -17,6 +18,7 @@ namespace megastar.Game.View;
 public partial class SearchScreen : Screen
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
+    [Resolved] private TrackRepository trackRepository { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -40,9 +42,8 @@ public partial class SearchScreen : Screen
             X = -100,
 
             // Generates completely new UI objects every time the screen is entered
-            Children = game.LoadedSongs.Select(trackData => new UsdxTrackDrawable(trackData)).ToArray(),
+            ChildrenEnumerable = [],
         };
-
 
 
         //Bind the text changes to the search

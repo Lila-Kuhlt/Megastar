@@ -14,7 +14,7 @@ main-exit = Exit
 index-select-folder = Select a songs folder:
 index-select-current-folder = Select current folder
 index-folder-selected = Currently Selected: {$folderName}
-index-selection-successful = Folder successfully selected. Found {$songCount} songs.
+index-selection-successful = Currently loaded {$songCount} songs.
 
 ## Play Screen
 play-song-error = Error, failed to load song.
