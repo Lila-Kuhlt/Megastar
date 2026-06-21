@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using megastar.Game.notes;
 using megastar.Game.Preset;
 using megastar.Game.Track;
@@ -8,18 +7,13 @@ using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
-using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Graphics.Textures;
-using osu.Framework.Graphics.Video;
 using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
-using osu.Framework.Timing;
 using AudioTrack = osu.Framework.Audio.Track.Track;
 using ITrack = megastar.Game.Track.ITrack;
 

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using megastar.Game.Track.Megastar;
+using megastar.Game.Track.Usdx;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 

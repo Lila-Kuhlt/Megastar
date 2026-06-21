@@ -1,6 +1,3 @@
-using Linguini.Bundle.Builder;
-using System.Globalization;
-using megastar.Game.Translations;
 using megastar.Game.View;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;

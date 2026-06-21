@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Primitives;

@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using megastar.Game.Track;
 using osu.Framework.Allocation;

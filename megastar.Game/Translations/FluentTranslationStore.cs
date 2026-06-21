@@ -1,17 +1,13 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Linguini.Bundle.Builder;
 using Linguini.Bundle;
 using Linguini.Bundle.Errors;
 using Linguini.Shared.Types.Bundle;
-using megastar.Resources;
-using osu.Framework.Bindables;
 using osu.Framework.IO.Stores;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;

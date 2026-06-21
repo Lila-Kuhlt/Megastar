@@ -1,8 +1,6 @@
-
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-#nullable disable
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.UserInterface;
@@ -13,7 +11,7 @@ using osuTK;
 
 namespace megastar.Game.Preset;
 
-public partial class AdvancedDirectorySelector(string initialPath = null) : DirectorySelector(initialPath)
+public partial class AdvancedDirectorySelector(string? initialPath = null) : DirectorySelector(initialPath)
 {
 
     protected override DirectorySelectorBreadcrumbDisplay CreateBreadcrumb() => new BasicDirectorySelectorBreadcrumbDisplay();

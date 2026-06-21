@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using megastar.Game.Preset;
 using megastar.Game.Track;
 using megastar.Game.Track.Usdx;
@@ -11,7 +10,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Screens;
 using osuTK;
-using osuTK.Graphics;
 
 namespace megastar.Game.View;
 

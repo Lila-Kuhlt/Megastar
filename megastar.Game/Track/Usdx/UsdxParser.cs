@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using megastar.Game.notes;
-using megastar.Game.Track.Usdx;
 
-namespace megastar.Game;
+namespace megastar.Game.Track.Usdx;
 
 public static class UsdxParser
 {

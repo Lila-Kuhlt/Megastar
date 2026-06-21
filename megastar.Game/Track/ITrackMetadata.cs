@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using megastar.Game.notes;
+using megastar.Game.Track.Usdx;
 
 namespace megastar.Game.Track;
 
