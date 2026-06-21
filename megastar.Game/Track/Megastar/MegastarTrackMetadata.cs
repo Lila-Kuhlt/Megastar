@@ -1,8 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using Realms;
 
@@ -20,9 +16,6 @@ public partial class MegastarTrackMetadata : IVerifiableMetadata, IRealmObject
     public byte[]? BackgroundVideoHash { get; set; }
     public DateTimeOffset LastVerified { get; set; }
 
-    private int sampleStart;
-    private int sampleLength;
-
     public MegastarTrackMetadata(ITrackMetadata metadata)
     {
         Artist = metadata.Artist;
@@ -39,8 +32,6 @@ public partial class MegastarTrackMetadata : IVerifiableMetadata, IRealmObject
         VideoGap = metadata.VideoGap;
         Gap = metadata.Gap;
     }
-
-    public TrackAudioSample TrackAudioSample => new(sampleStart, sampleLength);
 
     // Track Metadata
 

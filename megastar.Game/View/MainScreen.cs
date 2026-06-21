@@ -1,13 +1,9 @@
 using megastar.Game.Preset;
-using System.Linq;
-using System.Net.Mime;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Graphics.UserInterface;
-using osu.Framework.IO.Stores;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
@@ -99,7 +95,7 @@ namespace megastar.Game.View
                 },
                 new SpriteText()
                 {
-                    Text = FunFact.GetCowFunfact(),
+                    Text = FunFacts.RandomFunFact(),
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
                     Font = new FontUsage("kuuhleFont", 40f),

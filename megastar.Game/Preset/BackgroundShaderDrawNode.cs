@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Primitives;
@@ -38,7 +37,7 @@ public partial class ShaderBackground(string fsShader) : Box
 
 internal class BackgroundShaderDrawNode(IDrawable node, IShader shader) : DrawNode(node)
 {
-    [CanBeNull] private IUniformBuffer<BackgroundShaderParameter> uniformBuffer;
+    private IUniformBuffer<BackgroundShaderParameter>? uniformBuffer;
 
     private Quad screenSpaceDrawQuad;
 

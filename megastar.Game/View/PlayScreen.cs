@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using megastar.Game.notes;
 using megastar.Game.Preset;
 using megastar.Game.Track;
@@ -8,18 +7,13 @@ using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
-using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Graphics.Textures;
-using osu.Framework.Graphics.Video;
 using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
-using osu.Framework.Timing;
 using AudioTrack = osu.Framework.Audio.Track.Track;
 using ITrack = megastar.Game.Track.ITrack;
 
@@ -27,25 +21,25 @@ namespace megastar.Game.View;
 
 public partial class PlayScreen : Screen
 {
-    private AudioTrack audioTrack;
-
     [Resolved] private MegastarGameBase game { get; set; } = null!;
     [Resolved] private GameHost host { get; set; } = null!;
+    [Resolved] private AudioManager audioManager { get; set; } = null!;
 
     private Lyrics lyrics = null!;
     private LyricsContainer lyricsContainer = null!;
     private NoteContainer notesContainer = null!;
 
 
-    private static AudioManager audioManager = null!;
     private ITrack? currentTrack;
-    private Video backgroundVideo = null!;
+
+    private AudioTrack audioTrack = null!;
+
 
     private double beat { get; set; }
 
+    private int lastReceivedNoteBeat;
 
-    // Dedicated layer to safely swap background sprites behind UI elements
-    private readonly Container backgroundLayer = new() { RelativeSizeAxes = Axes.Both };
+    private readonly DynamicTrackBackground background = new();
 
     private readonly Container lyricsLayer = new()
     {
@@ -61,25 +55,12 @@ public partial class PlayScreen : Screen
         AlwaysPresent = true
     };
 
-
-    private Sprite currentBackground;
-    private TextureStore activeTextureStore;
-    private StorageBackedResourceStore activeTextureResourceStore;
-    private StorageBackedResourceStore activeAudioResourceStore;
-    private StorageBackedResourceStore activeVideoRessourceStore;
-    private FluentTranslationStore t = null!;
-
-    private int lastReceivedNoteBeat;
-
     [BackgroundDependencyLoader]
-    private void load(AudioManager audio)
+    private void load()
     {
-        audioManager = audio;
-
         InternalChildren =
         [
-            new Box { Colour = StandardColours.BACKGROUND, RelativeSizeAxes = Axes.Both },
-            backgroundLayer,
+            background,
             new BackButton(this.Exit, Fluent.Translate("common-back")),
             notesLayer,
             lyricsLayer
@@ -113,13 +94,13 @@ public partial class PlayScreen : Screen
         if (audio == null)
             return;
 
+        background.LoadTrack(track.Metadata, audio);
+
         audio.Start();
 
         audioTrack = audio;
         currentTrack = track;
 
-        loadBackgroundImage(track.Metadata);
-        loadBackgroundVideo(track.Metadata);
 
         audio.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
 
@@ -149,75 +130,6 @@ public partial class PlayScreen : Screen
 
         notesContainer = new NoteContainer(lyric.Notes);
         notesLayer.Add(notesContainer);
-    }
-
-    private void loadBackgroundImage(ITrackMetadata usdxTrack)
-    {
-        if (!usdxTrack.BackgroundImageFile.IsNotNull()) return;
-
-        try
-        {
-            // Create clean virtual storage handles targeting the song's directory
-            var textureStorage = new NativeStorage(usdxTrack.DirPath, host);
-            activeTextureResourceStore = new StorageBackedResourceStore(textureStorage);
-            activeTextureStore = new TextureStore(host.Renderer,
-                host.CreateTextureLoaderStore(activeTextureResourceStore));
-
-            var texture = activeTextureStore.Get(usdxTrack.BackgroundImageFile);
-
-            if (texture == null) return;
-
-            backgroundLayer.Add(currentBackground = new Sprite
-            {
-                RelativeSizeAxes = Axes.Both,
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                FillMode = FillMode.Fill,
-                Texture = texture,
-                Alpha = 0
-            });
-
-            // Fade between backgrounds
-            currentBackground.FadeIn(100, Easing.OutQuint);
-        }
-        catch (Exception ex) // TODO: Don't catch all Exceptions -- this is bad practice!
-        {
-            Logger.Error(ex, "Failed to load karaoke track background image.");
-        }
-    }
-
-    private void loadBackgroundVideo(ITrackMetadata usdxTrack)
-    {
-        if (usdxTrack.BackgroundVideoFile.IsNull()) return;
-
-        try
-        {
-            string videoPath = Path.Combine(usdxTrack.DirPath,
-                usdxTrack.BackgroundVideoFile);
-
-            if (!File.Exists(videoPath)) return;
-
-            // Let C# handle the file reading safely to bypass FFmpeg pathing issues
-            Stream videoStream = File.OpenRead(videoPath);
-
-            backgroundVideo = new Video(videoStream)
-            {
-                RelativeSizeAxes = Axes.Both,
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                FillMode = FillMode.Fill,
-                Alpha = 0,
-                Loop = false
-            };
-
-            backgroundVideo.Clock = new FramedOffsetClock(audioTrack) { Offset = usdxTrack.VideoGap };
-            backgroundLayer.Add(backgroundVideo);
-            backgroundVideo.OnLoadComplete += v => { v.FadeIn(0, Easing.OutQuint); };
-        }
-        catch (Exception ex) // TODO: Don't catch all Exceptions -- this is bad practice!
-        {
-            Logger.Error(ex, $"Failed to load karaoke track background video: {ex.Message}");
-        }
     }
 
     protected override void Update()
@@ -257,7 +169,7 @@ public partial class PlayScreen : Screen
         try
         {
             var storage = new NativeStorage(directoryPath, host);
-            activeAudioResourceStore = new StorageBackedResourceStore(storage);
+            using var activeAudioResourceStore = new StorageBackedResourceStore(storage);
             ITrackStore customTrackStore = audioManager.GetTrackStore(activeAudioResourceStore);
             return customTrackStore.Get(fileName);
         }
@@ -288,14 +200,5 @@ public partial class PlayScreen : Screen
         //CLEANUP PREVIOUS SONG TRACK & RESOURCES
         audioTrack?.Stop();
         audioTrack?.Dispose();
-
-        activeAudioResourceStore?.Dispose();
-        activeVideoRessourceStore?.Dispose();
-
-        // CLEANUP PREVIOUS BACKGROUND IMAGES & TEXTURE CACHES
-        activeTextureResourceStore?.Dispose();
-        activeTextureStore?.Dispose();
-        currentBackground?.Dispose();
-        backgroundLayer?.Dispose();
     }
 }

@@ -3,7 +3,6 @@ using megastar.Game.Preset;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Configuration;
-using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -21,13 +20,13 @@ namespace megastar.Game.View;
 public partial class SettingsScreen : Screen
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
-    [Resolved] private FrameworkConfigManager config { get; set; }
+    [Resolved] private FrameworkConfigManager config { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load(List<Language> locales, LocalisationManager localisation)
     {
         string savedLanguage = config.Get<string>(FrameworkSetting.Locale);
-        Language initialLang = locales.Find((l) => l.Code == savedLanguage);
+        Language? initialLang = locales.Find((lang) => lang.Code == savedLanguage);
 
         BasicDropdown<Language> languageDropdown = new BasicDropdown<Language>
         {

@@ -17,15 +17,16 @@ public static class StandardColours
 {
     //Pink
     public static readonly Colour4 MAIN = Colour4.FromHex("#C95792");
+
     //Purple
     public static readonly Colour4 SECOND = Colour4.FromHex("#7C4585");
+
     //Yellow
     public static readonly Colour4 THIRD = Colour4.FromHex("#F8B55F");
     public static readonly Colour4 TEXT = Colour4.White;
     public static readonly Colour4 BACKGROUND_TEXT = Colour4.DarkGray;
     public static readonly Colour4 BACKGROUND = Colour4.DeepPink;
 }
-
 
 public enum GameSetting
 {
@@ -38,7 +39,7 @@ public enum GameSetting
 
 public class Settings : IniConfigManager<GameSetting>
 {
-    private static Settings instance;
+    private static Settings instance = null!;
 
     public static void Initialize(Storage storage)
     {
@@ -47,13 +48,15 @@ public class Settings : IniConfigManager<GameSetting>
 
     public static Settings GetSettings()
     {
-        return instance ?? throw new InvalidOperationException("Settings must be initialized with a Storage host first.");
+        return instance ??
+               throw new InvalidOperationException("Settings must be initialized with a Storage host first.");
     }
 
 
     private Settings(Storage storage) : base(storage)
     {
     }
+
     protected override string Filename => "game.ini";
 
     protected override void InitialiseDefaults()

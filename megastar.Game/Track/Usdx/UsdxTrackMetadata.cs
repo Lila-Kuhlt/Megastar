@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-
-namespace megastar.Game.Track.Usdx;
+﻿namespace megastar.Game.Track.Usdx;
 
 public record UsdxTrackMetadata(
     string Artist,

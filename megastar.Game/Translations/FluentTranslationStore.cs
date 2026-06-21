@@ -1,17 +1,13 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Linguini.Bundle.Builder;
 using Linguini.Bundle;
 using Linguini.Bundle.Errors;
 using Linguini.Shared.Types.Bundle;
-using megastar.Resources;
-using osu.Framework.Bindables;
 using osu.Framework.IO.Stores;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
@@ -42,7 +38,7 @@ public class FluentTranslationStore : ILocalisationStore
 
     public Task<string> GetAsync(string name, CancellationToken cancellationToken = new CancellationToken())
     {
-        return new  Task<string>(() => Get(name), cancellationToken);
+        return new Task<string>(() => Get(name), cancellationToken);
     }
 
     /// <summary>
@@ -61,7 +57,9 @@ public class FluentTranslationStore : ILocalisationStore
         var data = baseStore.Get(language);
         this.baseStore = baseStore;
 
-        var (bundle, errors) = LinguiniBuilder.Builder().CultureInfo(new CultureInfo(Path.ChangeExtension(language, null))).AddResource(new StreamReader(new MemoryStream(data))).Build();
+        var (bundle, errors) = LinguiniBuilder.Builder()
+            .CultureInfo(new CultureInfo(Path.ChangeExtension(language, null)))
+            .AddResource(new StreamReader(new MemoryStream(data))).Build();
 
         if (errors != null && errors.Any())
         {
@@ -81,11 +79,13 @@ public class FluentTranslationStore : ILocalisationStore
     {
         try
         {
-            return fluentBundle.GetAttrMessage(msgWithAttr, args);
+            // TODO: This can be null, it will break at some point! See you then
+            return fluentBundle.GetAttrMessage(msgWithAttr, args)!;
         }
         catch (LinguiniException e)
         {
-            Logger.Error(e, $"[ERROR] Missing translation for key \"{msgWithAttr}\" in language {EffectiveCulture.Name}");
+            Logger.Error(e,
+                $"[ERROR] Missing translation for key \"{msgWithAttr}\" in language {EffectiveCulture.Name}");
             return $"[MISSING KEY] \"{msgWithAttr}\" ({EffectiveCulture.Name})";
         }
     }
