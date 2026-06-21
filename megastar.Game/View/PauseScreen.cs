@@ -64,7 +64,7 @@ public partial class PauseScreen : Screen
         }
 
 
-        curPlayText.Text = $"Coming up next : {game.GetFirstSong()?.TrackMetadata.Title}";
+        curPlayText.Text = $"Coming up next : {game.GetFirstSong()?.Title}";
         InternalChildren = new Drawable[]
         {
             new ShaderBackground("sh_background.fs"),
@@ -98,7 +98,7 @@ public partial class PauseScreen : Screen
                         Action = () =>
                         {
                             game.NextSong();
-                            curPlayText.Text = $"Coming up next : {game.GetFirstSong()?.TrackMetadata.Title}";
+                            curPlayText.Text = $"Coming up next : {game.GetFirstSong()?.Title}";
                         }
                     },
                 }

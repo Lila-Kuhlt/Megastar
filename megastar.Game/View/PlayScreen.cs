@@ -70,7 +70,6 @@ public partial class PlayScreen : Screen
     private StorageBackedResourceStore activeTextureResourceStore;
     private StorageBackedResourceStore activeAudioResourceStore;
     private StorageBackedResourceStore activeVideoRessourceStore;
-    private FluentTranslationStore t = null!;
 
     private int lastReceivedNoteBeat;
 
@@ -258,13 +257,13 @@ public partial class PlayScreen : Screen
         //}
 
         //End screen on track end
-        if (audioTrack != null && audioTrack.HasCompleted && curTrack != null && this.IsCurrentScreen())
+        if (audioTrack != null && audioTrack.HasCompleted && currentTrack != null && this.IsCurrentScreen())
         {
-            var backgroundImage = curTrack.TrackMetadata.BackgroundImageFile.IsNotNull()
-                ? activeTextureStore.Get(curTrack.TrackMetadata.BackgroundImageFile)
+            var backgroundImage = currentTrack.Metadata.BackgroundImageFile.IsNotNull()
+                ? activeTextureStore.Get(currentTrack.Metadata.BackgroundImageFile)
                 : null;
             //TODO Real score needs to be entered here
-            this.Push(new EndScreen(backgroundImage, curTrack, 67911, 676767));
+            this.Push(new EndScreen(backgroundImage, currentTrack, 67911, 676767));
         }
 
         if (!(beat >= switchBeat)) return;
@@ -280,9 +279,11 @@ public partial class PlayScreen : Screen
         if (paused)
         {
             paused = false;
-            if (game.GetFirstSong() != curTrack)
+            MegastarTrackMetadata song = game.GetFirstSong();
+            var track = new MegastarTrack(song);
+            if (track != currentTrack)
             {
-                setUpTrack(game.GetFirstSong());
+                loadTrack(track);
             }
             else
             {
@@ -291,7 +292,7 @@ public partial class PlayScreen : Screen
         }
         else
         {
-            this.setUpTrack(game.NextSong());
+            this.loadTrack(new MegastarTrack(game.NextSong()));
         }
     }
 
