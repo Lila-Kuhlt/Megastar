@@ -12,6 +12,7 @@ public sealed partial class BackButton : BasicButton
     /// A reusable back button with predefined styling.
     /// </summary>
     /// <param name="action">The method to execute when the button is clicked.</param>
+    /// <param name="text">The text</param>
     public BackButton(Action action, LocalisableString text)
     {
         Text = text;

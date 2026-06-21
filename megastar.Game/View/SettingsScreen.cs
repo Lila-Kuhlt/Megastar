@@ -21,13 +21,13 @@ namespace megastar.Game.View;
 public partial class SettingsScreen : Screen
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
-    [Resolved] private FrameworkConfigManager config { get; set; }
+    [Resolved] private FrameworkConfigManager config { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load(List<Language> locales, LocalisationManager localisation)
     {
         string savedLanguage = config.Get<string>(FrameworkSetting.Locale);
-        Language initialLang = locales.Find((l) => l.Code == savedLanguage);
+        Language? initialLang = locales.Find((lang) => lang.Code == savedLanguage);
 
         BasicDropdown<Language> languageDropdown = new BasicDropdown<Language>
         {

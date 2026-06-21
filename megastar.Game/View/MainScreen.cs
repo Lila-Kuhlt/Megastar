@@ -99,7 +99,7 @@ namespace megastar.Game.View
                 },
                 new SpriteText()
                 {
-                    Text = FunFact.GetCowFunfact(),
+                    Text = FunFacts.RandomFunFact(),
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
                     Font = new FontUsage("kuuhleFont", 40f),

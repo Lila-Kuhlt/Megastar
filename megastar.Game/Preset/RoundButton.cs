@@ -11,7 +11,6 @@ public sealed partial class RoundButton : BasicButton
     /// <summary>
     /// A reusable back button with predefined styling.
     /// </summary>
-    /// <param name="action">The method to execute when the button is clicked.</param>
     public RoundButton()
     {
         // Setting default anchors, though these can still be overridden when instantiating

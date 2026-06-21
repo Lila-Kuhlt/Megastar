@@ -3,11 +3,9 @@ using megastar.Game.notes;
 using megastar.Game.Track;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
 using osuTK;
 
 namespace megastar.Game.Preset;
-
 
 /// <summary>
 /// A container for multiple <see cref="LyricWord"/>.

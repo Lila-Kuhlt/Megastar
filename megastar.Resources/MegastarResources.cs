@@ -7,7 +7,6 @@ namespace megastar.Resources
 {
     public static class MegastarResources
     {
-        private static string resourcePrefix = "megastar.Resources";
         public static Assembly ResourceAssembly => typeof(MegastarResources).Assembly;
 
         /// <summary>
