@@ -13,7 +13,7 @@ main-exit = Schließen
 index-select-folder = Wähle den Song-Ordner aus:
 index-select-current-folder = Aktuellen Ordner auswählen
 index-folder-selected = Aktuell ausgewählt: {$folderName}
-index-selection-successful = Ein Ordner wurde erfolgreich ausgewählt. Es wurden {$songCount} Lieder erkannt.
+index-selection-successful = Es sind {$songCount} Lieder geladen.
 
 ## Play Screen
 play-song-error = Error, Song konnte nicht geladen werden.

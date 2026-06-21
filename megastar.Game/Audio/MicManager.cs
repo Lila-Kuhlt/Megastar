@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ManagedBass;
 
 namespace megastar.Game.Audio;
 
@@ -45,5 +44,4 @@ public class MicManager
             mic.Stop();
         }
     }
-
 }

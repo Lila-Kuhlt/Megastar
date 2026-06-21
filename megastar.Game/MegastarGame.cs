@@ -10,7 +10,7 @@ namespace megastar.Game
 {
     public partial class MegastarGame : MegastarGameBase
     {
-        private ScreenStack screenStack;
+        private ScreenStack screenStack = null!;
 
         [BackgroundDependencyLoader]
         private void load()

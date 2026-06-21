@@ -6,29 +6,22 @@ using osuTK;
 
 namespace megastar.Game.notes;
 
-public class UsdxNote : INote
+public class UsdxNote(int startBeat, int length, int pitch, string text, UsdxNoteType noteType)
+    : INote
 {
     public static int SCALE_FACTOR = 10;
     public static int HEIGHT_FACTOR = 15;
 
-    public uint StartBeat { get; set; }
-    public int Length { get; set; }
-    public int Pitch { get; set; }
-    public string Text { get; set; }
-    public UsdxNoteType NoteType { get; set; }
+    public int StartBeat { get; set; } = startBeat;
 
-    public Drawable Visual => CreateVisual();
+    public int Length { get; set; } = length;
+    public int Pitch { get; set; } = pitch;
+    public string Text { get; set; } = text;
+    public UsdxNoteType NoteType { get; set; } = noteType;
 
-    public UsdxNote(uint startBeat, int length, int pitch, string text, UsdxNoteType noteType)
-    {
-        StartBeat = startBeat;
-        Length = length;
-        Pitch = pitch;
-        Text = text;
-        NoteType = noteType;
-    }
+    public Drawable Visual => createVisual();
 
-    private Drawable CreateVisual()
+    private Drawable createVisual()
     {
         Colour4 baseColor;
         Colour4 glowColor;
@@ -59,9 +52,9 @@ public class UsdxNote : INote
 
         return new Container
         {
-            X = this.StartBeat * SCALE_FACTOR,
-            Y = -(this.Pitch * HEIGHT_FACTOR) + yOffset,
-            Size = new Vector2(this.Length * SCALE_FACTOR, finalHeight),
+            X = StartBeat * SCALE_FACTOR,
+            Y = -(Pitch * HEIGHT_FACTOR) + yOffset,
+            Size = new Vector2(Length * SCALE_FACTOR, finalHeight),
 
             Masking = true,
             CornerRadius = finalHeight / 2f,
@@ -77,8 +70,8 @@ public class UsdxNote : INote
                 Hollow = true
             },
 
-            Children = new Drawable[]
-            {
+            Children =
+            [
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
@@ -90,12 +83,9 @@ public class UsdxNote : INote
                     Height = 0.5f,
                     Colour = Colour4.White.Opacity(0.3f),
                 }
-            }
+            ]
         };
     }
 
-    public override string ToString()
-    {
-        return this.Text;
-    }
+    public override string ToString() => Text;
 }
