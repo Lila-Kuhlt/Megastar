@@ -20,25 +20,33 @@ public sealed partial class NoteContainer : Container
     private readonly float offsetX;
     private readonly float offsetY;
 
+    private readonly float scaleFactor;
+
     /// <summary>
-    /// This will instantiate a new container with the given Notes. It will only use the pitch and length to visualize
+    /// This will instantiate a new container with the given Notes. It will only use the pitch, length and screen width to visualize
     /// </summary>
     /// <param name="notes">The Notes to display</param>
-    public NoteContainer(List<INote> notes)
+    /// <param name="phraseLength">The absolute length of the current phrase in beats.</param>
+    /// <param name="screenWidth">The current width of the note layer.</param>
+    public NoteContainer(List<INote> notes, int phraseLength, float screenWidth)
     {
         RelativeSizeAxes = Axes.Both;
+        Margin = new MarginPadding { Horizontal = 210f };
+
         targetNotesLayer = new Container
         {
             Anchor = Anchor.CentreLeft,
             Origin = Anchor.CentreLeft,
-            AutoSizeAxes = Axes.Both
+            AutoSizeAxes = Axes.Y,
+            RelativeSizeAxes = Axes.X,
         };
 
         sungNotesLayer = new Container
         {
             Anchor = Anchor.CentreLeft,
             Origin = Anchor.CentreLeft,
-            AutoSizeAxes = Axes.Both
+            AutoSizeAxes = Axes.Y,
+            RelativeSizeAxes = Axes.X,
         };
 
         //This box indicates the current note to be sung by moving along with the beat
@@ -51,6 +59,8 @@ public sealed partial class NoteContainer : Container
             Depth = -1
         };
 
+        scaleFactor = screenWidth / phraseLength;
+
         AddInternal(targetNotesLayer);
         AddInternal(sungNotesLayer);
         AddInternal(playhead);
@@ -59,7 +69,7 @@ public sealed partial class NoteContainer : Container
 
         int phraseStartBeat = notes[0].StartBeat;
         // Pins the first note 210px from the left edge
-        offsetX = -phraseStartBeat * UsdxNote.SCALE_FACTOR + 210f;
+        offsetX = -phraseStartBeat * scaleFactor;
 
         float totalPitch = 0;
         int noteCount = 0;
@@ -74,7 +84,6 @@ public sealed partial class NoteContainer : Container
 
         float averagePitch = noteCount > 0 ? totalPitch / noteCount : 0;
 
-
         offsetY = averagePitch * UsdxNote.HEIGHT_FACTOR;
 
         targetNotesLayer.X = offsetX;
@@ -85,7 +94,8 @@ public sealed partial class NoteContainer : Container
 
         foreach (var note in notes)
         {
-            targetNotesLayer.Add(note.Visual);
+            // scale factor = screen / phrase len
+            targetNotesLayer.Add(note.get_visual(scaleFactor));
         }
     }
 
@@ -96,5 +106,5 @@ public sealed partial class NoteContainer : Container
     /// Other types of notes can also be added but will be represented based on their type.
     /// </summary>
     /// <param name="sungNote"></param>
-    public void AddSungNote(INote sungNote) => sungNotesLayer.Add(sungNote.Visual);
+    public void AddSungNote(INote sungNote) => sungNotesLayer.Add(sungNote.get_visual(scaleFactor));
 }

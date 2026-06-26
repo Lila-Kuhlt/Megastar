@@ -133,8 +133,11 @@ public partial class PlayScreen : Screen
     }
 
 
+    private bool dis = true;
     private void showLyric(Lyric lyric)
     {
+        if (!dis) return;
+
         lyricsLayer.Clear();
         notesLayer.Clear();
 
@@ -146,8 +149,10 @@ public partial class PlayScreen : Screen
 
         lyricsLayer.Add(lyricsContainer);
 
-        notesContainer = new NoteContainer(lyric.Notes);
+        notesContainer = new NoteContainer(lyric.Notes, lyric.TotalLength, notesLayer.DrawWidth);
         notesLayer.Add(notesContainer);
+
+        dis = false;
     }
 
     private void loadBackgroundImage(ITrackMetadata usdxTrack)
