@@ -43,6 +43,15 @@ public partial class PlayScreen : Screen
 
     private double beat { get; set; }
 
+    private Sprite? currentBackground;
+    private TextureStore? activeTextureStore;
+    private StorageBackedResourceStore? activeTextureResourceStore;
+    private StorageBackedResourceStore? activeAudioResourceStore;
+    private StorageBackedResourceStore? activeVideoRessourceStore;
+    private FluentTranslationStore? t = null!;
+
+    private int lastReceivedNoteBeat;
+
 
     // Dedicated layer to safely swap background sprites behind UI elements
     private readonly Container backgroundLayer = new() { RelativeSizeAxes = Axes.Both };
@@ -60,16 +69,6 @@ public partial class PlayScreen : Screen
         Origin = Anchor.Centre,
         AlwaysPresent = true
     };
-
-
-    private Sprite currentBackground;
-    private TextureStore activeTextureStore;
-    private StorageBackedResourceStore activeTextureResourceStore;
-    private StorageBackedResourceStore activeAudioResourceStore;
-    private StorageBackedResourceStore activeVideoRessourceStore;
-    private FluentTranslationStore t = null!;
-
-    private int lastReceivedNoteBeat;
 
     [BackgroundDependencyLoader]
     private void load(AudioManager audio)
