@@ -50,6 +50,8 @@ public partial class PlayScreen : Screen
     private StorageBackedResourceStore? activeVideoRessourceStore;
     private FluentTranslationStore? t = null!;
 
+    private static float notePadding = 210f;
+
     private int lastReceivedNoteBeat;
 
 
@@ -67,7 +69,8 @@ public partial class PlayScreen : Screen
         RelativeSizeAxes = Axes.Both,
         Anchor = Anchor.Centre,
         Origin = Anchor.Centre,
-        AlwaysPresent = true
+        AlwaysPresent = true,
+        Padding = new MarginPadding{ Horizontal = notePadding }
     };
 
     [BackgroundDependencyLoader]
@@ -132,12 +135,8 @@ public partial class PlayScreen : Screen
         showLyric(currentLyric);
     }
 
-
-    private bool dis = true;
     private void showLyric(Lyric lyric)
     {
-        if (!dis) return;
-
         lyricsLayer.Clear();
         notesLayer.Clear();
 
@@ -149,10 +148,8 @@ public partial class PlayScreen : Screen
 
         lyricsLayer.Add(lyricsContainer);
 
-        notesContainer = new NoteContainer(lyric.Notes, lyric.TotalLength, notesLayer.DrawWidth);
+        notesContainer = new NoteContainer(lyric.Notes, lyric.TotalLength, notesLayer.DrawWidth - 2 * notePadding);
         notesLayer.Add(notesContainer);
-
-        dis = false;
     }
 
     private void loadBackgroundImage(ITrackMetadata usdxTrack)

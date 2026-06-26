@@ -31,22 +31,19 @@ public sealed partial class NoteContainer : Container
     public NoteContainer(List<INote> notes, int phraseLength, float screenWidth)
     {
         RelativeSizeAxes = Axes.Both;
-        Margin = new MarginPadding { Horizontal = 210f };
 
         targetNotesLayer = new Container
         {
             Anchor = Anchor.CentreLeft,
             Origin = Anchor.CentreLeft,
-            AutoSizeAxes = Axes.Y,
-            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Both
         };
 
         sungNotesLayer = new Container
         {
             Anchor = Anchor.CentreLeft,
             Origin = Anchor.CentreLeft,
-            AutoSizeAxes = Axes.Y,
-            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Both
         };
 
         //This box indicates the current note to be sung by moving along with the beat
