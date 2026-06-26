@@ -9,5 +9,4 @@ public interface INote : IBeatPaced
     int Pitch { get; set; }
     string Text { get; set; }
     UsdxNoteType NoteType { get; set; }
-    new Drawable Visual { get; }
 }

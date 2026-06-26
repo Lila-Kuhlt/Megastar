@@ -12,7 +12,7 @@ public class UsdxPauseNote(int startBeat) : IBeatPaced
     public string Text { get; set; } = string.Empty;
     public UsdxNoteType NoteType { get; set; } = UsdxNoteType.Freestyle;
 
-    public Drawable Visual => new SpriteText
+    public Drawable get_visual(float? scaleFactor) => new SpriteText
     {
         Anchor = Anchor.Centre,
         Origin = Anchor.Centre,

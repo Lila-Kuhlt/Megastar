@@ -43,6 +43,17 @@ public partial class PlayScreen : Screen
 
     private double beat { get; set; }
 
+    private Sprite? currentBackground;
+    private TextureStore? activeTextureStore;
+    private StorageBackedResourceStore? activeTextureResourceStore;
+    private StorageBackedResourceStore? activeAudioResourceStore;
+    private StorageBackedResourceStore? activeVideoRessourceStore;
+    private FluentTranslationStore? t = null!;
+
+    private static float notePadding = 210f;
+
+    private int lastReceivedNoteBeat;
+
 
     // Dedicated layer to safely swap background sprites behind UI elements
     private readonly Container backgroundLayer = new() { RelativeSizeAxes = Axes.Both };
@@ -58,18 +69,9 @@ public partial class PlayScreen : Screen
         RelativeSizeAxes = Axes.Both,
         Anchor = Anchor.Centre,
         Origin = Anchor.Centre,
-        AlwaysPresent = true
+        AlwaysPresent = true,
+        Padding = new MarginPadding{ Horizontal = notePadding }
     };
-
-
-    private Sprite currentBackground;
-    private TextureStore activeTextureStore;
-    private StorageBackedResourceStore activeTextureResourceStore;
-    private StorageBackedResourceStore activeAudioResourceStore;
-    private StorageBackedResourceStore activeVideoRessourceStore;
-    private FluentTranslationStore t = null!;
-
-    private int lastReceivedNoteBeat;
 
     [BackgroundDependencyLoader]
     private void load(AudioManager audio)
@@ -133,7 +135,6 @@ public partial class PlayScreen : Screen
         showLyric(currentLyric);
     }
 
-
     private void showLyric(Lyric lyric)
     {
         lyricsLayer.Clear();
@@ -147,7 +148,7 @@ public partial class PlayScreen : Screen
 
         lyricsLayer.Add(lyricsContainer);
 
-        notesContainer = new NoteContainer(lyric.Notes);
+        notesContainer = new NoteContainer(lyric.Notes, lyric.TotalLength, notesLayer.DrawWidth - 2 * notePadding);
         notesLayer.Add(notesContainer);
     }
 

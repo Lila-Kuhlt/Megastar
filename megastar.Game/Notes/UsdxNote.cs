@@ -1,3 +1,4 @@
+using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Effects;
@@ -19,10 +20,12 @@ public class UsdxNote(int startBeat, int length, int pitch, string text, UsdxNot
     public string Text { get; set; } = text;
     public UsdxNoteType NoteType { get; set; } = noteType;
 
-    public Drawable Visual => createVisual();
-
-    private Drawable createVisual()
+    public Drawable get_visual(float? scaleFactor)
     {
+        float actualScaleFactor = SCALE_FACTOR;
+
+        if (scaleFactor.HasValue) actualScaleFactor = scaleFactor.Value;
+
         Colour4 baseColor;
         Colour4 glowColor;
 
@@ -52,9 +55,9 @@ public class UsdxNote(int startBeat, int length, int pitch, string text, UsdxNot
 
         return new Container
         {
-            X = StartBeat * SCALE_FACTOR,
+            X = StartBeat * actualScaleFactor,
             Y = -(Pitch * HEIGHT_FACTOR) + yOffset,
-            Size = new Vector2(Length * SCALE_FACTOR, finalHeight),
+            Size = new Vector2(Length * actualScaleFactor, finalHeight),
 
             Masking = true,
             CornerRadius = finalHeight / 2f,

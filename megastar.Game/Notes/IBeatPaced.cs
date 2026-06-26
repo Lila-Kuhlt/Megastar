@@ -6,5 +6,5 @@ public interface IBeatPaced
 {
     int StartBeat { get; }
     int Length { get; set; }
-    Drawable Visual { get; }
+    Drawable get_visual(float? scaleFactor);
 }
