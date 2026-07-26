@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using megastar.Game.notes;
+using megastar.Game.pitch;
 using megastar.Game.Preset;
 using megastar.Game.Track;
 using megastar.Game.Track.Megastar;
@@ -20,6 +21,7 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
 using osu.Framework.Timing;
+using PitchTracking;
 using AudioTrack = osu.Framework.Audio.Track.Track;
 using ITrack = megastar.Game.Track.ITrack;
 
@@ -42,6 +44,8 @@ public partial class PlayScreen : Screen
     private Video backgroundVideo = null!;
 
     private double beat { get; set; }
+
+    private MicrophonePitchTracker micTracker;
 
 
     // Dedicated layer to safely swap background sprites behind UI elements
@@ -84,6 +88,9 @@ public partial class PlayScreen : Screen
             notesLayer,
             lyricsLayer
         ];
+
+        micTracker = new MicrophonePitchTracker();
+        micTracker.PitchDetected += OnPitchDetected;
     }
 
     public override void OnEntering(ScreenTransitionEvent e)
@@ -95,6 +102,7 @@ public partial class PlayScreen : Screen
         {
             var track = new MegastarTrack(song);
             loadTrack(track);
+            micTracker.Start();
         }
         else
             AddInternal(new SpriteText
@@ -227,9 +235,6 @@ public partial class PlayScreen : Screen
 
         var iBeat = (int)beat;
 
-        ReceiveSungNote(new UsdxNote(iBeat, Random.Shared.Next(1, 5), Random.Shared.Next(5, 20), "",
-            UsdxNoteType.Sung));
-
         var ultraStarBpm = currentTrack.Metadata.Bpm;
         beat = ultraStarBpm * 4 * (audioTrack.CurrentTime - currentTrack.Metadata.Gap) / 60000.0;
 
@@ -281,9 +286,31 @@ public partial class PlayScreen : Screen
         lastReceivedNoteBeat = sungNote.StartBeat + sungNote.Length;
     }
 
+    private void OnPitchDetected(PitchRecord record)
+    {
+        //background noise
+        if (record?.Pitch <= 0.5) return;
+
+        //Thread saftey
+        Schedule(() =>
+        {
+            if (currentTrack == null) return;
+
+            //Offset of 60, as 60 in MIDI equals to 0 in USDX format
+            int notePitch = record.MidiNote - 60;
+            int currentBeat = (int)beat;
+
+
+            var sungNote = new UsdxNote(currentBeat, 1, notePitch, "", UsdxNoteType.Sung);
+
+            ReceiveSungNote(sungNote);
+        });
+    }
+
     protected override void Dispose(bool isDisposing)
     {
         base.Dispose(isDisposing);
+        micTracker?.Dispose();
 
         //CLEANUP PREVIOUS SONG TRACK & RESOURCES
         audioTrack?.Stop();

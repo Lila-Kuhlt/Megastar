@@ -46,10 +46,20 @@ public partial class LocalQueueServer : Component
     /// </summary>
     public void StartWebserver()
     {
-        _listener.Start();
-        _listener.Prefixes.Add($"http://+:{_port}/");
+        try
+        {
+            _listener.Start();
+            _listener.Prefixes.Add($"http://+:{_port}/");
 
-        Task.Run(StartServerLoopAsync);
+            Task.Run(StartServerLoopAsync);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
+
+
     }
 
     /// <summary>
