@@ -289,7 +289,7 @@ public partial class PlayScreen : Screen
     private void OnPitchDetected(PitchRecord record)
     {
         //background noise
-        if (record?.Pitch <= 0.5) return;
+        if (record?.Pitch <= 0.3) return;
 
         //Thread saftey
         Schedule(() =>
