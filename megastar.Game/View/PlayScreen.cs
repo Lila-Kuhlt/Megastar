@@ -288,14 +288,11 @@ public partial class PlayScreen : Screen
 
     private void OnPitchDetected(PitchRecord record)
     {
-        //background noise
-        if (record?.Pitch <= 0.3) return;
+        if (currentTrack == null) return;
 
         //Thread saftey
         Schedule(() =>
         {
-            if (currentTrack == null) return;
-
             //Offset of 60, as 60 in MIDI equals to 0 in USDX format
             int notePitch = record.MidiNote - 60;
             int currentBeat = (int)beat;

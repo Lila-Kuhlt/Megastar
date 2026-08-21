@@ -37,7 +37,7 @@ namespace megastar.Game.pitch
 
             _recordProcedure = Procedure;
 
-            recordStream = Bass.RecordStart(44100, 1, BassFlags.RecordPause | BassFlags.Float, 20, _recordProcedure);
+            recordStream = Bass.RecordStart(44100, 1, BassFlags.RecordPause | BassFlags.Float, 50, _recordProcedure);
 
             if (recordStream == 0) return false;
 

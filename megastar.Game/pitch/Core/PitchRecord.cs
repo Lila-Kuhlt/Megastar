@@ -16,11 +16,10 @@ namespace PitchTracking
             int midiNote, midiCents;
 
             PitchToMidiNote((float)Pitch, out midiNote, out midiCents);
-            
+
             this.Pitch = Pitch;
             MidiNote = midiNote;
             MidiCents = midiCents;
-            NoteName = GetNoteName(MidiNote, true, true);
         }
 
         /// <summary>
@@ -38,10 +37,11 @@ namespace PitchTracking
         /// </summary>
         public int MidiCents { get; }
 
-        public string NoteName { get; }
-        
+        //This reduces load on creating multiple notes at once
+        public string NoteName => GetNoteName(MidiNote, true, true);
+
         /// <summary>
-        /// Get the MIDI note and cents of the pitch 
+        /// Get the MIDI note and cents of the pitch
         /// </summary>
         public static bool PitchToMidiNote(float pitch, out int note, out int cents)
         {

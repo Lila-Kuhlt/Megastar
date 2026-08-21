@@ -188,7 +188,7 @@ namespace PitchTracking
                     if (detectedPitch != 0)
                     {
                         PitchDetected?.Invoke(new PitchRecord(detectedPitch));
-                        Console.Out.WriteLine("Pitch Detected: " + detectedPitch);
+                        //Console.Out.WriteLine("Pitch Detected: " + detectedPitch);
                     }
 
                     CurrentPitchSamplePosition += SamplesPerPitchBlock;
