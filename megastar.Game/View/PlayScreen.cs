@@ -46,6 +46,7 @@ public partial class PlayScreen : Screen
     private double beat { get; set; }
 
     private MicrophonePitchTracker micTracker;
+    private Lyric? currentDisplayedLyric;
 
 
     // Dedicated layer to safely swap background sprites behind UI elements
@@ -122,7 +123,6 @@ public partial class PlayScreen : Screen
             return;
 
         audio.Start();
-
         audioTrack = audio;
         currentTrack = track;
 
@@ -131,14 +131,15 @@ public partial class PlayScreen : Screen
 
         audio.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
 
-        var currentLyric = lyrics.LyricForBeat((int)beat);
-        if (currentLyric == null)
+        currentDisplayedLyric = lyrics.LyricForBeat(0);
+
+        if (currentDisplayedLyric == null)
         {
             Logger.Log("Tried to play track without lyrics", LoggingTarget.Input, LogLevel.Error);
             return;
         }
 
-        showLyric(currentLyric);
+        showLyric(currentDisplayedLyric);
     }
 
 
@@ -231,9 +232,7 @@ public partial class PlayScreen : Screen
     protected override void Update()
     {
         base.Update();
-        if (currentTrack == null) return;
-
-        var iBeat = (int)beat;
+        if (currentTrack == null || currentDisplayedLyric == null) return;
 
         var ultraStarBpm = currentTrack.Metadata.Bpm;
         beat = ultraStarBpm * 4 * (audioTrack.CurrentTime - currentTrack.Metadata.Gap) / 60000.0;
@@ -241,20 +240,18 @@ public partial class PlayScreen : Screen
         notesContainer.UpdateBeat(beat);
         lyricsContainer.UpdateBeat(beat);
 
-        var currentLyric = lyrics.LyricForBeat(iBeat);
-        var nextLyric = lyrics.LyricAfterBeat(iBeat);
+        var nextLyric = lyrics.LyricAfterBeat(currentDisplayedLyric.StartBeat);
+        //End of song or Error
+        if (nextLyric == null) return;
 
-        if (currentLyric == null || nextLyric == null) return;
+        //Switch Phrase shortly before next
+        var switchBeat = Math.Max(currentDisplayedLyric.EndBeat, nextLyric.StartBeat - 12);
 
-        var endBeat = currentLyric.EndBeat;
-        var startBeat = nextLyric.StartBeat;
-
-        // Switch phrase 1/4 between the end of the current one and the start of the next one
-        var switchBeat = endBeat + (endBeat - startBeat) / 4.0;
-
-        if (!(beat >= switchBeat)) return;
-
-        showLyric(nextLyric);
+        if (beat >= switchBeat)
+        {
+            currentDisplayedLyric = nextLyric;
+            showLyric(currentDisplayedLyric);
+        }
     }
 
     private AudioTrack? loadAudio(string directoryPath, string fileName)
