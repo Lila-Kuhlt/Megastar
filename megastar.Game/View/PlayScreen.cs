@@ -48,6 +48,8 @@ public partial class PlayScreen : Screen
     private MicrophonePitchTracker micTracker;
     private Lyric? currentDisplayedLyric;
 
+    private INote lastReceivedNote = new UsdxNote(-1, -1, -1000, "error", UsdxNoteType.Sung);
+
 
     // Dedicated layer to safely swap background sprites behind UI elements
     private readonly Container backgroundLayer = new() { RelativeSizeAxes = Axes.Both };
@@ -275,12 +277,24 @@ public partial class PlayScreen : Screen
     /// This automatically only receives the first note per beat and ignores all following ones
     /// </summary>
     /// <param name="sungNote"></param>
-    public void ReceiveSungNote(INote sungNote)
+    public void ReceiveSungNote(UsdxNote sungNote)
     {
         if (beat <= lastReceivedNoteBeat) return;
 
-        notesContainer.AddSungNote(sungNote);
-        lastReceivedNoteBeat = sungNote.StartBeat + sungNote.Length;
+        // Merge if same pitch
+        if (lastReceivedNote != null && lastReceivedNote.Pitch == sungNote.Pitch)
+        {
+            lastReceivedNote.Length += sungNote.Length;
+            lastReceivedNote.Visual.Width += (sungNote.Length * UsdxNote.SCALE_FACTOR);
+            lastReceivedNoteBeat = sungNote.StartBeat + sungNote.Length;
+        }
+        else
+        {
+            // Pitch changed or it is the first note
+            notesContainer.AddSungNote(sungNote);
+            lastReceivedNoteBeat = sungNote.StartBeat + sungNote.Length;
+            lastReceivedNote = sungNote;
+        }
     }
 
     private void OnPitchDetected(PitchRecord record)

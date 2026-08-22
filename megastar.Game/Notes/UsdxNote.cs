@@ -19,7 +19,9 @@ public class UsdxNote(int startBeat, int length, int pitch, string text, UsdxNot
     public string Text { get; set; } = text;
     public UsdxNoteType NoteType { get; set; } = noteType;
 
-    public Drawable Visual => createVisual();
+    //caching to reduce rendering on each frame
+    private Drawable visualInstance = null;
+    public Drawable Visual => visualInstance ??= createVisual();
 
     private Drawable createVisual()
     {
