@@ -6,6 +6,7 @@ using megastar.Game.Preset;
 using megastar.Game.Track;
 using megastar.Game.Track.Megastar;
 using megastar.Game.Translations;
+using OpenTabletDriver.Native.Windows.Input;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
@@ -16,10 +17,12 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Video;
+using osu.Framework.Input.Events;
 using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
+using osuTK.Input;
 using osu.Framework.Timing;
 using PitchTracking;
 using AudioTrack = osu.Framework.Audio.Track.Track;
@@ -44,6 +47,8 @@ public partial class PlayScreen : Screen
     private Video backgroundVideo = null!;
 
     private double beat { get; set; }
+    private bool paused = false;
+    private double trackPausePosition = 0;
 
     private MicrophonePitchTracker micTracker;
     private Lyric? currentDisplayedLyric;
@@ -74,7 +79,6 @@ public partial class PlayScreen : Screen
     private StorageBackedResourceStore activeTextureResourceStore;
     private StorageBackedResourceStore activeAudioResourceStore;
     private StorageBackedResourceStore activeVideoRessourceStore;
-    private FluentTranslationStore t = null!;
 
     private int lastReceivedNoteBeat;
 
@@ -249,10 +253,52 @@ public partial class PlayScreen : Screen
         //Switch Phrase shortly before next
         var switchBeat = Math.Max(currentDisplayedLyric.EndBeat, nextLyric.StartBeat - 12);
 
+        //TODO only for test purpose
+        //if (audioTrack != null && Math.Abs(audioTrack.CurrentTime - audioTrack.Length) > 10000)
+        //{
+        //    audioTrack.Seek(audioTrack.Length - 8000);
+        //    audioTrack.Looping = false;
+        //}
+
+        //End screen on track end
+        if (audioTrack != null && audioTrack.HasCompleted && currentTrack != null && this.IsCurrentScreen())
+        {
+            var backgroundImage = currentTrack.Metadata.BackgroundImageFile.IsNotNull()
+                ? activeTextureStore.Get(currentTrack.Metadata.BackgroundImageFile)
+                : null;
+            //TODO Real score needs to be entered here
+            this.Push(new EndScreen(backgroundImage, currentTrack, 67911, 676767));
+        }
+
         if (beat >= switchBeat)
         {
             currentDisplayedLyric = nextLyric;
             showLyric(currentDisplayedLyric);
+        }
+    }
+
+    public override void OnResuming(ScreenTransitionEvent e)
+    {
+        base.OnResuming(e);
+
+        //checks if the resume is from a pause screen or endscreen
+        if (paused)
+        {
+            paused = false;
+            MegastarTrackMetadata song = game.GetFirstSong();
+            var track = new MegastarTrack(song);
+            if (track.Metadata.AudioFile != currentTrack.Metadata.AudioFile)
+            {
+                loadTrack(track);
+            }
+            else
+            {
+                audioTrack?.Start();
+            }
+        }
+        else
+        {
+            this.loadTrack(new MegastarTrack(game.NextSong()));
         }
     }
 
@@ -332,5 +378,18 @@ public partial class PlayScreen : Screen
         activeTextureStore?.Dispose();
         currentBackground?.Dispose();
         backgroundLayer?.Dispose();
+    }
+
+    protected override bool OnKeyDown(KeyDownEvent e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            this.Push(new PauseScreen());
+            trackPausePosition = audioTrack.CurrentTime;
+            audioTrack?.Stop();
+            paused = true;
+        }
+
+        return base.OnKeyDown(e);
     }
 }

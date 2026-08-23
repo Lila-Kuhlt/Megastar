@@ -12,7 +12,8 @@ public partial class MegastarTrackMetadata : IVerifiableMetadata, IRealmObject
 {
     [MapTo("_id")]
     [PrimaryKey]
-    public ObjectId Id { get; private set; } = ObjectId.GenerateNewId(); // TODO: Get Id from USDX, OR generate new
+    public string ObjectKey { get; set; } = string.Empty;
+    //public ObjectId Id { get; private set; } = ObjectId.GenerateNewId(); // TODO: Get Id from USDX, OR generate new
 
     public byte[]? AudioFileHash { get; set; }
     public byte[]? MetadataFileHash { get; set; }
@@ -38,6 +39,7 @@ public partial class MegastarTrackMetadata : IVerifiableMetadata, IRealmObject
         BackgroundVideoFile = metadata.BackgroundVideoFile;
         VideoGap = metadata.VideoGap;
         Gap = metadata.Gap;
+        ObjectKey = DirPath + AudioFile;
     }
 
     public TrackAudioSample TrackAudioSample => new(sampleStart, sampleLength);
@@ -59,6 +61,16 @@ public partial class MegastarTrackMetadata : IVerifiableMetadata, IRealmObject
     public double Gap { get; private set; }
 
     public override string ToString() => $"{Artist} - {Title}";
+
+    public override bool Equals(object? obj)
+    {
+        return obj is MegastarTrackMetadata other && AudioFile == other.AudioFile;
+    }
+
+    public override int GetHashCode()
+    {
+        return AudioFile?.GetHashCode() ?? 0;
+    }
 }
 
 public struct TrackAudioSample(int length, int start)

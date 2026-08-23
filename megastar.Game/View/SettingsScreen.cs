@@ -9,12 +9,14 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osu.Framework.Testing.Drawables.Steps;
 using osuTK;
 using osuTK.Graphics;
+using osuTK.Input;
 
 namespace megastar.Game.View;
 
@@ -204,5 +206,16 @@ public partial class SettingsScreen : Screen
                 }
             }
         ];
+    }
+
+
+    protected override bool OnKeyDown(KeyDownEvent e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            this.Exit();
+        }
+
+        return base.OnKeyDown(e);
     }
 }

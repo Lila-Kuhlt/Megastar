@@ -9,8 +9,10 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using megastar.Game.Track;
+using osu.Framework.Bindables;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Framework.Lists;
 using osu.Framework.Logging;
 using MegastarTrackMetadata = megastar.Game.Track.Megastar.MegastarTrackMetadata;
 
@@ -23,10 +25,9 @@ namespace megastar.Game.WebConnectionQueue;
 public partial class LocalQueueServer : Component
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
-    [Resolved] private TrackRepository repository { get; set; } = null!;
 
-    public List<MegastarTrackMetadata> LoadedSongs => repository.AllTracks().ToList();
-    public List<MegastarTrackMetadata> QueuedSongs => repository.AllTracks().ToList(); // TODO
+    public List<MegastarTrackMetadata> LoadedSongs => game.IndexedSongs;
+    public List<MegastarTrackMetadata> QueuedSongs => game.QueuedSongs;
 
     private readonly HttpListener _listener = new();
     private readonly List<WebSocket> _activeSockets = [];
@@ -35,32 +36,25 @@ public partial class LocalQueueServer : Component
     private readonly object _listLock = new object();
 
 
-    [BackgroundDependencyLoader]
-    private void load()
-    {
-        _listener.Prefixes.Add($"http://+:{_port}/");
-    }
-
-    /// <summary>
-    /// Starts the webserver. Will make it listen to http on the set port
-    /// </summary>
-    public void StartWebserver()
-    {
-        try
+        /// <summary>
+        /// Starts the webserver. Will make it listen to http on the set port
+        /// </summary>
+        public void StartWebserver()
         {
-            _listener.Start();
-            _listener.Prefixes.Add($"http://+:{_port}/");
+            try
+            {
+                _listener.Start();
+                _listener.Prefixes.Add($"http://+:{_port}/");
 
-            Task.Run(StartServerLoopAsync);
+                Task.Run(StartServerLoopAsync);
+            }
+            catch (Exception e)
+            {
+                Logger.GetLogger().Add("Could not start server due to not getting access to port", LogLevel.Error);
+                Settings.GetSettings().WebAppActive.BindTo(new Bindable<bool>(false));
+            }
+
         }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
-
-
-
-    }
 
     /// <summary>
     /// Stops the webserver from listening on the port.

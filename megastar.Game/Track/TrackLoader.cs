@@ -5,12 +5,18 @@ using System.Threading.Tasks;
 using megastar.Game.Track.Megastar;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
+using Realms;
 
 namespace megastar.Game.Track;
 
 public class TrackLoader(TrackRepository repository)
 {
-    public void IndexFolder(string path)
+    /// <summary>
+    /// Indexes a given folder. If given a function to be executed "onTrackIndexed", this will be done with the result of the metadata
+    /// </summary>
+    /// <param name="path">the path to be scanned</param>
+    /// <param name="onTrackIndexed">action that is done on with the metadata as argument, e.g. adding to the queue</param>
+    public void IndexFolder(string path, System.Action<MegastarTrackMetadata>? onTrackIndexed = null)
     {
         Logger.Log($"Indexing {path}");
 
@@ -20,10 +26,30 @@ public class TrackLoader(TrackRepository repository)
         var paths = Directory.GetDirectories(path)
             .SelectMany(dir => Directory.GetFiles(dir, "*.txt"));
 
-        paths
+        var loadedTracks = paths
             .Select(LoadFile)
             .Where(metadata => metadata != null)
-            .ForEach(repository.Add!);
+            .ToList();
+
+        if (loadedTracks.Count == 0) return;
+
+        //Open ONE database connection using the existing Run method and only use one write
+        repository.Run(realm =>
+        {
+            realm.Write(() =>
+            {
+                foreach (var track in loadedTracks)
+                {
+                    realm.Add(track!, true);
+                }
+            });
+
+            // Freezing just creates a copy that is not dependend on a single object and the runtime it got created
+            foreach (var track in loadedTracks)
+            {
+                onTrackIndexed?.Invoke(track!.Freeze());
+            }
+        });
     }
 
     public static Task<MegastarTrackMetadata?> LoadFileAsync(string path) => Task.FromResult(LoadFile(path));

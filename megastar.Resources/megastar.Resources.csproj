@@ -7,14 +7,14 @@
     <EmbeddedResource Include="Samples\**\*"/>
     <EmbeddedResource Include="Textures\**\*"/>
     <EmbeddedResource Include="Tracks\**\*"/>
-    <EmbeddedResource Include="Translations\**\*" />
+    <EmbeddedResource Include="Translations\**\*"/>
     <EmbeddedResource Include="Shaders\**\*"/>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="osu.Framework">
       <HintPath>..\..\..\.nuget\packages\ppy.osu.framework\2026.513.0\lib\net8.0\osu.Framework.dll</HintPath>
     </Reference>
-    <None Remove="funfacts.json" />
+    <None Remove="funfacts.json"/>
     <EmbeddedResource Include="funfacts.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -23,6 +23,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Webapp\" />
+    <None Update="Video\nyan_cat\nyan_cat*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Webapp\"/>
   </ItemGroup>
 </Project>

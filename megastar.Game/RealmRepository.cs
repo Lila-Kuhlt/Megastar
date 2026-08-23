@@ -10,9 +10,22 @@ public class RealmRepository(RealmConfigurationBase realmConfiguration) : IDispo
     private Realm Realm => ensureUpdateRealm();
     private Realm? updateRealm;
 
-    public RealmRepository(string identifier) : this(new InMemoryConfiguration(identifier)) { }
+    public RealmRepository(string identifier) : this(new RealmConfiguration(identifier)) { }
 
-    private Realm threadedRealmContext() => Realm.GetInstance(realmConfiguration);
+    private Realm threadedRealmContext()
+    {
+        try
+        {
+            // Try to open the database normally
+            return Realm.GetInstance(realmConfiguration);
+        }
+        catch (Realms.Exceptions.RealmMigrationNeededException)
+        {
+            // If the schema changed, delete the old file and create a new one
+            Realm.DeleteRealm(realmConfiguration);
+            return Realm.GetInstance(realmConfiguration);
+        }
+    }
 
     private Realm ensureUpdateRealm()
     {
@@ -44,7 +57,7 @@ public class RealmRepository(RealmConfigurationBase realmConfiguration) : IDispo
             return func(Realm);
 
         using var realmCtx = threadedRealmContext();
-        using (updateRealm) return func(realmCtx);
+        return func(realmCtx);
     }
 
     public void Write(Action<Realm> action) => Run(r => r.Write(() => action(r)));

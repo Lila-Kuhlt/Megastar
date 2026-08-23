@@ -11,9 +11,11 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
+using osu.Framework.Input.Events;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
+using osuTK.Input;
 using Realms;
 
 namespace megastar.Game.View;
@@ -120,8 +122,8 @@ public partial class FileSelectorScreen : Screen
         var sw = Stopwatch.StartNew();
 
 
-        // Start async task for indexing folder
-        trackLoader.IndexFolder(directorySelector.CurrentPath.Value.FullName);
+        // Start async task for indexing folder and also adds them to the known indexed songs
+        trackLoader.IndexFolder(directorySelector.CurrentPath.Value.FullName, game.AddIndexedSong);
 
         Logger.Log($"Indexed songs in {sw.Elapsed}");
     }
@@ -130,5 +132,16 @@ public partial class FileSelectorScreen : Screen
     {
         base.Dispose(isDisposing);
         notificationToken?.Dispose();
+    }
+
+
+    protected override bool OnKeyDown(KeyDownEvent e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            this.Exit();
+        }
+
+        return base.OnKeyDown(e);
     }
 }
