@@ -149,6 +149,8 @@ public partial class MegastarGameBase : osu.Framework.Game
         //TODO this sorting coud take some time, not noticable at the moment
         allTracks.Sort(TrackComparer.Instance);
         IndexedSongs = new List<MegastarTrackMetadata>(allTracks);
+        //TODO Test purpose only
+        QueuedSongs = new List<MegastarTrackMetadata>(allTracks);
     }
 
     protected override void LoadComplete()

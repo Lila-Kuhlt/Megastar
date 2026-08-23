@@ -131,6 +131,7 @@ public partial class PlayScreen : Screen
         audio.Start();
         audioTrack = audio;
         currentTrack = track;
+        audioTrack.Looping = false;
 
         loadBackgroundImage(track.Metadata);
         loadBackgroundVideo(track.Metadata);
@@ -240,6 +241,16 @@ public partial class PlayScreen : Screen
         base.Update();
         if (currentTrack == null || currentDisplayedLyric == null) return;
 
+        //End screen on track end
+        if (audioTrack != null && audioTrack.HasCompleted && currentTrack != null && this.IsCurrentScreen())
+        {
+            var backgroundImage = currentTrack.Metadata.BackgroundImageFile.IsNotNull()
+                ? activeTextureStore.Get(currentTrack.Metadata.BackgroundImageFile)
+                : null;
+            //TODO Real score needs to be entered here
+            this.Push(new EndScreen(backgroundImage, currentTrack, 67911, 676767));
+        }
+
         var ultraStarBpm = currentTrack.Metadata.Bpm;
         beat = ultraStarBpm * 4 * (audioTrack.CurrentTime - currentTrack.Metadata.Gap) / 60000.0;
 
@@ -256,19 +267,9 @@ public partial class PlayScreen : Screen
         //TODO only for test purpose
         //if (audioTrack != null && Math.Abs(audioTrack.CurrentTime - audioTrack.Length) > 10000)
         //{
-        //    audioTrack.Seek(audioTrack.Length - 8000);
+        //    audioTrack.Seek(audioTrack.Length - 4000);
         //    audioTrack.Looping = false;
         //}
-
-        //End screen on track end
-        if (audioTrack != null && audioTrack.HasCompleted && currentTrack != null && this.IsCurrentScreen())
-        {
-            var backgroundImage = currentTrack.Metadata.BackgroundImageFile.IsNotNull()
-                ? activeTextureStore.Get(currentTrack.Metadata.BackgroundImageFile)
-                : null;
-            //TODO Real score needs to be entered here
-            this.Push(new EndScreen(backgroundImage, currentTrack, 67911, 676767));
-        }
 
         if (beat >= switchBeat)
         {
