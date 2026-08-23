@@ -48,6 +48,7 @@ public partial class PlayScreen : Screen
 
     private double beat { get; set; }
     private bool paused = false;
+    private double trackPausePosition = 0;
 
     private MicrophonePitchTracker micTracker;
     private Lyric? currentDisplayedLyric;
@@ -286,7 +287,7 @@ public partial class PlayScreen : Screen
             paused = false;
             MegastarTrackMetadata song = game.GetFirstSong();
             var track = new MegastarTrack(song);
-            if (track != currentTrack)
+            if (track.Metadata.AudioFile != currentTrack.Metadata.AudioFile)
             {
                 loadTrack(track);
             }
@@ -384,6 +385,7 @@ public partial class PlayScreen : Screen
         if (e.Key == Key.Escape)
         {
             this.Push(new PauseScreen());
+            trackPausePosition = audioTrack.CurrentTime;
             audioTrack?.Stop();
             paused = true;
         }
