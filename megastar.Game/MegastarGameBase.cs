@@ -12,6 +12,7 @@ using osu.Framework.Configuration;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
+using osu.Framework.Lists;
 using osu.Framework.Localisation;
 using osuTK;
 using MegastarTrackMetadata = megastar.Game.Track.Megastar.MegastarTrackMetadata;
@@ -30,6 +31,7 @@ public partial class MegastarGameBase : osu.Framework.Game
 
     //QUEWE
     public List<MegastarTrackMetadata> QueuedSongs { get; private set; } = new();
+    public List<MegastarTrackMetadata> IndexedSongs { get; private set; } = new();
 
     public readonly LocalQueueServer LocalQueueServer = new();
 
@@ -143,9 +145,10 @@ public partial class MegastarGameBase : osu.Framework.Game
         AddFont(Resources, @"Fonts/standardFont");
         AddFont(Resources, @"Fonts/kuuhleFont");
 
-        //TODO this automatically fills the queue with all the last know songs
-        QueuedSongs.AddRange(trackRepository.AllTracks());
-        Console.Out.WriteLine(QueuedSongs.Count + " recognized");
+        var allTracks = trackRepository.AllTracks().ToList();
+        //TODO this sorting coud take some time, not noticable at the moment
+        allTracks.Sort(TrackComparer.Instance);
+        IndexedSongs = new List<MegastarTrackMetadata>(allTracks);
     }
 
     protected override void LoadComplete()
@@ -171,5 +174,45 @@ public partial class MegastarGameBase : osu.Framework.Game
         Language? systemLanguage = locales.Find(l => l.Code == systemLocale);
 
         config.SetValue(FrameworkSetting.Locale, systemLanguage == null ? "en-US" : systemLocale);
+    }
+
+    /// <summary>
+    /// Adds a song into the indexed songs, without adding duplicates. Also keeps order of the list
+    /// </summary>
+    /// <param name="metadata"></param>
+    public void AddIndexedSong(MegastarTrackMetadata metadata)
+    {
+        int index = IndexedSongs.BinarySearch(metadata, TrackComparer.Instance);
+        if (index < 0)
+        {
+            IndexedSongs.Insert(~index, metadata);
+        }
+    }
+
+
+    /// <summary>
+    /// This comparer is used for ordering the tracks in the index list
+    /// </summary>
+    public class TrackComparer : IComparer<MegastarTrackMetadata>
+    {
+        public static readonly TrackComparer Instance = new();
+
+        public int Compare(MegastarTrackMetadata? x, MegastarTrackMetadata? y)
+        {
+            if (ReferenceEquals(x, y)) return 0;
+            if (x is null) return -1;
+            if (y is null) return 1;
+
+            // 1. Sort by Artist
+            int artistComparison = string.Compare(x.Artist, y.Artist, StringComparison.OrdinalIgnoreCase);
+            if (artistComparison != 0) return artistComparison;
+
+            // 2. Sort by Title
+            int titleComparison = string.Compare(x.Title, y.Title, StringComparison.OrdinalIgnoreCase);
+            if (titleComparison != 0) return titleComparison;
+
+            // 3. Tie-breaker by AudioPath
+            return string.Compare(x.AudioFile, y.AudioFile, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

@@ -122,8 +122,8 @@ public partial class FileSelectorScreen : Screen
         var sw = Stopwatch.StartNew();
 
 
-        // Start async task for indexing folder
-        trackLoader.IndexFolder(directorySelector.CurrentPath.Value.FullName, game.QueueSong);
+        // Start async task for indexing folder and also adds them to the known indexed songs
+        trackLoader.IndexFolder(directorySelector.CurrentPath.Value.FullName, game.AddIndexedSong);
 
         Logger.Log($"Indexed songs in {sw.Elapsed}");
     }

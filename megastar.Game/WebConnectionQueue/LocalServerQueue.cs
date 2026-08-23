@@ -12,6 +12,7 @@ using megastar.Game.Track;
 using osu.Framework.Bindables;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Framework.Lists;
 using osu.Framework.Logging;
 using MegastarTrackMetadata = megastar.Game.Track.Megastar.MegastarTrackMetadata;
 
@@ -24,10 +25,9 @@ namespace megastar.Game.WebConnectionQueue;
 public partial class LocalQueueServer : Component
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
-    [Resolved] private TrackRepository repository { get; set; } = null!;
 
-    public List<MegastarTrackMetadata> LoadedSongs => repository.AllTracks().ToList();
-    public List<MegastarTrackMetadata> QueuedSongs => repository.AllTracks().ToList(); // TODO
+    public List<MegastarTrackMetadata> LoadedSongs => game.IndexedSongs;
+    public List<MegastarTrackMetadata> QueuedSongs => game.QueuedSongs;
 
     private readonly HttpListener _listener = new();
     private readonly List<WebSocket> _activeSockets = [];
