@@ -34,12 +34,8 @@ public sealed partial class NoteContainer : Container
             AutoSizeAxes = Axes.Both
         };
 
-        sungNotesLayer = new Container
-        {
-            Anchor = Anchor.CentreLeft,
-            Origin = Anchor.CentreLeft,
-            AutoSizeAxes = Axes.Both
-        };
+        //This used to be different layers but for scaling reasons, it is much simpler when they are the same. For potential future separation, this interface should still keep both layers separate.
+        sungNotesLayer = targetNotesLayer;
 
         //This box indicates the current note to be sung by moving along with the beat
         playhead = new Box
@@ -52,7 +48,7 @@ public sealed partial class NoteContainer : Container
         };
 
         AddInternal(targetNotesLayer);
-        AddInternal(sungNotesLayer);
+        //AddInternal(sungNotesLayer);
         AddInternal(playhead);
 
         if (notes.Count <= 0) return;

@@ -41,7 +41,6 @@ public class Lyric
 
 public class Lyrics(List<Lyric> lyrics)
 {
-    // using lines as name because Lyrics is forbidden :/ also no red black trees in c# :(
     public readonly List<Lyric> Lines = lyrics;
 
     public Lyrics(ITrackData usdxTrack) : this(usdxTrack.LyricEnumerator().ToList())
@@ -50,14 +49,22 @@ public class Lyrics(List<Lyric> lyrics)
 
     public Lyric? LyricForBeat(int beat) => Lines.Find(x => x.StartBeat <= beat && beat < x.EndBeat);
 
-    // Fetches the Lyric after the current one, which is determined by the beat
+    public int LyricIndexForBeat(int beat) => Lines.FindIndex(x => x.StartBeat <= beat && beat < x.EndBeat);
+
+    // Fetches the Lyric after the current active lyric, or the next upcoming lyric if currently in a gap
     public Lyric? LyricAfterBeat(int beat)
     {
-        var i = LyricIndexForBeat(beat) + 1;
-        return i >= 0 && i < Lines.Count ? Lines[i] : null;
-    }
+        var currentIndex = LyricIndexForBeat(beat);
 
-    public int LyricIndexForBeat(int beat) => Lines.FindIndex(x => x.StartBeat < beat && beat < x.EndBeat);
+        // If currently on a lyric, return the next one
+        if (currentIndex != -1)
+        {
+            return currentIndex + 1 < Lines.Count ? Lines[currentIndex + 1] : null;
+        }
+
+        // If in a pause between lyrics, return the first lyric that starts in the future
+        return Lines.FirstOrDefault(x => x.StartBeat > beat);
+    }
 }
 
 public record LyricEnumerator(ITrackData Data) : IEnumerable<Lyric>

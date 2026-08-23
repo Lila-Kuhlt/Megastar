@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using megastar.Game.notes;
+using megastar.Game.pitch;
 using megastar.Game.Preset;
 using megastar.Game.Track;
 using megastar.Game.Track.Megastar;
@@ -23,6 +24,7 @@ using osu.Framework.Platform;
 using osu.Framework.Screens;
 using osuTK.Input;
 using osu.Framework.Timing;
+using PitchTracking;
 using AudioTrack = osu.Framework.Audio.Track.Track;
 using ITrack = megastar.Game.Track.ITrack;
 
@@ -46,6 +48,12 @@ public partial class PlayScreen : Screen
 
     private double beat { get; set; }
     private bool paused = false;
+
+    private MicrophonePitchTracker micTracker;
+    private Lyric? currentDisplayedLyric;
+
+    private INote lastReceivedNote = new UsdxNote(-1, -1, -1000, "error", UsdxNoteType.Sung);
+
 
     // Dedicated layer to safely swap background sprites behind UI elements
     private readonly Container backgroundLayer = new() { RelativeSizeAxes = Axes.Both };
@@ -86,6 +94,9 @@ public partial class PlayScreen : Screen
             notesLayer,
             lyricsLayer
         ];
+
+        micTracker = new MicrophonePitchTracker();
+        micTracker.PitchDetected += OnPitchDetected;
     }
 
     public override void OnEntering(ScreenTransitionEvent e)
@@ -97,6 +108,7 @@ public partial class PlayScreen : Screen
         {
             var track = new MegastarTrack(song);
             loadTrack(track);
+            micTracker.Start();
         }
         else
             AddInternal(new SpriteText
@@ -116,7 +128,6 @@ public partial class PlayScreen : Screen
             return;
 
         audio.Start();
-
         audioTrack = audio;
         currentTrack = track;
 
@@ -125,14 +136,15 @@ public partial class PlayScreen : Screen
 
         audio.Volume.Value = Settings.GetSettings().SoundVolume.Value / 100f;
 
-        var currentLyric = lyrics.LyricForBeat((int)beat);
-        if (currentLyric == null)
+        currentDisplayedLyric = lyrics.LyricForBeat(0);
+
+        if (currentDisplayedLyric == null)
         {
             Logger.Log("Tried to play track without lyrics", LoggingTarget.Input, LogLevel.Error);
             return;
         }
 
-        showLyric(currentLyric);
+        showLyric(currentDisplayedLyric);
     }
 
 
@@ -225,12 +237,7 @@ public partial class PlayScreen : Screen
     protected override void Update()
     {
         base.Update();
-        if (currentTrack == null) return;
-
-        var iBeat = (int)beat;
-
-        ReceiveSungNote(new UsdxNote(iBeat, Random.Shared.Next(1, 5), Random.Shared.Next(5, 20), "",
-            UsdxNoteType.Sung));
+        if (currentTrack == null || currentDisplayedLyric == null) return;
 
         var ultraStarBpm = currentTrack.Metadata.Bpm;
         beat = ultraStarBpm * 4 * (audioTrack.CurrentTime - currentTrack.Metadata.Gap) / 60000.0;
@@ -238,16 +245,12 @@ public partial class PlayScreen : Screen
         notesContainer.UpdateBeat(beat);
         lyricsContainer.UpdateBeat(beat);
 
-        var currentLyric = lyrics.LyricForBeat(iBeat);
-        var nextLyric = lyrics.LyricAfterBeat(iBeat);
+        var nextLyric = lyrics.LyricAfterBeat(currentDisplayedLyric.StartBeat);
+        //End of song or Error
+        if (nextLyric == null) return;
 
-        if (currentLyric == null || nextLyric == null) return;
-
-        var endBeat = currentLyric.EndBeat;
-        var startBeat = nextLyric.StartBeat;
-
-        // Switch phrase 1/4 between the end of the current one and the start of the next one
-        var switchBeat = endBeat + (endBeat - startBeat) / 4.0;
+        //Switch Phrase shortly before next
+        var switchBeat = Math.Max(currentDisplayedLyric.EndBeat, nextLyric.StartBeat - 12);
 
         //TODO only for test purpose
         //if (audioTrack != null && Math.Abs(audioTrack.CurrentTime - audioTrack.Length) > 10000)
@@ -266,9 +269,11 @@ public partial class PlayScreen : Screen
             this.Push(new EndScreen(backgroundImage, currentTrack, 67911, 676767));
         }
 
-        if (!(beat >= switchBeat)) return;
-
-        showLyric(nextLyric);
+        if (beat >= switchBeat)
+        {
+            currentDisplayedLyric = nextLyric;
+            showLyric(currentDisplayedLyric);
+        }
     }
 
     public override void OnResuming(ScreenTransitionEvent e)
@@ -317,17 +322,48 @@ public partial class PlayScreen : Screen
     /// This automatically only receives the first note per beat and ignores all following ones
     /// </summary>
     /// <param name="sungNote"></param>
-    public void ReceiveSungNote(INote sungNote)
+    public void ReceiveSungNote(UsdxNote sungNote)
     {
         if (beat <= lastReceivedNoteBeat) return;
 
-        notesContainer.AddSungNote(sungNote);
-        lastReceivedNoteBeat = sungNote.StartBeat + sungNote.Length;
+        // Merge if same pitch
+        if (lastReceivedNote != null && lastReceivedNote.Pitch == sungNote.Pitch)
+        {
+            lastReceivedNote.Length += sungNote.Length;
+            lastReceivedNote.Visual.Width += (sungNote.Length * UsdxNote.SCALE_FACTOR);
+            lastReceivedNoteBeat = sungNote.StartBeat + sungNote.Length;
+        }
+        else
+        {
+            // Pitch changed or it is the first note
+            notesContainer.AddSungNote(sungNote);
+            lastReceivedNoteBeat = sungNote.StartBeat + sungNote.Length;
+            lastReceivedNote = sungNote;
+        }
+    }
+
+    private void OnPitchDetected(PitchRecord record)
+    {
+        if (currentTrack == null) return;
+
+        //Thread saftey
+        Schedule(() =>
+        {
+            //Offset of 60, as 60 in MIDI equals to 0 in USDX format
+            int notePitch = record.MidiNote - 60;
+            int currentBeat = (int)beat;
+
+
+            var sungNote = new UsdxNote(currentBeat, 1, notePitch, "", UsdxNoteType.Sung);
+
+            ReceiveSungNote(sungNote);
+        });
     }
 
     protected override void Dispose(bool isDisposing)
     {
         base.Dispose(isDisposing);
+        micTracker?.Dispose();
 
         //CLEANUP PREVIOUS SONG TRACK & RESOURCES
         audioTrack?.Stop();
