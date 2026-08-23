@@ -29,7 +29,7 @@ public partial class MegastarGameBase : osu.Framework.Game
     private readonly List<Language> locales = [];
 
     //QUEWE
-    public List<MegastarTrackMetadata> QueuedSongs => trackRepository.AllTracks().ToList();
+    public List<MegastarTrackMetadata> QueuedSongs { get; private set; } = new();
 
     public readonly LocalQueueServer LocalQueueServer = new();
 
@@ -142,6 +142,10 @@ public partial class MegastarGameBase : osu.Framework.Game
 
         AddFont(Resources, @"Fonts/standardFont");
         AddFont(Resources, @"Fonts/kuuhleFont");
+
+        //TODO this automatically fills the queue with all the last know songs
+        QueuedSongs.AddRange(trackRepository.AllTracks());
+        Console.Out.WriteLine(QueuedSongs.Count + " recognized");
     }
 
     protected override void LoadComplete()

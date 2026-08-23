@@ -10,7 +10,7 @@ public class RealmRepository(RealmConfigurationBase realmConfiguration) : IDispo
     private Realm Realm => ensureUpdateRealm();
     private Realm? updateRealm;
 
-    public RealmRepository(string identifier) : this(new InMemoryConfiguration(identifier)) { }
+    public RealmRepository(string identifier) : this(new RealmConfiguration(identifier)) { }
 
     private Realm threadedRealmContext() => Realm.GetInstance(realmConfiguration);
 
@@ -44,7 +44,7 @@ public class RealmRepository(RealmConfigurationBase realmConfiguration) : IDispo
             return func(Realm);
 
         using var realmCtx = threadedRealmContext();
-        using (updateRealm) return func(realmCtx);
+        return func(realmCtx);
     }
 
     public void Write(Action<Realm> action) => Run(r => r.Write(() => action(r)));

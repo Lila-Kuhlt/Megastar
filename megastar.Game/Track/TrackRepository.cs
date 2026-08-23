@@ -14,7 +14,12 @@ public class TrackRepository() : RealmRepository("megastar.realm")
     /// Use <code>Run(realm => realm.All() ... )</code> if you only need a subset of every track.
     /// </summary>
     /// <returns>Every track stored in the Realm db</returns>
-    public IEnumerable<MegastarTrackMetadata> AllTracks() => Run(realm => realm.All<MegastarTrackMetadata>().ToList());
+    public IEnumerable<MegastarTrackMetadata> AllTracks() => Run(realm =>
+        realm.All<MegastarTrackMetadata>()
+            .AsEnumerable()
+            .Select(track => track.Freeze())
+            .ToList()
+    );
 
     public void Add(MegastarTrackMetadata track) => Write(realm => realm.Add(track, true));
 

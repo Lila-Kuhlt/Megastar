@@ -123,7 +123,7 @@ public partial class FileSelectorScreen : Screen
 
 
         // Start async task for indexing folder
-        trackLoader.IndexFolder(directorySelector.CurrentPath.Value.FullName);
+        trackLoader.IndexFolder(directorySelector.CurrentPath.Value.FullName, game.QueueSong);
 
         Logger.Log($"Indexed songs in {sw.Elapsed}");
     }
