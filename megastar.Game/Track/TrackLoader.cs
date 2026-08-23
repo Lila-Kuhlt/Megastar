@@ -52,6 +52,14 @@ public class TrackLoader(TrackRepository repository)
         });
     }
 
+    public void dropTable()
+    {
+        repository.Write(realm =>
+        {
+            realm.RemoveAll<MegastarTrackMetadata>();
+        });
+    }
+
     public static Task<MegastarTrackMetadata?> LoadFileAsync(string path) => Task.FromResult(LoadFile(path));
 
     public static MegastarTrackMetadata? LoadFile(string path)

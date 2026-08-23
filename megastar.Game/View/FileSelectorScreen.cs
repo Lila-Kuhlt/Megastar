@@ -8,6 +8,7 @@ using megastar.Game.Track.Megastar;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
@@ -77,7 +78,6 @@ public partial class FileSelectorScreen : Screen
                 Y = -80,
                 Font = FontUsage.Default.With(size: 24),
             },
-
             // A button to confirm the selection
             new TextFitButton
             {
@@ -86,7 +86,19 @@ public partial class FileSelectorScreen : Screen
                 Origin = Anchor.BottomCentre,
                 Height = 50,
                 Y = -20,
+                X = -120,
                 Action = () => Task.Run(confirmSelection)
+            },
+
+            new TextFitButton
+            {
+                Text = "Drop Table",
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre,
+                Height = 50,
+                Y = -20,
+                X = 120,
+                Action = () => Task.Run(trackLoader.dropTable)
             },
 
             loadedTrackCounter = new SpriteText

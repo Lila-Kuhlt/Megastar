@@ -150,7 +150,7 @@ public partial class MegastarGameBase : osu.Framework.Game
         allTracks.Sort(TrackComparer.Instance);
         IndexedSongs = new List<MegastarTrackMetadata>(allTracks);
         //TODO Test purpose only
-        QueuedSongs = new List<MegastarTrackMetadata>(allTracks);
+        //QueuedSongs = new List<MegastarTrackMetadata>(allTracks);
     }
 
     protected override void LoadComplete()
