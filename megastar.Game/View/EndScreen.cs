@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Linguini.Shared.Types.Bundle;
+using megastar.Game.Audio;
 using megastar.Game.Preset;
 using megastar.Game.Track;
 using megastar.Game.Track.Usdx;
@@ -19,7 +20,7 @@ using osuTK.Graphics;
 
 namespace megastar.Game.View
 {
-    public partial class EndScreen(Texture backgroundTexture, ITrack lastTrack, int score, int totalScore)
+    public partial class EndScreen(Texture backgroundTexture, ITrack lastTrack, KaraokeJudge judge)
         : Screen
     {
         [Resolved] private MegastarGameBase game { get; set; } = null!;
@@ -27,7 +28,7 @@ namespace megastar.Game.View
         [BackgroundDependencyLoader]
         private void load()
         {
-            float performanceRatio = totalScore > 0 ? Math.Clamp((float)score / totalScore, 0f, 1f) : 0f;
+            float performanceRatio = judge.MaxScore > 0 ? Math.Clamp((float)judge.Score / judge.MaxScore, 0f, 1f) : 0f;
 
             // Determine bar color based on performance
             Color4 performanceColor = performanceRatio > 0.8f
@@ -100,7 +101,7 @@ namespace megastar.Game.View
                             [
                                 new SpriteText
                                 {
-                                    Text = $"Score: {score} / {totalScore} ({(performanceRatio * 100):0.0}%)",
+                                    Text = $"Score: {judge.Score} / {judge.MaxScore} ({(performanceRatio * 100):0.0}%)",
                                     Font = new FontUsage(size: 28, weight: "Bold")
                                 },
 
