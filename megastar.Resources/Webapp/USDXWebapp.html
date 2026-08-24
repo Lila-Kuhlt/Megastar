@@ -3,26 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Megastar Queue</title>
+    <title>ULTRA MEGA PREMIUM DELUXE KARAOKE</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             padding: 20px;
-            background: #f4f4f9;
             margin: 0;
+            min-height: 100vh;
+            /* Layered linear gradients to mimic the wavy purple background from the image */
+            background-color: #5b2c62;
+            background-image: linear-gradient(172deg,
+            #d185b9 0%, #d185b9 18%,
+            #9b5691 18%, #9b5691 38%,
+            #763473 38%, #763473 58%,
+            #5b2c62 58%, #5b2c62 100%);
+            background-attachment: fixed;
+            color: #333;
+        }
+
+        /* Container styling */
+        .list-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            margin-bottom: 25px;
+            border: 3px solid #ffd700; /* Star yellow accent */
         }
 
         h2 {
-            color: #333;
+            color: #7b007b;
             margin-top: 0;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-align: center;
         }
 
-        .list-container {
-            background: white;
-            padding: 15px;
+        /* Search bar styling */
+        #search-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #9b5691;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: #fdfafc;
+            color: #333;
+        }
+
+        #search-input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.4);
         }
 
         .song-item {
@@ -30,7 +65,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 12px 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #e0d0e0;
         }
 
         .song-item:last-child {
@@ -38,18 +73,39 @@
             padding-bottom: 0;
         }
 
+        /* Button styling matching the diamonds and star from the image */
         button {
-            background: #007bff;
-            color: white;
             border: none;
-            padding: 10px 14px;
-            border-radius: 6px;
+            padding: 10px 16px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
+            transition: transform 0.1s, filter 0.2s;
+            margin-left: 5px;
         }
 
+        button:hover {
+            filter: brightness(1.1);
+            transform: scale(1.05);
+        }
+
+        /* Star Yellow Add Button */
+        button.add {
+            background: #ffd700;
+            color: #5b2c62;
+            text-transform: uppercase;
+        }
+
+        /* Purple Diamond Move Buttons */
+        button.move-up, button.move-down {
+            background: #6a4a8a;
+            color: white;
+        }
+
+        /* Pink Diamond Remove Button */
         button.remove {
-            background: #dc3545;
+            background: #d46a9a;
+            color: white;
         }
 
         .song-info {
@@ -60,12 +116,24 @@
         .song-title {
             font-weight: bold;
             font-size: 16px;
-            color: #111;
+            color: #4a1c4b;
         }
 
         .song-artist {
             font-size: 14px;
-            color: #666;
+            color: #775577;
+        }
+
+        /* Footer text styling */
+        .footer-text {
+            text-align: center;
+            color: white;
+            font-style: italic;
+            font-size: 18px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
@@ -78,17 +146,26 @@
 
 <div class="list-container">
     <h2>Available Songs</h2>
+    <input type="text" id="search-input" placeholder="Search by title or artist...">
     <div id="loaded-list">Loading...</div>
+</div>
+
+<div class="footer-text">
+    Die schönsten Pausen sind Lila!
 </div>
 
 <script>
     const wsUrl = `ws://${window.location.host}/ws`;
     const socket = new WebSocket(wsUrl);
 
+    let allLoadedSongs = [];
+
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
         renderQueue(data.Queued);
-        renderLoaded(data.Loaded);
+
+        allLoadedSongs = data.Loaded;
+        filterAndRenderLoaded();
     };
 
     function sendAction(actionObj) {
@@ -97,12 +174,26 @@
         }
     }
 
+    document.getElementById('search-input').addEventListener('input', filterAndRenderLoaded);
+
+    function filterAndRenderLoaded() {
+        const searchTerm = document.getElementById('search-input').value.toLowerCase();
+
+        const filteredSongs = allLoadedSongs.filter(song => {
+            const titleMatch = song.Title && song.Title.toLowerCase().includes(searchTerm);
+            const artistMatch = song.Artist && song.Artist.toLowerCase().includes(searchTerm);
+            return titleMatch || artistMatch;
+        });
+
+        renderLoaded(filteredSongs);
+    }
+
     function renderQueue(queuedSongs) {
         const container = document.getElementById('queue-list');
         container.innerHTML = '';
 
         if (queuedSongs.length === 0) {
-            container.innerHTML = '<p style="color:gray;">Queue is empty.</p>';
+            container.innerHTML = '<p style="color:gray; text-align:center;">Queue is empty.</p>';
             return;
         }
 
@@ -115,7 +206,6 @@
                         <span class="song-artist">${song.Artist}</span>
                     </div>
                     <div class="buttons">
-                    
                         <button class="move-up" onclick='sendAction({action: "MOVEUP", queueIndex: ${song.Index}})'>🔼</button>
                         <button class="move-down" onclick='sendAction({action: "MOVEDOWN", queueIndex: ${song.Index}})'>🔽</button>
                         <button class="remove" onclick='sendAction({action: "REMOVE", queueIndex: ${song.Index}})'>Remove</button>
@@ -125,11 +215,16 @@
         });
     }
 
-    function renderLoaded(loadedSongs) {
+    function renderLoaded(songsToRender) {
         const container = document.getElementById('loaded-list');
         container.innerHTML = '';
 
-        loadedSongs.forEach(song => {
+        if (songsToRender.length === 0) {
+            container.innerHTML = '<p style="color:gray; text-align:center;">No songs found.</p>';
+            return;
+        }
+
+        songsToRender.forEach(song => {
             const div = document.createElement('div');
             div.className = 'song-item';
             div.innerHTML = `
@@ -137,7 +232,7 @@
                         <span class="song-title">${song.Title}</span>
                         <span class="song-artist">${song.Artist}</span>
                     </div>
-                    <button onclick='sendAction({action: "ADD", songIndex: ${song.Index}})'>Add</button>
+                    <button class="add" onclick='sendAction({action: "ADD", songIndex: ${song.Index}})'>Add</button>
                 `;
             container.appendChild(div);
         });
