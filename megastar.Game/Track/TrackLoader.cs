@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -12,10 +15,8 @@ namespace megastar.Game.Track;
 public class TrackLoader(TrackRepository repository)
 {
     /// <summary>
-    /// Indexes a given folder. If given a function to be executed "onTrackIndexed", this will be done with the result of the metadata
+    /// Indexes a given folder using a Producer-Consumer pipeline for maximum throughput.
     /// </summary>
-    /// <param name="path">the path to be scanned</param>
-    /// <param name="onTrackIndexed">action that is done on with the metadata as argument, e.g. adding to the queue</param>
     public void IndexFolder(string path, System.Action<MegastarTrackMetadata>? onTrackIndexed = null)
     {
         Logger.Log($"Indexing {path}");
@@ -23,33 +24,71 @@ public class TrackLoader(TrackRepository repository)
         if (!Directory.Exists(path))
             return;
 
-        var paths = Directory.GetDirectories(path)
-            .SelectMany(dir => Directory.GetFiles(dir, "*.txt"));
+        // thread-safe queue
+        using var queue = new BlockingCollection<MegastarTrackMetadata>(boundedCapacity: 5000);
 
-        var loadedTracks = paths
-            .Select(LoadFile)
-            .Where(metadata => metadata != null)
-            .ToList();
-
-        if (loadedTracks.Count == 0) return;
-
-        //Open ONE database connection using the existing Run method and only use one write
-        repository.Run(realm =>
+        // Consumer (Database Writer) on a background thread
+        var dbWriterTask = Task.Run(() =>
         {
-            realm.Write(() =>
+            repository.Run(realm =>
             {
-                foreach (var track in loadedTracks)
+                var batch = new List<MegastarTrackMetadata>(1000);
+
+                // GetConsumingEnumerable blocks and waits for items until CompleteAdding() is called
+                foreach (var track in queue.GetConsumingEnumerable())
                 {
-                    realm.Add(track!, true);
+                    batch.Add(track);
+
+                    // Write in chunks to keep transactions fast and memory low
+                    if (batch.Count >= 1000)
+                    {
+                        CommitBatch(realm, batch, onTrackIndexed);
+                        batch.Clear();
+                    }
+                }
+
+                // Commit any leftovers after the queue is finished
+                if (batch.Count > 0)
+                {
+                    CommitBatch(realm, batch, onTrackIndexed);
                 }
             });
+        });
 
-            // Freezing just creates a copy that is not dependend on a single object and the runtime it got created
-            foreach (var track in loadedTracks)
+        // Producers (File Parsers)
+        var paths = Directory.EnumerateDirectories(path)
+            .SelectMany(dir => Directory.EnumerateFiles(dir, "*.txt"));
+
+        Parallel.ForEach(paths, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, file =>
+        {
+            var track = LoadFile(file);
+            if (track != null)
             {
-                onTrackIndexed?.Invoke(track!.Freeze());
+                queue.Add(track);
             }
         });
+
+
+        queue.CompleteAdding();
+        dbWriterTask.Wait();
+    }
+
+    ///Helper method to handle the Realm transaction and callbacks
+    private void CommitBatch(Realm realm, List<MegastarTrackMetadata> batch, System.Action<MegastarTrackMetadata>? onTrackIndexed)
+    {
+        realm.Write(() =>
+        {
+            foreach (var track in batch)
+            {
+                realm.Add(track, true);
+            }
+        });
+
+        foreach (var track in batch)
+        {
+            //Copy its values and not the actual object
+            onTrackIndexed?.Invoke(track.Freeze());
+        }
     }
 
     public void dropTable()
