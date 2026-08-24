@@ -148,6 +148,8 @@ public partial class MegastarGameBase : osu.Framework.Game
         var allTracks = trackRepository.AllTracks().ToList();
         //TODO this sorting coud take some time, not noticable at the moment
         allTracks.Sort(TrackComparer.Instance);
+        //TODO this removes all duets which are currently not parsable
+        allTracks.RemoveAll(metadata => metadata.DirPath.ToLower().Contains("duet"));
         IndexedSongs = new List<MegastarTrackMetadata>(allTracks);
         //TODO Test purpose only
         //QueuedSongs = new List<MegastarTrackMetadata>(allTracks);
