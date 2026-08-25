@@ -61,7 +61,7 @@ public partial class PlayScreen : Screen
     private INote lastReceivedNote = new UsdxNote(-1, -1, -1000, "error", UsdxNoteType.Sung);
 
     private int activeOctaveShift = 0;
-    private KaraokeJudge judge = new KaraokeJudge(Settings.GetSettings().Difficulty.Value);
+    private KaraokeJudge[] judges;
 
 
     // Dedicated layer to safely swap background sprites behind UI elements
@@ -161,7 +161,12 @@ public partial class PlayScreen : Screen
         }
 
         showLyric(currentDisplayedLyric);
-        judge = new KaraokeJudge(Settings.GetSettings().Difficulty.Value);
+
+        judges = new KaraokeJudge[settings.MicrophoneCount.Value];
+        for (int i = 0; i < micTrackers.Length; i++)
+        {
+            judges[i] = new KaraokeJudge(settings.Difficulty.Value);
+        }
     }
 
 
@@ -263,7 +268,7 @@ public partial class PlayScreen : Screen
                 ? activeTextureStore.Get(currentTrack.Metadata.BackgroundImageFile)
                 : null;
             //TODO Real score needs to be entered here
-            this.Push(new EndScreen(backgroundImage, currentTrack, judge));
+            this.Push(new EndScreen(backgroundImage, currentTrack, judges));
         }
 
         var ultraStarBpm = currentTrack.Metadata.Bpm;
@@ -340,7 +345,7 @@ public partial class PlayScreen : Screen
     /// whilst keeping a stable octave shift to prevent visual jitter.
     /// </summary>
     /// <param name="sungNote"></param>
-    public void ReceiveSungNote(UsdxNote sungNote)
+    public void ReceiveSungNote(UsdxNote sungNote, int playerIndex)
     {
         if (beat <= lastReceivedNoteBeat) return;
 
@@ -376,7 +381,7 @@ public partial class PlayScreen : Screen
 
             sungNote.Pitch += (activeOctaveShift * 12);
 
-            judge.addNoteJudge(sungNote, targetNote);
+            judges[playerIndex].addNoteJudge(sungNote, targetNote);
         }
         else
         {
@@ -415,7 +420,7 @@ public partial class PlayScreen : Screen
 
             var sungNote = new UsdxNote(currentBeat, 1, notePitch, "", UsdxNoteType.Sung, playerColours[playerIndex]);
 
-            ReceiveSungNote(sungNote);
+            ReceiveSungNote(sungNote, playerIndex);
         });
     }
 
