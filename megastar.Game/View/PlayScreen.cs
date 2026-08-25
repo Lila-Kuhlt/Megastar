@@ -105,7 +105,7 @@ public partial class PlayScreen : Screen
         base.OnEntering(e);
 
         //TODO hier sollte irgendwie auch die nächsten Lieder abgespielt werden
-        if (game.NextSong() is { } song)
+        if (game.GetFirstSong() is { } song)
         {
             var track = new MegastarTrack(song);
             loadTrack(track);
