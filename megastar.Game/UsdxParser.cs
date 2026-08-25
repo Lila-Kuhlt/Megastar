@@ -89,14 +89,15 @@ public static class UsdxParser
             //This is for fixing up duets
             notes.Sort((a, b) => a.StartBeat.CompareTo(b.StartBeat));
             bool lastNotePause = true;
-            List<IBeatPaced> doublePauseNotes = new List<IBeatPaced>();
+            string lastText = "";
+            List<IBeatPaced> doubleNotes = new List<IBeatPaced>();
             foreach (var note in notes)
             {
                 if (note.GetType() == typeof(UsdxPauseNote))
                 {
                     if (lastNotePause)
                     {
-                        doublePauseNotes.Add(note);
+                        doubleNotes.Add(note);
                     }
                     lastNotePause = true;
                 }
@@ -104,9 +105,15 @@ public static class UsdxParser
                 {
                     lastNotePause = false;
                 }
+
+                if (note.Text.Equals(lastText) && !note.Text.Equals(""))
+                {
+                    doubleNotes.Add(note);
+                }
+                lastText = note.Text;
             }
 
-            foreach (var doublePauseNote in doublePauseNotes)
+            foreach (var doublePauseNote in doubleNotes)
             {
                 notes.Remove(doublePauseNote);
             }

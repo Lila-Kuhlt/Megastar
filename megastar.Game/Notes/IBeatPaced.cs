@@ -7,4 +7,5 @@ public interface IBeatPaced
     int StartBeat { get; }
     int Length { get; set; }
     Drawable Visual { get; }
+    string Text { get; }
 }
