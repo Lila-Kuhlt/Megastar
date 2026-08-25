@@ -11,7 +11,7 @@ namespace megastar.Game;
 public static class UsdxParser
 {
 
-    private static Colour4[] playerColours = { Colour4.DeepSkyBlue, Colour4.Turquoise };
+    private static Colour4[] playerColours = { Colour4.DeepSkyBlue, Colour4.DarkBlue };
     private static int endLastBeat = 0;
     public static UsdxTrack? ParseUsdxFile(string manifestPath)
     {

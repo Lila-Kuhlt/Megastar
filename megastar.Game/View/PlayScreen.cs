@@ -54,7 +54,7 @@ public partial class PlayScreen : Screen
 
 
     private MicrophonePitchTracker[] micTrackers;
-    private Colour4[] playerColours = { Colour4.LimeGreen, Colour4.Purple, Colour4.Coral, Colour4.DarkCyan };
+    private Colour4[] playerColours = { Colour4.LimeGreen, Colour4.Purple, Colour4.Coral, Colour4.Pink };
     private Lyric? currentDisplayedLyric;
 
     private INote lastReceivedNote = new UsdxNote(-1, -1, -1000, "error", UsdxNoteType.Sung);
