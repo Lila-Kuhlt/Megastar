@@ -249,7 +249,7 @@ public partial class IndexedTrackItem : CompositeDrawable, IFilterable
                     new BasicButton { Text = "+", Size = new Vector2(40), Action = () => onAdd(track) },
                     new SpriteText
                     {
-                        Text = $"{track.Artist} - {track.Title}",
+                        Text = $"{track.Artist} - {track.Title}" + (track.DirPath.ToLower().Contains("duet") ? " - Duet Version" : ""),
                         Margin = new MarginPadding { Left = 10 },
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft

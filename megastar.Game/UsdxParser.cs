@@ -65,15 +65,19 @@ public static class UsdxParser
 
     public static List<IBeatPaced> ParseUsdxNotes(string rawUsdx)
     {
+        bool player1Active = true;
         List<IBeatPaced> notes = [];
+
 
         using var reader = new StringReader(rawUsdx);
         while (reader.ReadLine() is { } line)
         {
+            if (line.StartsWith("P1")) continue;
+            if (line.StartsWith("P2")) { player1Active = false; continue; }
             if (line.StartsWith('#')) continue;
             if (line.StartsWith('E') || line.StartsWith('P')) break;
 
-            notes.Add(ParseUsdxNote(line));
+            notes.Add(ParseUsdxNote(line, player1Active));
         }
 
         return notes;
@@ -105,7 +109,7 @@ public static class UsdxParser
         return extractMetadata(metadata, "")!;
     }
 
-    public static IBeatPaced ParseUsdxNote(string line)
+    private static IBeatPaced ParseUsdxNote(string line, bool player1Active = true)
     {
         string[] splitNote = line.Split(" ");
 
