@@ -1,6 +1,5 @@
 ﻿using ManagedBass;
 using megastar.Game;
-using megastar.Game.Audio;
 using osu.Framework;
 using osu.Framework.Platform;
 

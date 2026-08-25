@@ -4,11 +4,15 @@ using System.Globalization;
 using System.IO;
 using megastar.Game.notes;
 using megastar.Game.Track.Usdx;
+using osu.Framework.Graphics;
 
 namespace megastar.Game;
 
 public static class UsdxParser
 {
+
+    private static Colour4[] playerColours = { Colour4.DeepSkyBlue, Colour4.DarkBlue };
+    private static int endLastBeat = 0;
     public static UsdxTrack? ParseUsdxFile(string manifestPath)
     {
         Dictionary<string, string> metadata = new Dictionary<string, string>();
@@ -65,15 +69,54 @@ public static class UsdxParser
 
     public static List<IBeatPaced> ParseUsdxNotes(string rawUsdx)
     {
+        bool player1Active = true;
         List<IBeatPaced> notes = [];
+
 
         using var reader = new StringReader(rawUsdx);
         while (reader.ReadLine() is { } line)
         {
+            if (line.StartsWith("P1")) continue;
+            if (line.StartsWith("P2")) { player1Active = false; continue; }
             if (line.StartsWith('#')) continue;
             if (line.StartsWith('E') || line.StartsWith('P')) break;
 
-            notes.Add(ParseUsdxNote(line));
+            notes.Add(parseUsdxNote(line, player1Active ? 0 : 1));
+        }
+
+        if (!player1Active)
+        {
+            //This is for fixing up duets
+            notes.Sort((a, b) => a.StartBeat.CompareTo(b.StartBeat));
+            bool lastNotePause = true;
+            string lastText = "";
+            List<IBeatPaced> doubleNotes = new List<IBeatPaced>();
+            foreach (var note in notes)
+            {
+                if (note.GetType() == typeof(UsdxPauseNote))
+                {
+                    if (lastNotePause)
+                    {
+                        doubleNotes.Add(note);
+                    }
+                    lastNotePause = true;
+                }
+                else
+                {
+                    lastNotePause = false;
+                }
+
+                if (note.Text.Equals(lastText) && !note.Text.Equals(""))
+                {
+                    doubleNotes.Add(note);
+                }
+                lastText = note.Text;
+            }
+
+            foreach (var doublePauseNote in doubleNotes)
+            {
+                notes.Remove(doublePauseNote);
+            }
         }
 
         return notes;
@@ -105,13 +148,14 @@ public static class UsdxParser
         return extractMetadata(metadata, "")!;
     }
 
-    public static IBeatPaced ParseUsdxNote(string line)
+    private static IBeatPaced parseUsdxNote(string line, int player1ActiveColourIndex = 0)
     {
         string[] splitNote = line.Split(" ");
 
         if (splitNote[0].Equals("-"))
         {
-            return new UsdxPauseNote(Convert.ToInt32(splitNote[1]));
+            //For doing duets, the pause is messed up, when not using the end of the phrase
+            return new UsdxPauseNote(Math.Min(Convert.ToInt32(splitNote[1]), endLastBeat));
         }
 
         UsdxNoteType noteType = splitNote[0] switch
@@ -128,7 +172,8 @@ public static class UsdxParser
         int lenght = Convert.ToInt32(splitNote[2]);
         int pitch = Convert.ToInt32(splitNote[3]);
         string text = splitNote[4];
+        endLastBeat = startBeat + lenght;
 
-        return new UsdxNote(startBeat, lenght, pitch, text, noteType);
+        return new UsdxNote(startBeat, lenght, pitch, text, noteType, playerColours[player1ActiveColourIndex]);
     }
 }

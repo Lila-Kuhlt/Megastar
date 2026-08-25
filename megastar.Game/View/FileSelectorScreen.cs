@@ -98,7 +98,11 @@ public partial class FileSelectorScreen : Screen
                 Height = 50,
                 Y = -20,
                 X = 120,
-                Action = () => Task.Run(trackLoader.dropTable)
+                Action = () =>
+                {
+                    game.IndexedSongs.Clear();
+                    Task.Run(trackLoader.dropTable);
+                }
             },
 
             loadedTrackCounter = new SpriteText

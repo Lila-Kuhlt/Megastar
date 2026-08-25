@@ -51,7 +51,11 @@ public partial class PlayScreen : Screen
     private bool paused = false;
     private double trackPausePosition = 0;
 
-    private MicrophonePitchTracker micTracker;
+    private static Settings settings = Settings.GetSettings();
+
+
+    private MicrophonePitchTracker[] micTrackers;
+    private Colour4[] playerColours = { Colour4.LimeGreen, Colour4.Purple, Colour4.Coral, Colour4.Pink };
     private Lyric? currentDisplayedLyric;
 
     private INote lastReceivedNote = new UsdxNote(-1, -1, -1000, "error", UsdxNoteType.Sung);
@@ -78,11 +82,11 @@ public partial class PlayScreen : Screen
     };
 
 
-    private Sprite currentBackground;
-    private TextureStore activeTextureStore;
-    private StorageBackedResourceStore activeTextureResourceStore;
-    private StorageBackedResourceStore activeAudioResourceStore;
-    private StorageBackedResourceStore activeVideoRessourceStore;
+    private Sprite? currentBackground;
+    private TextureStore? activeTextureStore;
+    private StorageBackedResourceStore? activeTextureResourceStore;
+    private StorageBackedResourceStore? activeAudioResourceStore;
+    private StorageBackedResourceStore? activeVideoRessourceStore;
 
     private int lastReceivedNoteBeat;
 
@@ -99,9 +103,12 @@ public partial class PlayScreen : Screen
             notesLayer,
             lyricsLayer
         ];
-
-        micTracker = new MicrophonePitchTracker();
-        micTracker.PitchDetected += OnPitchDetected;
+        micTrackers = new MicrophonePitchTracker[settings.MicrophoneCount.Value];
+        for (int i = 0; i < micTrackers.Length; i++)
+        {
+            micTrackers[i] = new MicrophonePitchTracker(i);
+            micTrackers[i].PitchDetected += OnPitchDetected;
+        }
     }
 
     public override void OnEntering(ScreenTransitionEvent e)
@@ -109,11 +116,14 @@ public partial class PlayScreen : Screen
         base.OnEntering(e);
 
         //TODO hier sollte irgendwie auch die nächsten Lieder abgespielt werden
-        if (game.NextSong() is { } song)
+        if (game.GetFirstSong() is { } song)
         {
             var track = new MegastarTrack(song);
             loadTrack(track);
-            micTracker.Start();
+            for (int i = 0; i < micTrackers.Length; i++)
+            {
+                micTrackers[i].Start(settings.GetBassDeviceIndexByName(settings.GetMicrophoneDevice(i)));
+            }
         }
         else
             AddInternal(new SpriteText
@@ -391,7 +401,7 @@ public partial class PlayScreen : Screen
         }
     }
 
-    private void OnPitchDetected(PitchRecord record)
+    private void OnPitchDetected(PitchRecord record, int playerIndex)
     {
         if (currentTrack == null) return;
 
@@ -403,7 +413,7 @@ public partial class PlayScreen : Screen
             int currentBeat = (int)beat;
 
 
-            var sungNote = new UsdxNote(currentBeat, 1, notePitch, "", UsdxNoteType.Sung);
+            var sungNote = new UsdxNote(currentBeat, 1, notePitch, "", UsdxNoteType.Sung, playerColours[playerIndex]);
 
             ReceiveSungNote(sungNote);
         });
@@ -412,7 +422,10 @@ public partial class PlayScreen : Screen
     protected override void Dispose(bool isDisposing)
     {
         base.Dispose(isDisposing);
-        micTracker?.Dispose();
+        foreach (var micTracker in micTrackers)
+        {
+            micTracker.Dispose();
+        }
 
         //CLEANUP PREVIOUS SONG TRACK & RESOURCES
         audioTrack?.Stop();

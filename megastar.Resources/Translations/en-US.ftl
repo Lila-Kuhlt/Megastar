@@ -28,6 +28,7 @@ settings-difficulty = Difficulty:
 settings-volume = Volume
 settings-duplicates-queue = Allow duplicates in the queue
 settings-wepapp = Start the webapp on port 8080
+settings-mic-count = Microphone Count
 
 ## Directory Selector
 dir-select-toggle-hidden = Toggle hidden items

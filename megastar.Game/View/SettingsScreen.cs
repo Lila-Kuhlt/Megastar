@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using ManagedBass;
 using megastar.Game.Preset;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables; // Added for Bindable<string>
 using osu.Framework.Configuration;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
@@ -58,7 +60,6 @@ public partial class SettingsScreen : Screen
 
         startWebapp.Current = settings.WebAppActive;
 
-
         startWebapp.Current.BindValueChanged(e =>
         {
             if (startWebapp.Current.Value)
@@ -70,6 +71,74 @@ public partial class SettingsScreen : Screen
                 game.LocalQueueServer.StopWebserver();
             }
         });
+
+
+        string[] availableMicrophones = getAvailableMicrophones();
+
+        FillFlowContainer microphoneDropdownsContainer = new FillFlowContainer
+        {
+            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Y,
+            Direction = FillDirection.Vertical,
+            Spacing = new Vector2(0, 10),
+        };
+
+        //Rebuilds the selector ui for each dropdown menu. Rebuilds automatically when the mic device amount is changed
+        void rebuildMicrophoneDropdowns(int count)
+        {
+            microphoneDropdownsContainer.Clear();
+            for (int i = 0; i < count; i++)
+            {
+                int index = i;
+                string currentDevice = settings.GetMicrophoneDevice(index);
+
+                var dropdownBindable = new Bindable<string>(currentDevice);
+                dropdownBindable.BindValueChanged(e => settings.SetMicrophoneDevice(index, e.NewValue));
+
+                microphoneDropdownsContainer.Add(new FillFlowContainer
+                {
+                    Direction = FillDirection.Horizontal,
+                    AutoSizeAxes = Axes.Both,
+                    Children = new Drawable[]
+                    {
+                        // Mimics the Left Column spacing
+                        new FillFlowContainer
+                        {
+                            Direction = FillDirection.Vertical,
+                            Width = 200,
+                            AutoSizeAxes = Axes.Y,
+                            Children = new Drawable[]
+                            {
+                                new SpriteText
+                                {
+                                    Text = $"Mic {index + 1}",
+                                    Padding = new MarginPadding { Vertical = 5 }
+                                }
+                            }
+                        },
+                        // Mimics the Right Column dropdowns
+                        new FillFlowContainer
+                        {
+                            Direction = FillDirection.Vertical,
+                            Width = 200,
+                            AutoSizeAxes = Axes.Y,
+                            Children = new Drawable[]
+                            {
+                                new BasicDropdown<string>
+                                {
+                                    Width = 200,
+                                    Items = availableMicrophones,
+                                    Current = dropdownBindable
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Bind the slider changes so they immediately redraw the correct number of dropdowns
+        settings.MicrophoneCount.BindValueChanged(e => rebuildMicrophoneDropdowns(e.NewValue), true);
 
 
         InternalChildren =
@@ -161,7 +230,18 @@ public partial class SettingsScreen : Screen
                                 }
                             }
                         },
-                        //Server start
+
+                        // Microphone Slider (How many)
+                        new StepSlider<int>(localisation.GetLocalisedString(Fluent.Translate("settings-mic-count")), 1, 8, 1)
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Height = 40,
+                            Current = { BindTarget = settings.MicrophoneCount },
+                        },
+
+                        microphoneDropdownsContainer,
+
+                        // Server start
                         new FillFlowContainer
                         {
                             Direction = FillDirection.Horizontal,
@@ -179,7 +259,8 @@ public partial class SettingsScreen : Screen
                                 startWebapp,
                             }
                         },
-                        //Duplicates in the Queue start
+
+                        // Duplicates in the Queue start
                         new FillFlowContainer
                         {
                             Direction = FillDirection.Horizontal,
@@ -217,5 +298,25 @@ public partial class SettingsScreen : Screen
         }
 
         return base.OnKeyDown(e);
+    }
+
+    private string[] getAvailableMicrophones()
+    {
+        List<string> devices = new List<string>();
+        int index = 0;
+
+        while (Bass.RecordGetDeviceInfo(index, out DeviceInfo info))
+        {
+            if (info.IsEnabled && info.Type == DeviceType.Microphone)
+            {
+                devices.Add(info.Name);
+            }
+            index++;
+        }
+
+        if (devices.Count == 0)
+            devices.Add("Default");
+
+        return devices.ToArray();
     }
 }
