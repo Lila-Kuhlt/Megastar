@@ -6,7 +6,7 @@ using osuTK;
 
 namespace megastar.Game.notes;
 
-public class UsdxNote(int startBeat, int length, int pitch, string text, UsdxNoteType noteType, Colour4? visualSungColour = null)
+public class UsdxNote(int startBeat, int length, int pitch, string text, UsdxNoteType noteType, Colour4? visualColour = null)
     : INote
 {
     public static int SCALE_FACTOR = 10;
@@ -18,7 +18,7 @@ public class UsdxNote(int startBeat, int length, int pitch, string text, UsdxNot
     public int Pitch { get; set; } = pitch;
     public string Text { get; set; } = text;
     public UsdxNoteType NoteType { get; set; } = noteType;
-    private Colour4 VisualSungColour { get; set; } = visualSungColour ?? Colour4.LimeGreen;
+    private Colour4 VisualColour { get; set; } = visualColour ?? Colour4.DeepSkyBlue;
 
     //caching to reduce rendering on each frame
     private Drawable visualInstance = null;
@@ -33,19 +33,19 @@ public class UsdxNote(int startBeat, int length, int pitch, string text, UsdxNot
         {
             case UsdxNoteType.Golden:
                 baseColor = Colour4.Gold;
-                glowColor = Colour4.Goldenrod.Opacity(0.8f);
+                glowColor = VisualColour.Opacity(0.8f);
                 break;
             case UsdxNoteType.Freestyle:
                 baseColor = Colour4.Gray;
                 glowColor = Colour4.Transparent;
                 break;
             case UsdxNoteType.Sung:
-                baseColor = VisualSungColour;
-                glowColor = VisualSungColour.Opacity(0.8f);
+                baseColor = VisualColour;
+                glowColor = VisualColour.Opacity(0.8f);
                 break;
             default:
-                baseColor = Colour4.DeepSkyBlue;
-                glowColor = Colour4.DeepSkyBlue.Opacity(0.5f);
+                baseColor = VisualColour;
+                glowColor = VisualColour.Opacity(0.5f);
                 break;
         }
 
