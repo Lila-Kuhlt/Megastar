@@ -10,16 +10,18 @@ namespace megastar.Game.pitch
         private readonly PitchTracker pitchTracker;
         private int recordStream;
         private float[] audioBuffer;
+        private int playerIndex = 1;
 
         // We must keep a strong reference to the callback delegate to prevent the GC from collecting it
         private RecordProcedure _recordProcedure;
 
-        public event Action<PitchRecord> PitchDetected;
+        public event Action<PitchRecord, int> PitchDetected;
 
-        public MicrophonePitchTracker()
+        public MicrophonePitchTracker(int playerIndex = 1)
         {
             pitchTracker = new PitchTracker();
-            pitchTracker.PitchDetected += record => PitchDetected?.Invoke(record);
+            this.playerIndex = playerIndex;
+            pitchTracker.PitchDetected += record => PitchDetected?.Invoke(record, playerIndex);
         }
 
         /// <summary>

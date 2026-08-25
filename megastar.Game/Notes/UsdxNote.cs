@@ -6,7 +6,7 @@ using osuTK;
 
 namespace megastar.Game.notes;
 
-public class UsdxNote(int startBeat, int length, int pitch, string text, UsdxNoteType noteType)
+public class UsdxNote(int startBeat, int length, int pitch, string text, UsdxNoteType noteType, Colour4? visualSungColour = null)
     : INote
 {
     public static int SCALE_FACTOR = 10;
@@ -18,6 +18,7 @@ public class UsdxNote(int startBeat, int length, int pitch, string text, UsdxNot
     public int Pitch { get; set; } = pitch;
     public string Text { get; set; } = text;
     public UsdxNoteType NoteType { get; set; } = noteType;
+    private Colour4 VisualSungColour { get; set; } = visualSungColour ?? Colour4.LimeGreen;
 
     //caching to reduce rendering on each frame
     private Drawable visualInstance = null;
@@ -39,8 +40,8 @@ public class UsdxNote(int startBeat, int length, int pitch, string text, UsdxNot
                 glowColor = Colour4.Transparent;
                 break;
             case UsdxNoteType.Sung:
-                baseColor = Colour4.LimeGreen;
-                glowColor = Colour4.LimeGreen.Opacity(0.8f);
+                baseColor = VisualSungColour;
+                glowColor = VisualSungColour.Opacity(0.8f);
                 break;
             default:
                 baseColor = Colour4.DeepSkyBlue;
