@@ -101,6 +101,15 @@ public partial class PauseScreen : Screen
                             curPlayText.Text = $"Coming up next : {game.GetFirstSong()?.Title}";
                         }
                     },
+                    new RoundButton()
+                    {
+                        Text = $"Settings",
+                        Size = new Vector2(300, 70),
+                        Action = () =>
+                        {
+                            this.Push(new SettingsScreen());
+                        }
+                    },
                 }
             },
             new Container()
