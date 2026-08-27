@@ -132,6 +132,7 @@ public partial class PlayScreen : Screen
 
     private void loadTrack(ITrack track)
     {
+        cleanupCurrentTrack();
         lyrics = new Lyrics(track.TrackData);
 
         var audio = loadAudio(track.Metadata.DirPath, track.Metadata.AudioFile);
@@ -223,7 +224,6 @@ public partial class PlayScreen : Screen
 
             if (!File.Exists(videoPath)) return;
 
-            // Let C# handle the file reading safely to bypass FFmpeg pathing issues
             Stream videoStream = File.OpenRead(videoPath);
 
             backgroundVideo = new Video(videoStream)
@@ -237,10 +237,14 @@ public partial class PlayScreen : Screen
             };
 
             backgroundVideo.Clock = new FramedOffsetClock(audioTrack) { Offset = usdxTrack.VideoGap };
-            backgroundLayer.Add(backgroundVideo);
-            backgroundVideo.OnLoadComplete += v => { v.FadeIn(0, Easing.OutQuint); };
+
+            LoadComponentAsync(backgroundVideo, loadedVideo =>
+            {
+                backgroundLayer.Add(loadedVideo);
+                loadedVideo.FadeIn(500, Easing.OutQuint);
+            });
         }
-        catch (Exception ex) // TODO: Don't catch all Exceptions -- this is bad practice!
+        catch (Exception ex)
         {
             Logger.Error(ex, $"Failed to load karaoke track background video: {ex.Message}");
         }
@@ -380,18 +384,33 @@ public partial class PlayScreen : Screen
             micTracker.Dispose();
         }
 
-        //CLEANUP PREVIOUS SONG TRACK & RESOURCES
+        cleanupCurrentTrack();
+
+        backgroundLayer?.Dispose();
+    }
+
+    private void cleanupCurrentTrack()
+    {
+        // Stop and dispose audio
         audioTrack?.Stop();
         audioTrack?.Dispose();
+        audioTrack = null;
 
+        // Dispose visual elements and release file handles
+        backgroundVideo?.Dispose();
+        backgroundVideo = null;
+
+        currentBackground?.Dispose();
+        currentBackground = null;
+
+        // Remove old visuals from the scene graph
+        backgroundLayer.Clear();
+
+        // Dispose resource stores to free unmanaged memory
         activeAudioResourceStore?.Dispose();
         activeVideoRessourceStore?.Dispose();
-
-        // CLEANUP PREVIOUS BACKGROUND IMAGES & TEXTURE CACHES
         activeTextureResourceStore?.Dispose();
         activeTextureStore?.Dispose();
-        currentBackground?.Dispose();
-        backgroundLayer?.Dispose();
     }
 
     protected override bool OnKeyDown(KeyDownEvent e)
