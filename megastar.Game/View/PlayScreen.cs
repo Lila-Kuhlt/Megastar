@@ -301,6 +301,7 @@ public partial class PlayScreen : Screen
         {
             paused = false;
             MegastarTrackMetadata song = game.GetFirstSong();
+            if (song == null) return;
             var track = new MegastarTrack(song);
             if (track.Metadata.AudioFile != currentTrack.Metadata.AudioFile)
             {
@@ -418,7 +419,7 @@ public partial class PlayScreen : Screen
         if (e.Key == Key.Escape)
         {
             this.Push(new PauseScreen());
-            trackPausePosition = audioTrack.CurrentTime;
+            trackPausePosition = (audioTrack.IsNotNull()? audioTrack.CurrentTime:0) ;
             audioTrack?.Stop();
             paused = true;
         }
