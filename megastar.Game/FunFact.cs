@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Text.Json;
 
 namespace megastar.Game;
@@ -13,12 +14,21 @@ public class FunFact
 
     public static string GetCowFunfact()
     {
-        string json = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "funfacts.json"));
+        Assembly assembly = Assembly.Load("megastar.Resources");
+        using Stream? stream = assembly.GetManifestResourceStream("megastar.Resources.funfacts.json");
 
-        List<FunFact> facts = JsonSerializer.Deserialize<List<FunFact>>(json) ?? [];
-        Random random = new Random();
-        FunFact randomFact = facts[random.Next(facts.Count)];
+        if (stream != null)
+        {
+            using StreamReader reader = new StreamReader(stream);
+            string json = reader.ReadToEnd();
 
-        return randomFact.Text;
+            List<FunFact> facts = JsonSerializer.Deserialize<List<FunFact>>(json) ?? [];
+            Random random = new Random();
+            FunFact randomFact = facts[random.Next(facts.Count)];
+
+            return randomFact.Text;
+        }
+
+        return "";
     }
 }
