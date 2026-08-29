@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using megastar.Game.notes;
 using megastar.Game.Track.Usdx;
 using osu.Framework.Graphics;
@@ -61,6 +62,11 @@ public static class UsdxParser
         if (title == null) return null;
         if (artist == null) return null;
 
+        if (dirPath.ToLower().Contains("duet"))
+        {
+            title += " - Duet";
+        }
+
         return new UsdxTrackMetadata(MetadataFile: manifest, DirPath: dirPath,
             Artist: artist, Title: title, Creator: creator ?? "?", AudioFile: audioFile, Length: length,
             BackgroundImageFile: background, BackgroundVideoFile: video, Bpm: bpm, Gap: gap, Version: version ?? "?",
@@ -86,8 +92,8 @@ public static class UsdxParser
 
         if (!player1Active)
         {
-            //This is for fixing up duets
-            notes.Sort((a, b) => a.StartBeat.CompareTo(b.StartBeat));
+            //This is for fixing up duets, orderBy uses stable sort
+            notes = notes.OrderBy(n => n.StartBeat).ToList();
             bool lastNotePause = true;
             string lastText = "";
             List<IBeatPaced> doubleNotes = new List<IBeatPaced>();

@@ -11,6 +11,7 @@ namespace megastar.Game.pitch
         private int recordStream;
         private float[] audioBuffer;
         private int playerIndex = 1;
+        private readonly int sampleFrequency = 50;
 
         // We must keep a strong reference to the callback delegate to prevent the GC from collecting it
         private RecordProcedure _recordProcedure;
@@ -39,7 +40,7 @@ namespace megastar.Game.pitch
 
             _recordProcedure = Procedure;
 
-            recordStream = Bass.RecordStart(44100, 1, BassFlags.RecordPause | BassFlags.Float, 50, _recordProcedure);
+            recordStream = Bass.RecordStart(44100, 1, BassFlags.RecordPause | BassFlags.Float, sampleFrequency, _recordProcedure);
 
             if (recordStream == 0) return false;
 

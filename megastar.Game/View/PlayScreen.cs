@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using megastar.Game.Audio;
 using megastar.Game.notes;
 using megastar.Game.pitch;
 using megastar.Game.Preset;
@@ -58,6 +59,9 @@ public partial class PlayScreen : Screen
     private Lyric? currentDisplayedLyric;
 
     private INote lastReceivedNote = new UsdxNote(-1, -1, -1000, "error", UsdxNoteType.Sung);
+
+    private int activeOctaveShift = 0;
+    private KaraokeJudge[] judges;
 
 
     // Dedicated layer to safely swap background sprites behind UI elements
@@ -158,6 +162,12 @@ public partial class PlayScreen : Screen
         }
 
         showLyric(currentDisplayedLyric);
+
+        judges = new KaraokeJudge[settings.MicrophoneCount.Value];
+        for (int i = 0; i < micTrackers.Length; i++)
+        {
+            judges[i] = new KaraokeJudge(settings.Difficulty.Value);
+        }
     }
 
 
@@ -262,7 +272,7 @@ public partial class PlayScreen : Screen
                 ? activeTextureStore.Get(currentTrack.Metadata.BackgroundImageFile)
                 : null;
             //TODO Real score needs to be entered here
-            this.Push(new EndScreen(backgroundImage, currentTrack, 67911, 676767));
+            this.Push(new EndScreen(backgroundImage, currentTrack, judges));
         }
 
         var ultraStarBpm = currentTrack.Metadata.Bpm;
@@ -334,14 +344,56 @@ public partial class PlayScreen : Screen
         }
     }
 
-    /// <summary>
+/// <summary>
     /// This method takes notes that get sung and displays them above the pitches
-    /// This automatically only receives the first note per beat and ignores all following ones
+    /// This automatically only receives the first note per beat and ignores all following ones,
+    /// whilst keeping a stable octave shift to prevent visual jitter.
     /// </summary>
     /// <param name="sungNote"></param>
-    public void ReceiveSungNote(UsdxNote sungNote)
+    public void ReceiveSungNote(UsdxNote sungNote, int playerIndex)
     {
         if (beat <= lastReceivedNoteBeat) return;
+
+        // --- OCTAVE ASSIMILATION LOGIC (WITH HYSTERESIS) ---
+        INote targetNote = null;
+
+        // Find the active target note for the current sung beat
+        if (currentDisplayedLyric != null && currentDisplayedLyric.Notes != null)
+        {
+            foreach (var note in currentDisplayedLyric.Notes)
+            {
+                if (sungNote.StartBeat >= note.StartBeat && sungNote.StartBeat < note.StartBeat + note.Length)
+                {
+                    targetNote = note;
+                    break;
+                }
+            }
+        }
+
+        if (targetNote != null)
+        {
+            // Test how far off the pitch is using our previously locked shift
+            int hypotheticallyShiftedPitch = sungNote.Pitch + (activeOctaveShift * 12);
+            int distanceWithCurrentShift = Math.Abs(targetNote.Pitch - hypotheticallyShiftedPitch);
+
+            // HYSTERESIS: Only recalculate the shift if the pitch is wildly off (e.g., > 8 semitones).
+            // If they are wavering at 5, 6, or 7 semitones, it stays "sticky" and doesn't jump.
+            if (distanceWithCurrentShift > 8)
+            {
+                int rawPitchDiff = targetNote.Pitch - sungNote.Pitch;
+                activeOctaveShift = (int)Math.Round(rawPitchDiff / 12.0, MidpointRounding.AwayFromZero);
+            }
+
+            sungNote.Pitch += (activeOctaveShift * 12);
+
+            judges[playerIndex].addNoteJudge(sungNote, targetNote);
+        }
+        else
+        {
+            //Gap without an actual lyric
+            sungNote.Pitch += (activeOctaveShift * 12);
+        }
+        // ---------------------------------------------------
 
         // Merge if same pitch
         if (lastReceivedNote != null && lastReceivedNote.Pitch == sungNote.Pitch)
@@ -373,7 +425,7 @@ public partial class PlayScreen : Screen
 
             var sungNote = new UsdxNote(currentBeat, 1, notePitch, "", UsdxNoteType.Sung, playerColours[playerIndex]);
 
-            ReceiveSungNote(sungNote);
+            ReceiveSungNote(sungNote, playerIndex);
         });
     }
 
@@ -397,15 +449,24 @@ public partial class PlayScreen : Screen
         audioTrack?.Dispose();
         audioTrack = null;
 
+        // Remove old visuals from the scene graph
+        //When calling from dispose(), this throws an exception, cause some stuff is disposed to early and so it tries to cleanup twice
+        try
+        {
+            backgroundLayer?.Clear();
+        }
+        catch (Drawable.InvalidThreadForMutationException e)
+        {
+            Console.WriteLine(e);
+        }
+
+
         // Dispose visual elements and release file handles
         backgroundVideo?.Dispose();
         backgroundVideo = null;
 
         currentBackground?.Dispose();
         currentBackground = null;
-
-        // Remove old visuals from the scene graph
-        backgroundLayer.Clear();
 
         // Dispose resource stores to free unmanaged memory
         activeAudioResourceStore?.Dispose();

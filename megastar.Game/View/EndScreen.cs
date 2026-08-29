@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Linguini.Shared.Types.Bundle;
+using megastar.Game.Audio;
 using megastar.Game.Preset;
 using megastar.Game.Track;
 using megastar.Game.Track.Usdx;
 using megastar.Game.Translations;
+using NUnit.Framework;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -19,7 +22,7 @@ using osuTK.Graphics;
 
 namespace megastar.Game.View
 {
-    public partial class EndScreen(Texture backgroundTexture, ITrack lastTrack, int score, int totalScore)
+    public partial class EndScreen(Texture backgroundTexture, ITrack lastTrack, KaraokeJudge[] judges)
         : Screen
     {
         [Resolved] private MegastarGameBase game { get; set; } = null!;
@@ -27,12 +30,69 @@ namespace megastar.Game.View
         [BackgroundDependencyLoader]
         private void load()
         {
-            float performanceRatio = totalScore > 0 ? Math.Clamp((float)score / totalScore, 0f, 1f) : 0f;
+            var leftSideUI = new List<Drawable>();
 
-            // Determine bar color based on performance
-            Color4 performanceColor = performanceRatio > 0.8f
-                ? Color4.LimeGreen
-                : (performanceRatio > 0.5f ? Color4.Yellow : Color4.OrangeRed);
+            for (int i = 0; i < judges.Length; i++)
+            {
+                var currentJudge = judges[i];
+                float performanceRatio = currentJudge.MaxScore > 0 ? Math.Clamp((float)currentJudge.Score / currentJudge.MaxScore, 0f, 1f) : 0f;
+
+                // Determine bar color based on performance
+                Color4 performanceColor = performanceRatio > 0.8f
+                    ? Color4.LimeGreen
+                    : (performanceRatio > 0.5f ? Color4.Yellow : Color4.OrangeRed);
+
+                leftSideUI.Add(new FillFlowContainer
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(0, 5),
+                    Children =
+                    [
+                        new SpriteText
+                        {
+                            Text = $"Player {i + 1} Score: {currentJudge.Score} / {currentJudge.MaxScore} ({(performanceRatio * 100):0.0}%)",
+                            Font = new FontUsage(size: 28, weight: "Bold")
+                        },
+                        new Container
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Height = 30,
+                            Masking = true,
+                            CornerRadius = 15,
+                            Children =
+                            [
+                                new Box
+                                {
+                                    RelativeSizeAxes = Axes.Both,
+                                    Colour = Color4.DarkGray,
+                                    Alpha = 0.6f
+                                },
+                                new Box
+                                {
+                                    RelativeSizeAxes = Axes.Both,
+                                    Width = performanceRatio,
+                                    Colour = performanceColor
+                                }
+                            ]
+                        }
+                    ]
+                });
+            }
+
+            // Append the "Play Next" button to the bottom of the judges list
+            leftSideUI.Add(new Container
+            {
+                Margin = new MarginPadding { Top = 15 },
+                Child = new RoundButton
+                {
+                    Text = Fluent.Translate("end-screen-play-next",
+                        ("songTitle", (FluentString)game.PeekNextSong()!.ToString())),
+                    Action = this.Exit,
+                    Size = new Vector2(500, 50)
+                }
+            });
 
             InternalChildren = new Drawable[]
             {
@@ -55,7 +115,6 @@ namespace megastar.Game.View
                     Alpha = 0.65f
                 },
 
-
                 new Container
                 {
                     RelativeSizeAxes = Axes.Both,
@@ -73,20 +132,20 @@ namespace megastar.Game.View
                             [
                                 new SpriteText
                                 {
-                                    Text = lastTrack.Metadata.Title ?? Fluent.Translate("end-screen-unknown-title"),
+                                    Text = lastTrack.Metadata.Title,
                                     Font = new FontUsage(size: 48, weight: "Bold"),
                                     Colour = Color4.White
                                 },
                                 new SpriteText
                                 {
-                                    Text = lastTrack.Metadata.Artist ?? Fluent.Translate("end-screen-unknown-title"),
+                                    Text = lastTrack.Metadata.Artist,
                                     Font = new FontUsage(size: 32),
                                     Colour = Color4.LightGray
                                 }
                             ]
                         },
 
-                        //Left container
+                        //Left container (Now populated dynamically)
                         new FillFlowContainer
                         {
                             Anchor = Anchor.CentreLeft,
@@ -96,51 +155,10 @@ namespace megastar.Game.View
                             Width = 0.45f,
                             Direction = FillDirection.Vertical,
                             Spacing = new Vector2(0, 15),
-                            Children =
-                            [
-                                new SpriteText
-                                {
-                                    Text = $"Score: {score} / {totalScore} ({(performanceRatio * 100):0.0}%)",
-                                    Font = new FontUsage(size: 28, weight: "Bold")
-                                },
-
-                                new Container
-                                {
-                                    RelativeSizeAxes = Axes.X,
-                                    Height = 30,
-                                    Masking = true,
-                                    CornerRadius = 15,
-                                    Children =
-                                    [
-                                        new Box
-                                        {
-                                            RelativeSizeAxes = Axes.Both,
-                                            Colour = Color4.DarkGray,
-                                            Alpha = 0.6f
-                                        },
-                                        new Box
-                                        {
-                                            RelativeSizeAxes = Axes.Both,
-                                            Width = performanceRatio,
-                                            Colour = performanceColor
-                                        }
-                                    ]
-                                },
-                                new Container()
-                                {
-                                    //TODO Replace this with a nicer button once we have presets for them
-                                    new RoundButton()
-                                    {
-                                        Text = Fluent.Translate("end-screen-play-next",
-                                            ("songTitle", (FluentString)game.PeekNextSong()!.ToString())),
-                                        Action = this.Exit,
-                                        Size = new Vector2(500, 50)
-                                    }
-                                }
-                            ]
+                            Children = leftSideUI // <-- Assigned the dynamic list here
                         },
 
-                        //TODO Right Side implement queue and search here
+                        //Right Side (Queue and search)
                         new Container
                         {
                             Anchor = Anchor.CentreRight,
@@ -188,7 +206,7 @@ namespace megastar.Game.View
                                     ]
                                 },
 
-                                //TODO here Queue, the following is only placeholder
+                                // Queue
                                 new BasicScrollContainer
                                 {
                                     Anchor = Anchor.BottomLeft,
