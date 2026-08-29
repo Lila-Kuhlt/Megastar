@@ -397,15 +397,24 @@ public partial class PlayScreen : Screen
         audioTrack?.Dispose();
         audioTrack = null;
 
+        // Remove old visuals from the scene graph
+        //When calling from dispose(), this throws an exception, cause some stuff is disposed to early and so it tries to cleanup twice
+        try
+        {
+            backgroundLayer?.Clear();
+        }
+        catch (Drawable.InvalidThreadForMutationException e)
+        {
+            Console.WriteLine(e);
+        }
+
+
         // Dispose visual elements and release file handles
         backgroundVideo?.Dispose();
         backgroundVideo = null;
 
         currentBackground?.Dispose();
         currentBackground = null;
-
-        // Remove old visuals from the scene graph
-        backgroundLayer.Clear();
 
         // Dispose resource stores to free unmanaged memory
         activeAudioResourceStore?.Dispose();
