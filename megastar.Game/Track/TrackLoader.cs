@@ -14,6 +14,7 @@ namespace megastar.Game.Track;
 
 public class TrackLoader(TrackRepository repository)
 {
+    private int MAX_BATCH_SIZE = 1000;
     /// <summary>
     /// Indexes a given folder using a Producer-Consumer pipeline for maximum throughput.
     /// </summary>
@@ -25,14 +26,14 @@ public class TrackLoader(TrackRepository repository)
             return;
 
         // thread-safe queue
-        using var queue = new BlockingCollection<MegastarTrackMetadata>(boundedCapacity: 5000);
+        using var queue = new BlockingCollection<MegastarTrackMetadata>(5 * MAX_BATCH_SIZE);
 
         // Consumer (Database Writer) on a background thread
         var dbWriterTask = Task.Run(() =>
         {
             repository.Run(realm =>
             {
-                var batch = new List<MegastarTrackMetadata>(1000);
+                var batch = new List<MegastarTrackMetadata>(MAX_BATCH_SIZE);
 
                 // GetConsumingEnumerable blocks and waits for items until CompleteAdding() is called
                 foreach (var track in queue.GetConsumingEnumerable())

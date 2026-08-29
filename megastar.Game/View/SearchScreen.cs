@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using megastar.Game.Preset;
 using megastar.Game.Track.Megastar;
 using megastar.Game.Translations;
@@ -21,7 +22,10 @@ public partial class SearchScreen : Screen
 {
     [Resolved] private MegastarGameBase game { get; set; } = null!;
 
+    private int MAX_AMOUNT_OF_SONGS_SHOWN = 300;
+
     private FillFlowContainer<QueuedTrackItem> queueContainer = null!;
+    private FillFlowContainer<IndexedTrackItem> searchResultContainer = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -34,7 +38,7 @@ public partial class SearchScreen : Screen
             Margin = new MarginPadding { Bottom = 10 }
         };
 
-        var searchContainer = new SearchContainer<IndexedTrackItem>
+        searchResultContainer = new FillFlowContainer<IndexedTrackItem>
         {
             AutoSizeAxes = Axes.Y,
             RelativeSizeAxes = Axes.X,
@@ -42,18 +46,11 @@ public partial class SearchScreen : Screen
             Spacing = new Vector2(0, 5),
         };
 
-        // Bind the text changes to the search
+        // Bind the text changes to filter data, NOT UI
         searchBox.Current.BindValueChanged(change =>
         {
-            searchContainer.SearchTerm = change.NewValue;
+            updateSearchResults(change.NewValue);
         }, true);
-
-        // Populate Left Side (All Indexed Songs)
-        foreach (var track in game.IndexedSongs)
-        {
-            searchContainer.Add(new IndexedTrackItem(track, addTrackToQueue));
-        }
-
 
         queueContainer = new FillFlowContainer<QueuedTrackItem>
         {
@@ -72,22 +69,20 @@ public partial class SearchScreen : Screen
             },
             new BackButton(this.Exit, Fluent.Translate("common-back")),
 
-            // The Split Screen
             new GridContainer
             {
                 RelativeSizeAxes = Axes.Both,
                 Padding = new MarginPadding { Top = 80, Left = 20, Right = 20, Bottom = 20 },
                 ColumnDimensions =
                 [
-                    new Dimension(GridSizeMode.Relative, 0.5f), // Left side 50%
-                    new Dimension(GridSizeMode.Relative, 0.5f) // Right side 50%
+                    new Dimension(GridSizeMode.Relative, 0.5f),
+                    new Dimension(GridSizeMode.Relative, 0.5f)
                 ],
                 RowDimensions = [new Dimension(GridSizeMode.Relative, 1f)],
                 Content = new[]
                 {
                     new Drawable[]
                     {
-                        //Left side
                         new Container
                         {
                             RelativeSizeAxes = Axes.Both,
@@ -99,12 +94,10 @@ public partial class SearchScreen : Screen
                                 {
                                     RelativeSizeAxes = Axes.Both,
                                     Padding = new MarginPadding { Top = 50 },
-                                    Child = searchContainer
+                                    Child = searchResultContainer
                                 }
                             }
                         },
-
-                        // Right Side
                         new Container
                         {
                             RelativeSizeAxes = Axes.Both,
@@ -131,8 +124,28 @@ public partial class SearchScreen : Screen
             }
         ];
 
-        // Initially draw the queue
         refreshQueueUi();
+    }
+
+    private void updateSearchResults(string searchTerm)
+    {
+        searchResultContainer.Clear();
+        var query = game.IndexedSongs.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            string lowerTerm = searchTerm.ToLowerInvariant();
+            query = query.Where(searchTrack =>
+                (searchTrack.Title.ToLowerInvariant().Contains(lowerTerm)) ||
+                (searchTrack.Artist.ToLowerInvariant().Contains(lowerTerm)));
+        }
+
+        var topResults = query.Take(MAX_AMOUNT_OF_SONGS_SHOWN);
+
+        foreach (var track in topResults)
+        {
+            searchResultContainer.Add(new IndexedTrackItem(track, addTrackToQueue));
+        }
     }
 
     /// <summary>
@@ -211,33 +224,11 @@ public partial class SearchScreen : Screen
 
 /// <summary>
 /// Represents a track in the catalog that can be searched.
-/// Must implement IFilterable for SearchContainer to work correctly.
 /// </summary>
-public partial class IndexedTrackItem : CompositeDrawable, IFilterable
+public partial class IndexedTrackItem : CompositeDrawable
 {
-    private readonly MegastarTrackMetadata metadata;
-
-    // CHANGED: string -> LocalisableString
-    public IEnumerable<LocalisableString> FilterTerms => [metadata.Title, metadata.Artist];
-
-    public bool FilteringActive { get; set; }
-
-    private bool matchingFilter = true;
-
-    public bool MatchingFilter
-    {
-        get => matchingFilter;
-        set
-        {
-            matchingFilter = value;
-            if (value) Show();
-            else Hide(); // Automatically adjusts layout flow
-        }
-    }
-
     public IndexedTrackItem(MegastarTrackMetadata track, Action<MegastarTrackMetadata> onAdd)
     {
-        metadata = track;
         RelativeSizeAxes = Axes.X;
         Height = 40;
 
