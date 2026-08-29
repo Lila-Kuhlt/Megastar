@@ -8,7 +8,7 @@ public class KaraokeJudge
     private GameDifficulty difficulty;
     private int maxScorePerNote = 20;
     private int diffFactor = 1;
-    private int totalBeats = 0;
+    private int totalBeats = 1; //init with one so there are no division by 0 errors
     public int Score { get; private set; } = 0;
     public int MaxScore => totalBeats * maxScorePerNote;
 
