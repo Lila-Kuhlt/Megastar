@@ -2,11 +2,21 @@
   <PropertyGroup Label="Project">
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>WinExe</OutputType>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+
+    <!-- Hides PDBs and XML docs -->
+    <DebugType>embedded</DebugType>
+    <AllowedReferenceRelatedFileExtensions>none</AllowedReferenceRelatedFileExtensions>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+
     <AssemblyName>megastar</AssemblyName>
     <ApplicationIcon>game.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>0.0.0</Version>
-    <FileVersion>0.0.0</FileVersion>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup Label="Project References">
     <ProjectReference Include="..\megastar.Game\megastar.Game.csproj"/>

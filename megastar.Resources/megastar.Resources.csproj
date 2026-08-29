@@ -2,7 +2,9 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
+    <!-- Standard Framework Assets -->
     <EmbeddedResource Include="Fonts\**\*"/>
     <EmbeddedResource Include="Samples\**\*"/>
     <EmbeddedResource Include="Textures\**\*"/>
@@ -10,24 +12,17 @@
     <EmbeddedResource Include="Translations\**\*"/>
     <EmbeddedResource Include="Shaders\**\*"/>
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Embed custom assets without copying them to the output folder -->
+    <EmbeddedResource Include="funfacts.json" />
+    <EmbeddedResource Include="Webapp\**\*" />
+    <EmbeddedResource Include="Video\**\*" />
+  </ItemGroup>
+
   <ItemGroup>
     <Reference Include="osu.Framework">
       <HintPath>..\..\..\.nuget\packages\ppy.osu.framework\2026.513.0\lib\net8.0\osu.Framework.dll</HintPath>
     </Reference>
-    <None Remove="funfacts.json"/>
-    <EmbeddedResource Include="funfacts.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <None Update="Webapp\USDXWebapp.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Video\nyan_cat\nyan_cat*.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Webapp\"/>
   </ItemGroup>
 </Project>
