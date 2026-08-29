@@ -80,7 +80,7 @@ public partial class SearchScreen : Screen
                 ColumnDimensions =
                 [
                     new Dimension(GridSizeMode.Relative, 0.5f), // Left side 50%
-                    new Dimension(GridSizeMode.Relative, 0.5f)  // Right side 50%
+                    new Dimension(GridSizeMode.Relative, 0.5f) // Right side 50%
                 ],
                 RowDimensions = [new Dimension(GridSizeMode.Relative, 1f)],
                 Content = new[]
@@ -202,6 +202,7 @@ public partial class SearchScreen : Screen
         {
             this.Exit();
         }
+
         return base.OnKeyDown(e);
     }
 }
@@ -222,13 +223,15 @@ public partial class IndexedTrackItem : CompositeDrawable, IFilterable
     public bool FilteringActive { get; set; }
 
     private bool matchingFilter = true;
+
     public bool MatchingFilter
     {
         get => matchingFilter;
         set
         {
             matchingFilter = value;
-            if (value) Show(); else Hide(); // Automatically adjusts layout flow
+            if (value) Show();
+            else Hide(); // Automatically adjusts layout flow
         }
     }
 
@@ -249,7 +252,7 @@ public partial class IndexedTrackItem : CompositeDrawable, IFilterable
                     new BasicButton { Text = "+", Size = new Vector2(40), Action = () => onAdd(track) },
                     new SpriteText
                     {
-                        Text = $"{track.Artist} - {track.Title}" + (track.DirPath.ToLower().Contains("duet") ? " - Duet Version" : ""),
+                        Text = $"{track.Artist} - {track.Title}",
                         Margin = new MarginPadding { Left = 10 },
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft
@@ -265,7 +268,8 @@ public partial class IndexedTrackItem : CompositeDrawable, IFilterable
 /// </summary>
 public partial class QueuedTrackItem : CompositeDrawable
 {
-    public QueuedTrackItem(MegastarTrackMetadata track, int index, int totalCount, Action onUp, Action onDown, Action onRemove)
+    public QueuedTrackItem(MegastarTrackMetadata track, int index, int totalCount, Action onUp, Action onDown,
+        Action onRemove)
     {
         RelativeSizeAxes = Axes.X;
         Height = 40;
@@ -285,8 +289,13 @@ public partial class QueuedTrackItem : CompositeDrawable
                 new Drawable[]
                 {
                     // Action buttons
-                    new BasicButton { Text = "^", Size = new Vector2(40), Action = onUp, Enabled = { Value = index > 0 } },
-                    new BasicButton { Text = "v", Size = new Vector2(40), Action = onDown, Enabled = { Value = index < totalCount - 1 } },
+                    new BasicButton
+                        { Text = "^", Size = new Vector2(40), Action = onUp, Enabled = { Value = index > 0 } },
+                    new BasicButton
+                    {
+                        Text = "v", Size = new Vector2(40), Action = onDown,
+                        Enabled = { Value = index < totalCount - 1 }
+                    },
                     new BasicButton { Text = "X", Size = new Vector2(40), Action = onRemove },
 
                     // Track Information
