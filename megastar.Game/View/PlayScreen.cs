@@ -190,7 +190,8 @@ public partial class PlayScreen : Screen
 
     private void loadBackgroundImage(ITrackMetadata usdxTrack)
     {
-        if (!usdxTrack.BackgroundImageFile.IsNotNull()) return;
+        if (usdxTrack.BackgroundImageFile.IsNull()) return;
+
 
         try
         {

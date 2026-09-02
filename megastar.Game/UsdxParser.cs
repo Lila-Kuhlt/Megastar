@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using megastar.Game.notes;
 using megastar.Game.Track.Usdx;
+using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 
 namespace megastar.Game;
@@ -48,6 +49,7 @@ public static class UsdxParser
         trackMetadata.TryGetValue("audio", out var audio);
         trackMetadata.TryGetValue("video", out var video);
         trackMetadata.TryGetValue("background", out var background);
+        trackMetadata.TryGetValue("cover", out var cover);
         trackMetadata.TryGetValue("gap", out var sgap);
 
         var length = Convert.ToInt32(slength);
@@ -69,7 +71,7 @@ public static class UsdxParser
 
         return new UsdxTrackMetadata(MetadataFile: manifest, DirPath: dirPath,
             Artist: artist, Title: title, Creator: creator ?? "?", AudioFile: audioFile, Length: length,
-            BackgroundImageFile: background, BackgroundVideoFile: video, Bpm: bpm, Gap: gap, Version: version ?? "?",
+            BackgroundImageFile: background.IsNotNull() ? background : cover, BackgroundVideoFile: video, Bpm: bpm, Gap: gap, Version: version ?? "?",
             VideoGap: gap);
     }
 
