@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Mime;
 using megastar.Game.Translations;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -16,6 +17,9 @@ namespace megastar.Game.View
 {
     public partial class MainScreen : Screen
     {
+        private static Color4 TITLE_COLOUR = Color4.Purple;
+
+
         [Resolved] private MegastarGameBase game { get; set; } = null!;
 
         [BackgroundDependencyLoader]
@@ -37,9 +41,9 @@ namespace megastar.Game.View
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
                     Font = FontUsage.Default.With(size: 80),
-                    Colour = Color4.Purple,
+                    Colour = TITLE_COLOUR,
                     Shadow = true,
-                    ShadowColour = Color4.Pink,
+                    ShadowColour = TITLE_COLOUR.Lighten(20),
                 },
 
                 new FillFlowContainer()
