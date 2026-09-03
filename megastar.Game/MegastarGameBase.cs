@@ -12,7 +12,6 @@ using osu.Framework.Configuration;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
-using osu.Framework.Lists;
 using osu.Framework.Localisation;
 using osuTK;
 using MegastarTrackMetadata = megastar.Game.Track.Megastar.MegastarTrackMetadata;
