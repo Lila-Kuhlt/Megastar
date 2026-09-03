@@ -8,6 +8,7 @@ using megastar.Game.Track;
 using megastar.Game.Track.Megastar;
 using megastar.Game.Translations;
 using OpenTabletDriver.Native.Windows.Input;
+using osu.Framework;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
@@ -93,6 +94,23 @@ public partial class PlayScreen : Screen
     [BackgroundDependencyLoader]
     private void load(AudioManager audio)
     {
+        //Checks if required libraries are included on linux (for playing m4a)
+        if (RuntimeInfo.OS == RuntimeInfo.Platform.Linux)
+        {
+            ExtractBassLibraries();
+
+            string pluginPath = Path.Combine(AppContext.BaseDirectory, "libbass_aac.so");
+            int pluginHandle = ManagedBass.Bass.PluginLoad(pluginPath);
+
+            if (pluginHandle == 0)
+            {
+                Logger.Log($"Failed to load BASS AAC plugin: {ManagedBass.Bass.LastError}", LoggingTarget.Input, LogLevel.Error);
+            }
+            else
+            {
+                Logger.Log($"BASS AAC plugin loaded successfully! Handle: {pluginHandle}", LoggingTarget.Input, LogLevel.Debug);
+            }
+        }
         audioManager = audio;
 
         InternalChildren =
@@ -108,6 +126,32 @@ public partial class PlayScreen : Screen
         {
             micTrackers[i] = new MicrophonePitchTracker(i);
             micTrackers[i].PitchDetected += OnPitchDetected;
+        }
+    }
+
+    /// <summary>
+    /// This extracts the necessary libraries for m4a to work on linux
+    /// </summary>
+    private void ExtractBassLibraries()
+    {
+        string[] libs = { "libbass.so", "libbass_aac.so" };
+        foreach (var lib in libs)
+        {
+            string dest = Path.Combine(AppContext.BaseDirectory, lib);
+            if (!File.Exists(dest))
+            {
+                string resourceName = $"megastar.{lib}";
+                using var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
+                if (stream != null)
+                {
+                    using var file = File.Create(dest);
+                    stream.CopyTo(file);
+                }
+                else
+                {
+                    Logger.Log($"Failed to find embedded resource: {resourceName}", LoggingTarget.Runtime, LogLevel.Error);
+                }
+            }
         }
     }
 
