@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Reflection;
-using osu.Framework.IO.Stores;
 
 namespace megastar.Resources
 {
