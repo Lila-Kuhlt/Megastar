@@ -3,18 +3,17 @@ using megastar.Game.notes;
 using megastar.Game.Track;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.Shapes;
 using osuTK;
 
 namespace megastar.Game.Preset;
-
 
 /// <summary>
 /// A container for multiple <see cref="LyricWord"/>.
 /// This automatically creates the corresponding <see cref="LyricWord"/>s and also updates their <see cref="LyricState"/> corresponding to the value of <code>beatTime</code>.
 /// Therefore <code>beatTime</code> should always be kept up to date.
 /// </summary>
-public sealed partial class LyricsContainer : FillFlowContainer
+public sealed partial class LyricsContainer : Container // Changed from FillFlowContainer to standard Container
 {
     public double BeatTime { get; private set; }
 
@@ -24,10 +23,28 @@ public sealed partial class LyricsContainer : FillFlowContainer
     public LyricsContainer(Lyric lyric)
     {
         this.lyric = lyric;
+        RelativeSizeAxes = Axes.Both;
 
-        AutoSizeAxes = Axes.Both;
-        Direction = FillDirection.Horizontal;
-        Spacing = new Vector2(10, 0);
+        Add(new Box()
+        {
+            Colour = Colour4.Black,
+            RelativeSizeAxes = Axes.Both,
+            Height = 0.1f,
+            Anchor = Anchor.BottomLeft,
+            Origin = Anchor.BottomLeft,
+            Alpha = 0.5f
+        });
+
+        var flowContainer = new FillFlowContainer
+        {
+            AutoSizeAxes = Axes.Both,
+            Direction = FillDirection.Horizontal,
+            Spacing = new Vector2(10, 0),
+            Anchor = Anchor.BottomCentre,
+            Origin = Anchor.BottomCentre,
+            Margin = new MarginPadding { Bottom = 15 }
+        };
+        Add(flowContainer);
 
         foreach (var beat in lyric.Notes)
         {
@@ -39,7 +56,7 @@ public sealed partial class LyricsContainer : FillFlowContainer
             };
 
             wordDrawables[beat] = wordDrawable;
-            Add(wordDrawable);
+            flowContainer.Add(wordDrawable);
         }
     }
 
